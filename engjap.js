@@ -3710,3 +3710,65 @@ Object.assign(translations.jp, {
   organiserGuideFixedPairs: '「固定ペア」をタップしてペアを設定します。不要な場合は一度開くだけでスキップできます。',
   selectFourPlayersUnlock: '4人の選手を選択すると利用できます'
 });
+
+/* Build 456 — welcome hub metric labels. */
+Object.assign(translations.en, {
+  hubClubs: 'Clubs',
+  hubBookedSlots: 'Booked Slots',
+  hubRating: 'Rating',
+  hubPoints: 'Points',
+  hubUpcomingSlot: 'Upcoming Slot',
+  hubTodaySlot: "Today's Slot",
+  hubPosted: 'Posted',
+  hubDraft: 'Draft',
+  hubUnpaid: 'Unpaid',
+  hubMembers: 'Members'
+});
+Object.assign(translations.jp, {
+  hubClubs: 'クラブ',
+  hubBookedSlots: '予約スロット',
+  hubRating: 'レーティング',
+  hubPoints: 'ポイント',
+  hubUpcomingSlot: '次のスロット',
+  hubTodaySlot: '本日のスロット',
+  hubPosted: '投稿済み',
+  hubDraft: '下書き',
+  hubUnpaid: '未払い',
+  hubMembers: 'メンバー'
+});
+Object.assign(translations.kr, {
+  hubClubs: '클럽',
+  hubBookedSlots: '예약 슬롯',
+  hubRating: '레이팅',
+  hubPoints: '포인트',
+  hubUpcomingSlot: '예정 슬롯',
+  hubTodaySlot: '오늘의 슬롯',
+  hubPosted: '게시됨',
+  hubDraft: '임시저장',
+  hubUnpaid: '미납',
+  hubMembers: '회원'
+});
+Object.assign(translations.vi, {
+  hubClubs: 'CLB',
+  hubBookedSlots: 'Slot đã đặt',
+  hubRating: 'Xếp hạng',
+  hubPoints: 'Điểm',
+  hubUpcomingSlot: 'Slot sắp tới',
+  hubTodaySlot: 'Slot hôm nay',
+  hubPosted: 'Đã đăng',
+  hubDraft: 'Bản nháp',
+  hubUnpaid: 'Chưa thanh toán',
+  hubMembers: 'Thành viên'
+});
+Object.assign(translations.zh, {
+  hubClubs: '俱乐部',
+  hubBookedSlots: '已预订时段',
+  hubRating: '评分',
+  hubPoints: '积分',
+  hubUpcomingSlot: '即将开始',
+  hubTodaySlot: '今日时段',
+  hubPosted: '已发布',
+  hubDraft: '草稿',
+  hubUnpaid: '未付款',
+  hubMembers: '成员'
+});

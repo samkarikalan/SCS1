@@ -411,7 +411,7 @@ function updateWelcomeWorkspaceClubNames() {
 }
 
 async function welcomeManualRefresh() {
-  var btn = document.querySelector('.scs-welcome__refresh');
+  var btn = document.querySelector('.welcome-refresh-btn');
   if (btn && btn.disabled) return;
   if (btn) { btn.disabled = true; btn.classList.add('is-refreshing'); }
   try {
@@ -459,8 +459,6 @@ function welcomeSelectWorkspace(mode) {
     return;
   }
   welcomeSelectedWorkspace = mode;
-  var welcomePosition = document.getElementById('welcomeHubPosition');
-  if (welcomePosition) welcomePosition.textContent = mode === 'viewer' ? '1' : (mode === 'organiser' ? '2' : '3');
   var carousel = document.getElementById('welcomeWorkspaceCarousel');
   if (carousel) carousel.setAttribute('data-selected', mode);
 
@@ -481,7 +479,7 @@ function welcomeSelectWorkspace(mode) {
     el.setAttribute('aria-checked', selected ? 'true' : 'false');
     el.setAttribute('tabindex', selected ? '0' : '-1');
   });
-  document.querySelectorAll('.scs-hub-dot').forEach(function(dot, index) {
+  document.querySelectorAll('.welcome-carousel-dot').forEach(function(dot, index) {
     var dotMode = ['viewer', 'organiser', 'vault'][index];
     var selected = dotMode === mode;
     dot.classList.toggle('active', selected);
@@ -544,7 +542,57 @@ function updateWelcomeHubCard(mode) {
   var rating = Number(player && (player.global_rating ?? player.rating));
   var points = Number(player && (player.global_points ?? player.points));
   if (ratingEl) ratingEl.textContent = Number.isFinite(rating) && rating > 0 ? rating.toFixed(1) : '1.0';
-  if (pointsEl) { var memberCount = (window.__scsWelcomeHubData && window.__scsWelcomeHubData.player && window.__scsWelcomeHubData.player.membershipCount); pointsEl.textContent = String(Number.isFinite(Number(memberCount)) ? Number(memberCount) : 0); }
+  if (pointsEl) pointsEl.textContent = Number.isFinite(points) ? points.toFixed(1) : '0.0';
+}
+
+/* Build 456: the Round hub has one actionable upcoming-slot tile. It opens
+   Organiser normally, then brings the existing time-gated Start Session card
+   into view. The existing slot flow remains the authority for starting. */
+async function welcomeOpenOrganiserUpcomingSlot(event) {
+  if (event) {
+    if (typeof event.preventDefault === 'function') event.preventDefault();
+    if (typeof event.stopPropagation === 'function') event.stopPropagation();
+  }
+  var organiser = (window.__scsWelcomeHubData && window.__scsWelcomeHubData.organiser) || {};
+  var slot = organiser.nextSlot || null;
+  var tile = document.getElementById('welcomeOrganiserNextSlot');
+  if (!slot || !slot.id || (tile && tile.getAttribute('aria-disabled') === 'true')) return;
+  if (tile && tile.classList.contains('is-opening')) return;
+
+  if (typeof authIsLoggedIn === 'function' && !authIsLoggedIn()) {
+    sessionStorage.setItem('scs_pending_workspace', 'organiser');
+    if (typeof authShowScreen === 'function') authShowScreen('login');
+    return;
+  }
+  if (typeof canAccessMode === 'function' && !canAccessMode('organiser')) {
+    if (typeof showModeUpgradePrompt === 'function') showModeUpgradePrompt('organiser');
+    return;
+  }
+
+  if (tile) tile.classList.add('is-opening');
+  try {
+    var club = await syncOrganiserMembershipAccess(null, organiser.clubId || '');
+    if (!club || !club.id) return;
+    if (typeof setMyClub === 'function') setMyClub(club.id, club.name || organiser.clubName || '');
+    localStorage.setItem('kbrr_club_mode', club.source === 'vault' ? 'admin' : 'user');
+    appMode = 'organiser';
+    sessionStorage.setItem('appMode', 'organiser');
+    localStorage.setItem('kbrr_app_mode', 'organiser');
+    applyMode('organiser');
+    updateModePill('organiser');
+    var overlay = document.getElementById('modeSelectOverlay');
+    if (overlay) overlay.style.display = 'none';
+    if (typeof homeHideScreen === 'function') homeHideScreen();
+    if (typeof vaultSlotsStartRoundsFromSlot === 'function') {
+      await vaultSlotsStartRoundsFromSlot(slot.id);
+    }
+    var roundsPage = document.getElementById('roundsPage');
+    var roundOpened = roundsPage && roundsPage.style.display !== 'none';
+    var rollingOpened = typeof schedulerState !== 'undefined' && schedulerState.mbmActive;
+    if (!roundOpened && !rollingOpened && overlay) overlay.style.display = 'flex';
+  } finally {
+    if (tile) tile.classList.remove('is-opening');
+  }
 }
 
 
@@ -567,14 +615,14 @@ function welcomeOpenPhotoMenu() {
   if (!sheet) return;
   sheet.hidden = false;
   requestAnimationFrame(function(){ sheet.classList.add('open'); });
-  document.body.classList.add('scs-photo-menu-open');
+  document.body.classList.add('welcome-photo-menu-open');
 }
 
 function welcomeClosePhotoMenu() {
   var sheet = document.getElementById('welcomePhotoSheet');
   if (!sheet) return;
   sheet.classList.remove('open');
-  document.body.classList.remove('scs-photo-menu-open');
+  document.body.classList.remove('welcome-photo-menu-open');
   setTimeout(function(){ if (!sheet.classList.contains('open')) sheet.hidden = true; }, 180);
 }
 
@@ -835,9 +883,11 @@ function showOrganiserAccessMenu(clubs) {
       : ((typeof t === 'function' && t('playerRole')) || 'Player');
     var activeClub = (typeof getMyClub === 'function') ? getMyClub() : null;
     var cachedId = localStorage.getItem('kbrr_org_club_id') || '';
-    var selectedId = clubs.some(function(club) { return club.id === String((activeClub && activeClub.id) || ''); })
-      ? String(activeClub.id)
-      : (clubs.some(function(club) { return club.id === String(cachedId); }) ? String(cachedId) : clubs[0].id);
+    var selectedId = clubs.some(function(club) { return club.id === String(cachedId); })
+      ? String(cachedId)
+      : (clubs.some(function(club) { return club.id === String((activeClub && activeClub.id) || ''); })
+        ? String(activeClub.id)
+        : clubs[0].id);
     var overlay = document.createElement('div');
     overlay.id = 'organiserAccessOverlay';
     overlay.className = 'organiser-access-overlay';
@@ -890,7 +940,7 @@ function showOrganiserAccessMenu(clubs) {
   });
 }
 
-async function openOrganiserWorkspaceForMember() {
+async function openOrganiserWorkspaceForMember(selectedClubId) {
   if (_organiserWorkspaceOpening) return;
   _organiserWorkspaceOpening = true;
   try {
@@ -901,7 +951,10 @@ async function openOrganiserWorkspaceForMember() {
       }
       return;
     }
-    var selectedClub = await showOrganiserAccessMenu(clubs);
+    var selectedClub = selectedClubId
+      ? clubs.find(function(club) { return club.id === String(selectedClubId); })
+      : null;
+    if (!selectedClub) selectedClub = await showOrganiserAccessMenu(clubs);
     if (!selectedClub) return;
     var club = await syncOrganiserMembershipAccess(null, selectedClub.id);
     if (!club || !club.id) return;
@@ -969,7 +1022,7 @@ function switchMode(mode) {
 
   // Organiser -- available to every signed-in player who belongs to the club.
   if (mode === 'organiser') {
-    openOrganiserWorkspaceForMember();
+    openOrganiserWorkspaceForMember(window.__scsWelcomeOrganiserChoice || '');
     return;
   }
 
@@ -2727,7 +2780,7 @@ document.addEventListener('visibilitychange', async function() {
       if (current < 0) current = 0;
       var next = (current + direction + modes.length) % modes.length;
       welcomeSelectWorkspace(modes[next]);
-      var selected = carousel.querySelector('.scs-hub-card.active');
+      var selected = carousel.querySelector('.welcome-workspace.active');
       if (selected) selected.focus({ preventScroll: true });
     }
 
@@ -3211,7 +3264,7 @@ function welcomeOpenPhotoMenu(role) {
   if (!sheet) return;
   sheet.hidden = false;
   requestAnimationFrame(function(){ sheet.classList.add('open'); });
-  document.body.classList.add('scs-photo-menu-open');
+  document.body.classList.add('welcome-photo-menu-open');
 }
 
 function welcomeRolePhotoElement(role) {
@@ -3283,6 +3336,115 @@ function welcomeFlattenSlotMap(map) {
   return out;
 }
 
+function welcomeFindNextOrganiserSlot(slots) {
+  var today = typeof localDateStr === 'function'
+    ? localDateStr(new Date())
+    : new Date().toISOString().slice(0,10);
+  var now = new Date();
+  var minutesNow = now.getHours() * 60 + now.getMinutes();
+  return (slots || []).filter(function(slot) {
+    var status = String(slot.status || '').toLowerCase();
+    if (status !== 'posted' || String(slot.slot_date || '') !== today || slot.played_session_id) return false;
+    var endParts = String(slot.end_time || '').match(/^(\d{1,2}):(\d{2})/);
+    if (endParts) {
+      var endMinutes = (parseInt(endParts[1], 10) || 0) * 60 + (parseInt(endParts[2], 10) || 0);
+      if (minutesNow >= endMinutes) return false;
+    }
+    return true;
+  }).sort(function(a,b) {
+    return (String(a.slot_date || '') + ' ' + String(a.start_time || ''))
+      .localeCompare(String(b.slot_date || '') + ' ' + String(b.start_time || ''));
+  })[0] || null;
+}
+
+function welcomeRenderOrganiserClubPills() {
+  var organiser = (window.__scsWelcomeHubData && window.__scsWelcomeHubData.organiser) || {};
+  var clubs = Array.isArray(organiser.clubs) ? organiser.clubs : [];
+  var selectedId = String(window.__scsWelcomeOrganiserChoice || organiser.clubId || '');
+  var selectedClub = clubs.find(function(club) {
+    return String(club.id) === selectedId;
+  }) || clubs[0] || null;
+  var container = document.getElementById('welcomeOrganiserClubPills');
+  var fallbackName = document.getElementById('welcomeOrganiserName');
+  if (!container) return;
+  if (!selectedClub) {
+    container.innerHTML = '';
+    container.hidden = true;
+    if (fallbackName) fallbackName.hidden = false;
+    return;
+  }
+  container.hidden = false;
+  if (fallbackName) fallbackName.hidden = true;
+  container.innerHTML =
+    '<span class="welcome-club-pill welcome-club-menu-pill selected" role="button" tabindex="0"' +
+      ' aria-haspopup="dialog" data-club-id="' + organiserAccessEscape(selectedClub.id) + '"' +
+      ' title="' + organiserAccessEscape(selectedClub.name || selectedClub.id) + '">' +
+      '<span class="welcome-club-pill-dot" aria-hidden="true"></span>' +
+      '<span class="welcome-club-pill-name">' + organiserAccessEscape(selectedClub.name || selectedClub.id) + '</span>' +
+      '<span class="welcome-club-pill-arrow" aria-hidden="true">⌄</span></span>';
+  var pill = container.querySelector('.welcome-club-menu-pill');
+  if (pill) {
+    pill.addEventListener('click', welcomeOpenOrganiserClubMenu);
+    pill.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        welcomeOpenOrganiserClubMenu(event);
+      }
+    });
+  }
+}
+
+async function welcomeOpenOrganiserClubMenu(event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  var organiser = (window.__scsWelcomeHubData && window.__scsWelcomeHubData.organiser) || {};
+  var clubs = Array.isArray(organiser.clubs) ? organiser.clubs : [];
+  if (!clubs.length) {
+    if (typeof showToast === 'function') showToast('No organiser clubs are available.');
+    return;
+  }
+  var selected = await showOrganiserAccessMenu(clubs);
+  if (selected && selected.id) {
+    await welcomeSelectOrganiserClub(selected.id);
+  }
+}
+
+async function welcomeSelectOrganiserClub(clubId) {
+  var organiser = (window.__scsWelcomeHubData && window.__scsWelcomeHubData.organiser) || {};
+  var clubs = Array.isArray(organiser.clubs) ? organiser.clubs : [];
+  var selected = clubs.find(function(club) { return String(club.id) === String(clubId || ''); });
+  if (!selected) return;
+
+  window.__scsWelcomeOrganiserChoice = String(selected.id);
+  organiser.clubId = String(selected.id);
+  organiser.clubName = selected.name || '';
+  organiser.nextSlot = null;
+  localStorage.setItem('kbrr_org_club_id', String(selected.id));
+  localStorage.setItem('kbrr_org_club_name', selected.name || '');
+  sessionStorage.setItem('scs_organiser_verified', '1');
+  localStorage.setItem('scs_organiser_verified', '1');
+  welcomeRenderOrganiserClubPills();
+  welcomeLoadRoleHubData('organiser');
+
+  var container = document.getElementById('welcomeOrganiserClubPills');
+  if (container) container.classList.add('is-loading');
+  try {
+    var today = typeof localDateStr === 'function' ? localDateStr(new Date()) : new Date().toISOString().slice(0,10);
+    var endDate = new Date();
+    endDate.setDate(endDate.getDate() + 60);
+    var end = typeof localDateStr === 'function' ? localDateStr(endDate) : endDate.toISOString().slice(0,10);
+    var slots = typeof dbGetSlotsForRange === 'function'
+      ? await dbGetSlotsForRange(selected.id, today, today).catch(function() { return []; })
+      : [];
+    organiser.nextSlot = welcomeFindNextOrganiserSlot(slots);
+    welcomeLoadRoleHubData('organiser');
+  } finally {
+    if (container) container.classList.remove('is-loading');
+  }
+}
+
 async function scsPrefetchWelcomeHubData() {
   if (window.__scsWelcomeHubRefreshPromise) return window.__scsWelcomeHubRefreshPromise;
   var generation = ++window.__scsWelcomeHubRefreshGeneration;
@@ -3300,7 +3462,7 @@ async function scsPrefetchWelcomeHubData() {
   if (user && user.id && typeof sbGet === 'function') {
     playerMemberships = await sbGet('memberships',
       'user_account_id=eq.' + encodeURIComponent(user.id) +
-      '&select=player_id,club_rating,club_points').catch(function(error) {
+      '&select=player_id,club_id,club_rating,club_points').catch(function(error) {
         console.warn('Player hub prefetch failed:', error);
         return [];
       });
@@ -3314,14 +3476,44 @@ async function scsPrefetchWelcomeHubData() {
     var points = parseFloat(membership.club_points);
     if (Number.isFinite(points)) pointsTotal += points;
   });
+  var playerIds = Array.from(new Set((playerMemberships || []).map(function(membership) {
+    return membership && membership.player_id ? String(membership.player_id) : '';
+  }).filter(Boolean)));
+  if (user && user.id && typeof sbGet === 'function') {
+    var accountPlayers = await sbGet('players',
+      'user_account_id=eq.' + encodeURIComponent(user.id) + '&select=id').catch(function() { return []; });
+    (accountPlayers || []).forEach(function(playerRow) {
+      if (playerRow && playerRow.id && playerIds.indexOf(String(playerRow.id)) < 0) {
+        playerIds.push(String(playerRow.id));
+      }
+    });
+  }
+  var bookedSlots = 0;
+  if (playerIds.length && typeof sbGet === 'function') {
+    var bookedClaims = await sbGet('slot_claims',
+      'player_id=in.(' + playerIds.join(',') + ')&status=eq.confirmed&select=slot_id').catch(function() { return []; });
+    var bookedSlotIds = Array.from(new Set((bookedClaims || []).map(function(claim) {
+      return claim && claim.slot_id ? String(claim.slot_id) : '';
+    }).filter(Boolean)));
+    if (bookedSlotIds.length) {
+      var bookedRows = await sbGet('slots',
+        'id=in.(' + bookedSlotIds.join(',') + ')&slot_date=gte.' + today +
+        '&status=in.(posted,scheduled)&select=id').catch(function() { return []; });
+      bookedSlots = new Set((bookedRows || []).map(function(slot) { return String(slot.id); })).size;
+    }
+  }
+  var clubCount = new Set((playerMemberships || []).map(function(membership) {
+    return membership && membership.club_id ? String(membership.club_id) : '';
+  }).filter(Boolean)).size;
   var localPlayer = (typeof getMyPlayer === 'function') ? getMyPlayer() : null;
   var playerData = {
     name: (user && (user.nickname || user.displayName)) ||
       (localPlayer && (localPlayer.displayName || localPlayer.name || localPlayer.nickname)) || 'Player',
     gender: (user && user.gender) || (localPlayer && localPlayer.gender) || 'Male',
+    clubs: clubCount,
+    bookedSlots: bookedSlots,
     rating: ratingCount ? ratingTotal / ratingCount : 0,
-    points: pointsTotal,
-    membershipCount: ratingCount
+    points: pointsTotal
   };
 
   // Organiser access follows membership. Resolve the current/first eligible
@@ -3342,17 +3534,17 @@ async function scsPrefetchWelcomeHubData() {
 
   var organiserSlots = [];
   if (organiserClubId && typeof dbGetSlotsForRange === 'function') {
-    organiserSlots = await dbGetSlotsForRange(organiserClubId, today, end).catch(function(error) {
+    organiserSlots = await dbGetSlotsForRange(organiserClubId, today, today).catch(function(error) {
       console.warn('Organiser hub prefetch failed:', error); return [];
     });
   }
-  var next = (organiserSlots || []).filter(function(slot) {
-    var status = String(slot.status || '').toLowerCase();
-    return ['posted','scheduled','draft'].indexOf(status) >= 0 && !slot.played_session_id;
-  }).sort(function(a,b) {
-    return (String(a.slot_date || '') + ' ' + String(a.start_time || '')).localeCompare(String(b.slot_date || '') + ' ' + String(b.start_time || ''));
-  })[0] || null;
-  var organiserData = { clubId: organiserClubId, clubName: organiserClubName, nextSlot: next };
+  var next = welcomeFindNextOrganiserSlot(organiserSlots);
+  var organiserData = {
+    clubId: organiserClubId,
+    clubName: organiserClubName,
+    clubs: organiserOptions || [],
+    nextSlot: next
+  };
 
   var members = [];
   if (vaultClubId && typeof sbGet === 'function') {
@@ -3372,11 +3564,34 @@ async function scsPrefetchWelcomeHubData() {
     var status = String(slot.status || '').toLowerCase();
     return ['posted','scheduled'].indexOf(status) >= 0 && String(slot.slot_date || '') >= today && !slot.played_session_id;
   });
+  var postedSlots = (vaultSlots || []).filter(function(slot) {
+    return String(slot.status || '').toLowerCase() === 'posted' &&
+      String(slot.slot_date || '') >= today && !slot.played_session_id;
+  });
+  var draftSlots = (vaultSlots || []).filter(function(slot) {
+    return String(slot.status || '').toLowerCase() === 'draft' &&
+      String(slot.slot_date || '') >= today && !slot.played_session_id;
+  });
+  var unpaidCount = 0;
+  (vaultSlots || []).forEach(function(slot) {
+    var cost = typeof _vsSlotCostPerPlayer === 'function'
+      ? _vsSlotCostPerPlayer(slot)
+      : Number(slot && slot.cost_per_player || 0);
+    if (!(cost > 0)) return;
+    (slot.claims || []).forEach(function(claim) {
+      if (String(claim && claim.status || '').toLowerCase() === 'confirmed' && !claim.paid_at) {
+        unpaidCount += 1;
+      }
+    });
+  });
   var vaultData = {
     clubId: vaultClubId,
     clubName: vaultClubName,
     members: members.length,
-    activeSlots: activeSlots.length
+    activeSlots: activeSlots.length,
+    postedSlots: postedSlots.length,
+    draftSlots: draftSlots.length,
+    unpaid: unpaidCount
   };
 
   if (generation === window.__scsWelcomeHubRefreshGeneration) {
@@ -3403,6 +3618,8 @@ function welcomeApplyPlayerHubData() {
   var nameEl = document.getElementById('welcomePlayerName');
   var ratingEl = document.getElementById('welcomePlayerRating');
   var pointsEl = document.getElementById('welcomePlayerPoints');
+  var clubsEl = document.getElementById('welcomePlayerClubs');
+  var bookedEl = document.getElementById('welcomePlayerBookedSlots');
   if (photo) photo.src = welcomeGetSavedRolePhoto('viewer') ||
     (data.gender === 'Female' ? 'female.png' : 'male.png');
   if (nameEl) {
@@ -3410,7 +3627,9 @@ function welcomeApplyPlayerHubData() {
     nameEl.hidden = false;
   }
   if (ratingEl) ratingEl.textContent = Number(data.rating || 0).toFixed(1);
-  if (pointsEl) pointsEl.textContent = String(Number(data.membershipCount || 0));
+  if (pointsEl) pointsEl.textContent = Number(data.points || 0).toFixed(1);
+  if (clubsEl) clubsEl.textContent = String(Number(data.clubs || 0));
+  if (bookedEl) bookedEl.textContent = String(Number(data.bookedSlots || 0));
 }
 
 async function welcomeLoadRoleHubData(mode) {
@@ -3421,15 +3640,30 @@ async function welcomeLoadRoleHubData(mode) {
     if (orgPhoto) orgPhoto.src = welcomeGetSavedRolePhoto('organiser') || 'male.png';
     var orgName = document.getElementById('welcomeOrganiserName');
     if (orgName) orgName.textContent = organiser.clubName || localStorage.getItem('kbrr_org_club_name') || 'Club';
+    if (!window.__scsWelcomeOrganiserChoice && organiser.clubId) {
+      window.__scsWelcomeOrganiserChoice = String(organiser.clubId);
+    }
+    welcomeRenderOrganiserClubPills();
     var title = document.getElementById('welcomeOrganiserNextSlotTitle');
     var meta = document.getElementById('welcomeOrganiserNextSlotMeta');
+    var roundTile = document.getElementById('welcomeOrganiserNextSlot');
     var next = organiser.nextSlot || null;
     if (next) {
       if (title) title.textContent = organiser.clubName || next._viewerClubName || 'Club';
       if (meta) meta.textContent = String(next.slot_date || '') + ' · ' + String(next.start_time || '').slice(0,5) + (next.venue ? ' · ' + next.venue : '');
+      if (roundTile) {
+        roundTile.classList.add('has-slot');
+        roundTile.setAttribute('aria-disabled', 'false');
+        roundTile.setAttribute('tabindex', '0');
+      }
     } else {
-      if (title) title.textContent = 'No upcoming slot';
-      if (meta) meta.textContent = 'Your next session will appear here.';
+      if (title) title.textContent = 'No slot today';
+      if (meta) meta.textContent = 'A posted slot today will appear here.';
+      if (roundTile) {
+        roundTile.classList.remove('has-slot', 'is-opening');
+        roundTile.setAttribute('aria-disabled', 'true');
+        roundTile.setAttribute('tabindex', '-1');
+      }
     }
   }
   if (mode === 'vault') {
@@ -3439,9 +3673,13 @@ async function welcomeLoadRoleHubData(mode) {
     var vaultName = document.getElementById('welcomeVaultName');
     if (vaultName) vaultName.textContent = vault.clubName || localStorage.getItem('kbrr_vault_club_name') || 'Club';
     var membersEl = document.getElementById('welcomeVaultMembers');
-    var slotsEl = document.getElementById('welcomeVaultActiveSlots');
+    var postedEl = document.getElementById('welcomeVaultPostedSlots');
+    var draftEl = document.getElementById('welcomeVaultDraftSlots');
+    var unpaidEl = document.getElementById('welcomeVaultUnpaid');
     if (membersEl) membersEl.textContent = String(Number(vault.members || 0));
-    if (slotsEl) slotsEl.textContent = String(Number(vault.activeSlots || 0));
+    if (postedEl) postedEl.textContent = String(Number(vault.postedSlots || 0));
+    if (draftEl) draftEl.textContent = String(Number(vault.draftSlots || 0));
+    if (unpaidEl) unpaidEl.textContent = String(Number(vault.unpaid || 0));
   }
 }
 

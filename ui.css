@@ -22845,6 +22845,11 @@ body.app-light .scs-assist-club-loader span{border-color:rgba(20,22,35,.14);bord
   cursor: pointer;
 }
 .auth-close-btn:active { transform: scale(.94); }
+
+/* BUILD 455 — authentication is compulsory; the login screen cannot be dismissed. */
+#authWelcome .auth-close-btn {
+  display: none !important;
+}
 body.app-light .auth-close-btn,
 html[data-theme="light"] .auth-close-btn {
   background: rgba(255,255,255,.96);
@@ -23070,4 +23075,363 @@ body.app-light .page.scs-assist-child-page {
 .scs-guide-step.is-disabled .scs-guide-step-arrow,
 .scs-guide-step:disabled .scs-guide-step-arrow {
   visibility: hidden;
+}
+
+/* =========================================================
+   BUILD 456 — LIVE HUB METRIC TILES
+   My Hub and Club Hub use four equal metrics. Round Hub keeps
+   one full-width, actionable upcoming-session tile.
+   ========================================================= */
+#modeSelectOverlay .welcome-metric-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  align-items: stretch !important;
+  padding: 0 !important;
+  background: rgba(7, 10, 28, .52) !important;
+}
+
+#modeSelectOverlay .welcome-metric {
+  position: relative;
+  display: flex !important;
+  min-width: 0 !important;
+  padding: 10px 5px 8px !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  box-sizing: border-box !important;
+}
+
+#modeSelectOverlay .welcome-metric + .welcome-metric {
+  border-left: 1px solid rgba(174, 151, 235, .18) !important;
+}
+
+#modeSelectOverlay .welcome-metric .welcome-player-stat-icon,
+#modeSelectOverlay .welcome-metric .welcome-role-stat-icon {
+  min-height: 17px !important;
+  color: #9460ff !important;
+  font-size: 16px !important;
+  line-height: 17px !important;
+}
+
+#modeSelectOverlay .welcome-metric strong,
+#modeSelectOverlay .welcome-player-stat.welcome-metric strong,
+#modeSelectOverlay .welcome-role-stat.welcome-metric strong {
+  color: #8e5bff !important;
+  font-size: 28px !important;
+  line-height: 1 !important;
+  font-variant-numeric: tabular-nums;
+}
+
+#modeSelectOverlay .welcome-metric small,
+#modeSelectOverlay .welcome-player-stat.welcome-metric small,
+#modeSelectOverlay .welcome-role-stat.welcome-metric small {
+  display: block !important;
+  min-height: 24px !important;
+  color: #c2bdd4 !important;
+  font-size: 9px !important;
+  line-height: 12px !important;
+  font-weight: 750 !important;
+  text-align: center !important;
+  text-transform: uppercase !important;
+  white-space: normal !important;
+}
+
+#modeSelectOverlay .welcome-round-slot-tile {
+  position: relative !important;
+  padding-right: 62px !important;
+  cursor: pointer;
+  outline: none;
+  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+
+#modeSelectOverlay .welcome-round-slot-tile.has-slot {
+  border-color: rgba(151, 98, 255, .48) !important;
+  background:
+    radial-gradient(circle at 92% 50%, rgba(137, 92, 246, .20), transparent 35%),
+    rgba(8, 11, 30, .52) !important;
+}
+
+#modeSelectOverlay .welcome-round-slot-tile:focus-visible {
+  border-color: #9b68ff !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, .22);
+}
+
+#modeSelectOverlay .welcome-round-slot-tile:active {
+  transform: scale(.985);
+}
+
+#modeSelectOverlay .welcome-round-slot-arrow {
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(139, 92, 246, .20);
+  color: #ae8aff;
+  font-size: 21px;
+  font-weight: 800;
+  transform: translateY(-50%);
+}
+
+.launcher-start-session-card.welcome-slot-focus {
+  animation: welcomeSlotFocusPulse .72s ease-in-out 3;
+}
+
+@keyframes welcomeSlotFocusPulse {
+  0%, 100% { box-shadow: none; }
+  50% { box-shadow: 0 0 0 4px rgba(139, 92, 246, .28), 0 0 30px rgba(139, 92, 246, .34); }
+}
+
+body.app-light #modeSelectOverlay .welcome-metric-grid,
+html[data-theme="light"] #modeSelectOverlay .welcome-metric-grid {
+  background: rgba(255, 255, 255, .62) !important;
+}
+
+body.app-light #modeSelectOverlay .welcome-metric small,
+html[data-theme="light"] #modeSelectOverlay .welcome-metric small {
+  color: #514b68 !important;
+}
+
+body.app-light #modeSelectOverlay .welcome-metric + .welcome-metric,
+html[data-theme="light"] #modeSelectOverlay .welcome-metric + .welcome-metric {
+  border-left-color: rgba(83, 65, 125, .16) !important;
+}
+
+@media (max-width: 430px) and (orientation: portrait) {
+  #modeSelectOverlay .welcome-metric {
+    padding: 7px 2px 6px !important;
+    gap: 2px !important;
+  }
+
+  #modeSelectOverlay .welcome-metric .welcome-player-stat-icon,
+  #modeSelectOverlay .welcome-metric .welcome-role-stat-icon {
+    min-height: 14px !important;
+    font-size: 13px !important;
+    line-height: 14px !important;
+  }
+
+  #modeSelectOverlay .welcome-metric strong,
+  #modeSelectOverlay .welcome-player-stat.welcome-metric strong,
+  #modeSelectOverlay .welcome-role-stat.welcome-metric strong {
+    font-size: 23px !important;
+  }
+
+  #modeSelectOverlay .welcome-metric small,
+  #modeSelectOverlay .welcome-player-stat.welcome-metric small,
+  #modeSelectOverlay .welcome-role-stat.welcome-metric small {
+    min-height: 20px !important;
+    font-size: 7.5px !important;
+    line-height: 10px !important;
+    letter-spacing: .01em !important;
+  }
+
+  #modeSelectOverlay .welcome-round-slot-tile {
+    padding: 10px 48px 10px 14px !important;
+  }
+
+  #modeSelectOverlay .welcome-round-slot-tile strong {
+    font-size: 16px !important;
+  }
+
+  #modeSelectOverlay .welcome-round-slot-tile small {
+    margin-top: 4px !important;
+    font-size: 10px !important;
+  }
+
+  #modeSelectOverlay .welcome-round-slot-arrow {
+    right: 12px;
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+  }
+}
+
+/* =========================================================
+   BUILD 457 — ORGANISER CLUB PILLS ON WELCOME
+   Membership clubs are selected directly on the Round hub.
+   ========================================================= */
+#modeSelectOverlay .welcome-organiser-club-pills {
+  display: flex;
+  width: 100%;
+  max-width: 270px;
+  gap: 6px;
+  padding: 2px 1px 5px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+
+#modeSelectOverlay .welcome-organiser-club-pills::-webkit-scrollbar {
+  display: none;
+}
+
+#modeSelectOverlay .welcome-organiser-club-pills[hidden] {
+  display: none !important;
+}
+
+#modeSelectOverlay .welcome-club-pill {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  max-width: 210px;
+  min-height: 32px;
+  gap: 7px;
+  padding: 0 11px 0 8px;
+  border: 1px solid rgba(167, 147, 222, .28);
+  border-radius: 999px;
+  background: rgba(9, 12, 31, .54);
+  color: #c9c3db;
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 30px;
+  cursor: pointer;
+  box-sizing: border-box;
+  scroll-snap-align: start;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#modeSelectOverlay .welcome-club-pill-dot {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border: 2px solid #77758e;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+#modeSelectOverlay .welcome-club-pill-name {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#modeSelectOverlay .welcome-club-pill.selected {
+  border-color: #9a63ff;
+  background: rgba(139, 92, 246, .22);
+  color: #fff;
+  box-shadow: 0 0 14px rgba(139, 92, 246, .18);
+}
+
+#modeSelectOverlay .welcome-club-pill.selected .welcome-club-pill-dot {
+  border-color: #b994ff;
+  background: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, .18);
+}
+
+#modeSelectOverlay .welcome-club-pill:focus-visible {
+  outline: 2px solid #b994ff;
+  outline-offset: 2px;
+}
+
+#modeSelectOverlay .welcome-organiser-club-pills.is-loading {
+  opacity: .58;
+  pointer-events: none;
+}
+
+body.app-light #modeSelectOverlay .welcome-club-pill,
+html[data-theme="light"] #modeSelectOverlay .welcome-club-pill {
+  border-color: rgba(71, 57, 111, .20);
+  background: rgba(255,255,255,.58);
+  color: #514b68;
+}
+
+body.app-light #modeSelectOverlay .welcome-club-pill.selected,
+html[data-theme="light"] #modeSelectOverlay .welcome-club-pill.selected {
+  border-color: #7958df;
+  background: #ede7ff;
+  color: #30235b;
+}
+
+@media (max-width: 430px) and (orientation: portrait) {
+  #modeSelectOverlay .welcome-role-copy {
+    gap: 6px !important;
+  }
+
+  #modeSelectOverlay .welcome-organiser-club-pills {
+    max-width: 100%;
+    gap: 5px;
+    padding-bottom: 3px;
+  }
+
+  #modeSelectOverlay .welcome-club-pill {
+    max-width: 148px;
+    min-height: 29px;
+    padding: 0 9px 0 7px;
+    font-size: 10px;
+    line-height: 27px;
+  }
+}
+
+/* BUILD 458 — one selected-club pill opens the full club menu. */
+#modeSelectOverlay .welcome-organiser-club-pills {
+  display: block;
+  max-width: 270px;
+  padding: 2px 1px 5px;
+  overflow: visible;
+  scroll-snap-type: none;
+}
+
+#modeSelectOverlay .welcome-club-menu-pill {
+  display: flex;
+  width: 100%;
+  max-width: 270px;
+  padding-right: 8px;
+}
+
+#modeSelectOverlay .welcome-club-menu-pill .welcome-club-pill-name {
+  flex: 1 1 auto;
+}
+
+#modeSelectOverlay .welcome-club-pill-arrow {
+  flex: 0 0 auto;
+  margin-left: 4px;
+  color: #b994ff;
+  font-size: 15px;
+  line-height: 1;
+}
+
+@media (max-width: 430px) and (orientation: portrait) {
+  #modeSelectOverlay .welcome-organiser-club-pills,
+  #modeSelectOverlay .welcome-club-menu-pill {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+/* BUILD 459 — Round tile is active only for a posted slot today. */
+#modeSelectOverlay .welcome-round-slot-tile {
+  cursor: default;
+}
+
+#modeSelectOverlay .welcome-round-slot-tile .welcome-round-slot-arrow {
+  display: none;
+}
+
+#modeSelectOverlay .welcome-round-slot-tile:not(.has-slot) {
+  border-color: rgba(174, 151, 235, .16) !important;
+  background: rgba(8, 11, 30, .42) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+#modeSelectOverlay .welcome-round-slot-tile.has-slot {
+  cursor: pointer;
+}
+
+#modeSelectOverlay .welcome-round-slot-tile.has-slot .welcome-round-slot-arrow {
+  display: grid;
+}
+
+#modeSelectOverlay .welcome-round-slot-tile.is-opening {
+  opacity: .62;
+  pointer-events: none;
 }
