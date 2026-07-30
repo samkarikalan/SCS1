@@ -679,6 +679,11 @@ function welcomeRemoveProfilePhoto() {
 
 
 var welcomeTileSliding = false;
+
+/* Build 469 — move the existing bordered card exactly as rendered.
+   No carousel sizing is applied: the live Build 464 card keeps its own
+   width, height, padding and internal layout. A temporary visual clone is
+   used only during the 360 ms transition, then removed. */
 function welcomeCycleWorkspace(direction) {
   if (welcomeTileSliding) return;
   var modes = ['viewer', 'organiser', 'vault'];
@@ -686,28 +691,60 @@ function welcomeCycleWorkspace(direction) {
   if (current < 0) current = 0;
   var step = direction < 0 ? -1 : 1;
   var next = (current + step + modes.length) % modes.length;
-  var outgoing = document.getElementById('experienceMode' + (modes[current] === 'viewer' ? 'Viewer' : modes[current] === 'organiser' ? 'Organiser' : 'Vault'));
-  var incoming = document.getElementById('experienceMode' + (next === 0 ? 'Viewer' : next === 1 ? 'Organiser' : 'Vault'));
-  if (!outgoing || !incoming || outgoing === incoming) { welcomeSelectWorkspace(modes[next]); return; }
+  var frame = document.querySelector('#modeSelectOverlay .welcome-card-frame');
+  var overlay = document.getElementById('modeSelectOverlay');
+  if (!frame || !overlay || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    welcomeSelectWorkspace(modes[next]);
+    return;
+  }
 
   welcomeTileSliding = true;
-  var fromClass = step > 0 ? 'scs-slide-from-right' : 'scs-slide-from-left';
-  var toClass = step > 0 ? 'scs-slide-to-left' : 'scs-slide-to-right';
-  incoming.classList.add('scs-slide-visible', fromClass);
-  outgoing.classList.add('scs-slide-visible');
-  void incoming.offsetWidth;
-  incoming.classList.add('scs-slide-animate');
-  outgoing.classList.add('scs-slide-animate');
-  requestAnimationFrame(function(){
-    incoming.classList.remove(fromClass);
-    outgoing.classList.add(toClass);
+  var rect = frame.getBoundingClientRect();
+  var clone = frame.cloneNode(true);
+  clone.classList.add('welcome-card-motion-clone');
+  clone.setAttribute('aria-hidden', 'true');
+  clone.querySelectorAll('[id]').forEach(function(el) { el.removeAttribute('id'); });
+  clone.querySelectorAll('[onclick],[onkeydown],[onchange]').forEach(function(el) {
+    el.removeAttribute('onclick');
+    el.removeAttribute('onkeydown');
+    el.removeAttribute('onchange');
   });
-  setTimeout(function(){
-    outgoing.classList.remove('scs-slide-visible','scs-slide-animate','scs-slide-to-left','scs-slide-to-right');
-    incoming.classList.remove('scs-slide-visible','scs-slide-animate','scs-slide-from-left','scs-slide-from-right');
-    welcomeSelectWorkspace(modes[next]);
+  clone.querySelectorAll('button,[role="button"],input').forEach(function(el) {
+    el.setAttribute('tabindex', '-1');
+    el.style.pointerEvents = 'none';
+  });
+  clone.style.left = rect.left + 'px';
+  clone.style.top = rect.top + 'px';
+  clone.style.width = rect.width + 'px';
+  clone.style.height = rect.height + 'px';
+  document.body.appendChild(clone);
+
+  var travel = Math.max(window.innerWidth, rect.width + 32);
+  var incomingStart = step > 0 ? travel : -travel;
+  var outgoingEnd = -incomingStart;
+
+  frame.classList.add('welcome-card-is-moving');
+  frame.style.transition = 'none';
+  frame.style.transform = 'translate3d(' + incomingStart + 'px,0,0)';
+
+  // Change only the live card content; its original dimensions remain intact.
+  welcomeSelectWorkspace(modes[next]);
+  void frame.offsetWidth;
+
+  requestAnimationFrame(function() {
+    frame.style.transition = 'transform 360ms cubic-bezier(.22,.72,.2,1)';
+    clone.style.transition = 'transform 360ms cubic-bezier(.22,.72,.2,1)';
+    frame.style.transform = 'translate3d(0,0,0)';
+    clone.style.transform = 'translate3d(' + outgoingEnd + 'px,0,0)';
+  });
+
+  window.setTimeout(function() {
+    if (clone.parentNode) clone.parentNode.removeChild(clone);
+    frame.style.transition = '';
+    frame.style.transform = '';
+    frame.classList.remove('welcome-card-is-moving');
     welcomeTileSliding = false;
-  }, 390);
+  }, 410);
 }
 
 (function enableWelcomeWorkspaceSwipe() {

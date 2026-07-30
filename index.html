@@ -2,7 +2,7 @@
 <!-- CLUBS v1.7.4 -->
 <html lang="en">
 <head>
-  <script>window.SCS_APP_VERSION = "1.12.60"; window.SCS_BUILD = "465";</script>
+  <script>window.SCS_APP_VERSION = "1.12.60"; window.SCS_BUILD = "469";</script>
   <script>
     // Build 416: mode selection and authentication screens remain scrollable in landscape.
     (function () {
@@ -90,7 +90,7 @@ html,body{overscroll-behavior:none;}
 
   <script src="engjap.js?v=459" defer></script>
 
-  <script src="main.js?v=468" defer></script>
+  <script src="main.js?v=469" defer></script>
 
   <script src="games.js?v=408" defer></script>
 
@@ -117,7 +117,7 @@ html,body{overscroll-behavior:none;}
 
   <script src="report.js?v=259" defer></script>
 
-  <link rel="stylesheet" href="ui.css?v=468">
+  <link rel="stylesheet" href="ui.css?v=469">
   <link rel="stylesheet" href="rounds.css?v=259">
 </head>
 <body>
@@ -192,7 +192,6 @@ html,body{overscroll-behavior:none;}
               </span>
             </span>
           </span>
-          <span class="welcome-tile-enter" role="button" tabindex="0" onclick="event.stopPropagation(); welcomeSelectWorkspace('viewer'); welcomeContinueWorkspace()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();welcomeSelectWorkspace('viewer');welcomeContinueWorkspace()}"><span>Enter My Hub</span><span aria-hidden="true">→</span></span>
         </button>
         <button class="welcome-workspace organiser" id="experienceModeOrganiser" type="button" role="radio" aria-checked="false" onclick="welcomeSelectWorkspace('organiser')">
           <span class="welcome-tile-assist" role="button" tabindex="0" onclick="event.stopPropagation(); scsOpenGuidedFunctions('organiser')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();scsOpenGuidedFunctions('organiser')}"><span aria-hidden="true">✓</span> <span data-i18n="assist">Assist</span></span>
@@ -213,14 +212,8 @@ html,body{overscroll-behavior:none;}
             </span>
             <span class="welcome-next-slot-host" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()">
               <span id="launcherStartSessionCard" class="launcher-start-session-card welcome-launcher-start-card" style="display:none;"></span>
-              <span class="welcome-rounds-empty" aria-live="polite">
-                <span class="welcome-rounds-empty-label">NEXT SLOT</span>
-                <strong>No upcoming slot</strong>
-                <small>Your next session will appear here.</small>
-              </span>
             </span>
           </span>
-          <span class="welcome-tile-enter" role="button" tabindex="0" onclick="event.stopPropagation(); welcomeSelectWorkspace('organiser'); welcomeContinueWorkspace()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();welcomeSelectWorkspace('organiser');welcomeContinueWorkspace()}"><span>Enter Session Hub</span><span aria-hidden="true">→</span></span>
         </button>
         <button class="welcome-workspace vault" id="experienceModeVault" type="button" role="radio" aria-checked="false" onclick="welcomeSelectWorkspace('vault')">
           <span class="welcome-tile-assist" role="button" tabindex="0" onclick="event.stopPropagation(); scsOpenGuidedFunctions('vault')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();scsOpenGuidedFunctions('vault')}"><span aria-hidden="true">✓</span> <span data-i18n="assist">Assist</span></span>
@@ -261,7 +254,6 @@ html,body{overscroll-behavior:none;}
               </span>
             </span>
           </span>
-          <span class="welcome-tile-enter" role="button" tabindex="0" onclick="event.stopPropagation(); welcomeSelectWorkspace('vault'); welcomeContinueWorkspace()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();welcomeSelectWorkspace('vault');welcomeContinueWorkspace()}"><span>Enter Club Hub</span><span aria-hidden="true">→</span></span>
         </button>
         <button class="welcome-carousel-arrow welcome-carousel-next" type="button" aria-label="Next workspace" onclick="event.stopPropagation(); welcomeCycleWorkspace(1)">›</button>
       </div>
@@ -2578,7 +2570,7 @@ html,body{overscroll-behavior:none;}
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
-        navigator.serviceWorker.register('./sw.js?v=468', { updateViaCache: 'none' })
+        navigator.serviceWorker.register('./sw.js?v=469', { updateViaCache: 'none' })
           .then(function(reg) {
             console.log('SW registered - CLUBS v' + (window.SCS_APP_VERSION || '1.6.4'));
             // Check for updates occasionally without interrupting the current screen
