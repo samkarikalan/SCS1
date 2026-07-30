@@ -23801,100 +23801,108 @@ html[data-theme="light"] #modeSelectOverlay .welcome-rounds-empty small { color:
   }
 }
 
-/* ==========================================================================\n   BUILD 466 — Instagram-style finger-following Welcome swipe\n   One full tile per page; drag follows the finger and snaps smoothly.\n   ========================================================================== */
-#modeSelectOverlay .welcome-card-frame .welcome-workspaces {
-  position: relative !important;
-  display: block !important;
-  width: 100% !important;
-  overflow: hidden !important;
-  touch-action: pan-y pinch-zoom !important;
-  user-select: none !important;
-  -webkit-user-select: none !important;
-}
-#modeSelectOverlay .welcome-card-frame .welcome-workspace,
-#modeSelectOverlay .welcome-card-frame .welcome-workspace.active,
-#modeSelectOverlay .welcome-card-frame .welcome-workspace[aria-checked="true"] {
-  position: absolute !important;
-  inset: 0 !important;
-  width: 100% !important;
-  max-width: none !important;
-  flex: none !important;
-  margin: 0 !important;
-  opacity: 1 !important;
-  transform: translate3d(0,0,0);
-  will-change: transform;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-#modeSelectOverlay .welcome-card-frame .welcome-workspaces.is-dragging .welcome-workspace {
-  pointer-events: none;
-}
-#modeSelectOverlay .welcome-card-frame .welcome-carousel-arrow {
-  z-index: 20 !important;
-}
-@media (prefers-reduced-motion: reduce) {
-  #modeSelectOverlay .welcome-card-frame .welcome-workspace { transition-duration: 1ms !important; }
-}
 
-/* =========================================================
-   BUILD 467 — COMPLETE CARD SWIPE
-   Every workspace card remains mounted and the full card,
-   including its border, photo, content and actions, moves.
-   ========================================================= */
-#modeSelectOverlay #welcomeWorkspaceCarousel.welcome-workspaces {
+/* ==========================================================================
+   BUILD 466 — FIXED-SIZE INFINITE HUB TILE CAROUSEL
+   Only the grouped tile (hub card + its Enter button) moves. Dots, helper text
+   and Help controls remain fixed. No scale/resize animation is used.
+   ========================================================================== */
+#modeSelectOverlay .welcome-card-frame {
+  overflow: hidden !important;
+  padding: 0 10px 12px !important;
+}
+#modeSelectOverlay .welcome-workspaces {
   position: relative !important;
   display: block !important;
   width: 100% !important;
-  min-height: 300px !important;
-  height: 300px !important;
+  min-height: 0 !important;
+  height: auto !important;
   margin: 0 !important;
-  padding: 6px 58px 8px !important;
-  overflow: hidden !important;
-  touch-action: pan-y !important;
-  contain: layout paint !important;
+  padding: 0 0 0 !important;
+  overflow: visible !important;
 }
-#modeSelectOverlay #welcomeWorkspaceCarousel .welcome-workspace,
-#modeSelectOverlay #welcomeWorkspaceCarousel .welcome-workspace.active,
-#modeSelectOverlay #welcomeWorkspaceCarousel .welcome-workspace[aria-checked="true"],
-#modeSelectOverlay #welcomeWorkspaceCarousel .welcome-workspace:not(.active):not([aria-checked="true"]) {
-  position: absolute !important;
-  top: 6px !important;
-  left: 58px !important;
+#modeSelectOverlay .welcome-carousel-viewport {
+  width: 100%;
+  overflow: hidden;
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+}
+#modeSelectOverlay .welcome-carousel-track {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  transform: translate3d(-100%,0,0);
+  will-change: transform;
+}
+#modeSelectOverlay .welcome-carousel-slide {
+  flex: 0 0 100%;
+  width: 100%;
+  min-width: 100%;
+  box-sizing: border-box;
+  padding: 0 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+#modeSelectOverlay .welcome-carousel-slide .welcome-workspace,
+#modeSelectOverlay .welcome-carousel-slide .welcome-workspace.active,
+#modeSelectOverlay .welcome-carousel-slide .welcome-workspace[aria-checked="true"],
+#modeSelectOverlay .welcome-carousel-slide .welcome-workspace:not(.active):not([aria-checked="true"]) {
   display: flex !important;
-  width: calc(100% - 116px) !important;
+  flex: none !important;
+  width: 100% !important;
   max-width: none !important;
   min-width: 0 !important;
-  min-height: 284px !important;
-  height: 284px !important;
+  min-height: 330px !important;
+  height: 330px !important;
   margin: 0 !important;
-  padding: 32px 20px 24px !important;
-  border-radius: 28px !important;
-  opacity: 1 !important;
-  visibility: visible !important;
+  box-sizing: border-box !important;
+  transform: none !important;
+  translate: none !important;
+  scale: 1 !important;
   filter: none !important;
-  z-index: 2 !important;
-  will-change: transform !important;
-  backface-visibility: hidden !important;
-  -webkit-backface-visibility: hidden !important;
+  opacity: 1 !important;
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease !important;
 }
-#modeSelectOverlay #welcomeWorkspaceCarousel.is-dragging .welcome-workspace {
-  pointer-events: none !important;
+#modeSelectOverlay .welcome-carousel-slide .welcome-slide-enter {
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  display: flex !important;
+  width: 52% !important;
+  min-width: 168px !important;
+  max-width: 220px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  margin: 10px auto 0 !important;
+  flex: none !important;
+  border-radius: 12px !important;
+  font-size: 13px !important;
+  transform: none !important;
 }
-@media (max-width: 390px) {
-  #modeSelectOverlay #welcomeWorkspaceCarousel.welcome-workspaces {
-    min-height: 286px !important;
-    height: 286px !important;
-    padding-left: 48px !important;
-    padding-right: 48px !important;
+#modeSelectOverlay .welcome-carousel-slide:not(:nth-child(2)) {
+  pointer-events: none;
+}
+#modeSelectOverlay .welcome-carousel-arrow {
+  z-index: 30 !important;
+  top: 165px !important;
+  transform: translateY(-50%) !important;
+}
+#modeSelectOverlay .welcome-carousel-prev { left: -4px !important; }
+#modeSelectOverlay .welcome-carousel-next { right: -4px !important; }
+@media (max-width:430px) and (orientation:portrait) {
+  #modeSelectOverlay .welcome-card-frame { padding: 0 8px 12px !important; }
+  #modeSelectOverlay .welcome-carousel-slide { padding: 0 2px; }
+  #modeSelectOverlay .welcome-carousel-slide .welcome-workspace,
+  #modeSelectOverlay .welcome-carousel-slide .welcome-workspace.active,
+  #modeSelectOverlay .welcome-carousel-slide .welcome-workspace[aria-checked="true"],
+  #modeSelectOverlay .welcome-carousel-slide .welcome-workspace:not(.active):not([aria-checked="true"]) {
+    min-height: 330px !important;
+    height: 330px !important;
   }
-  #modeSelectOverlay #welcomeWorkspaceCarousel .welcome-workspace,
-  #modeSelectOverlay #welcomeWorkspaceCarousel .welcome-workspace.active,
-  #modeSelectOverlay #welcomeWorkspaceCarousel .welcome-workspace[aria-checked="true"],
-  #modeSelectOverlay #welcomeWorkspaceCarousel .welcome-workspace:not(.active):not([aria-checked="true"]) {
-    left: 48px !important;
-    width: calc(100% - 96px) !important;
-    min-height: 270px !important;
-    height: 270px !important;
-    padding: 28px 16px 20px !important;
-  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #modeSelectOverlay .welcome-carousel-track { transition-duration: 1ms !important; }
 }

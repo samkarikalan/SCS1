@@ -506,6 +506,9 @@ function welcomeSelectWorkspace(mode) {
   }
   updateWelcomeWorkspaceClubNames();
   updateWelcomeHubCard(mode);
+  if (!window.__welcomeCarouselInternal && typeof window.welcomeCarouselJumpTo === 'function') {
+    window.welcomeCarouselJumpTo(mode, false);
+  }
 }
 
 function updateWelcomeHubHelper(mode) {
@@ -679,128 +682,35 @@ function welcomeRemoveProfilePhoto() {
 
 
 function welcomeCycleWorkspace(direction) {
+  if (typeof window.welcomeCarouselRotate === 'function') {
+    window.welcomeCarouselRotate(direction < 0 ? -1 : 1);
+    return;
+  }
   var modes = ['viewer', 'organiser', 'vault'];
   var current = modes.indexOf(welcomeSelectedWorkspace);
   if (current < 0) current = 0;
-  var next = (current + (direction < 0 ? -1 : 1) + modes.length) % modes.length;
-  welcomeSelectWorkspace(modes[next]);
+  welcomeSelectWorkspace(modes[(current + (direction < 0 ? -1 : 1) + modes.length) % modes.length]);
 }
 
-/* Build 467: full-card finger-following Welcome carousel with smooth snap. */
-(function enableWelcomeWorkspaceSwipe() {
-  var modes = ['viewer', 'organiser', 'vault'];
-  var carousel = null;
-  var cards = [];
-  var pointerId = null;
-  var startX = 0;
-  var startY = 0;
-  var dragX = 0;
-  var dragging = false;
-  var horizontal = false;
-  var suppressClickUntil = 0;
-
-  function activeIndex() {
-    var index = modes.indexOf(welcomeSelectedWorkspace);
-    return index < 0 ? 0 : index;
-  }
-
-  function render(offset, animate) {
-    if (!carousel || !cards.length) return;
-    var width = carousel.clientWidth || 1;
-    var index = activeIndex();
-    carousel.classList.toggle('is-dragging', !animate);
-    cards.forEach(function(card, cardIndex) {
-      var position = (cardIndex - index) * width + offset;
-      card.style.setProperty('display', 'flex', 'important');
-      card.style.setProperty('transform', 'translate3d(' + position + 'px,0,0)', 'important');
-      card.style.setProperty('transition', animate ? 'transform 420ms cubic-bezier(.22,.72,.2,1)' : 'none', 'important');
-      card.style.setProperty('visibility', Math.abs(cardIndex - index) > 1 ? 'hidden' : 'visible', 'important');
-    });
-  }
-
-  function finishDrag(velocityDirection) {
-    if (pointerId === null) return;
-    var width = carousel ? carousel.clientWidth : 0;
-    var threshold = Math.min(90, Math.max(48, width * .18));
-    var direction = Math.abs(dragX) >= threshold ? (dragX < 0 ? 1 : -1) : velocityDirection;
-    var index = activeIndex();
-    if (direction === 1 && index >= modes.length - 1) direction = 0;
-    if (direction === -1 && index <= 0) direction = 0;
-    if (dragging) suppressClickUntil = Date.now() + 450;
-    pointerId = null;
-    dragging = false;
-    horizontal = false;
-    dragX = 0;
-    if (direction) welcomeSelectWorkspace(modes[index + direction]);
-    render(0, true);
-  }
-
-  function init() {
-    carousel = document.getElementById('welcomeWorkspaceCarousel');
-    if (!carousel || carousel.dataset.swipe467 === '1') return;
-    carousel.dataset.swipe467 = '1';
-    cards = modes.map(function(mode) {
-      return document.getElementById('experienceMode' + (mode === 'viewer' ? 'Viewer' : mode === 'organiser' ? 'Organiser' : 'Vault'));
-    }).filter(Boolean);
-
-    carousel.addEventListener('pointerdown', function(event) {
-      if (event.pointerType === 'mouse' && event.button !== 0) return;
-      if (event.target.closest('.welcome-tile-assist,.welcome-tile-logout,.welcome-role-edit,.welcome-player-edit,.welcome-organiser-club-pills,.welcome-next-slot-host,.welcome-carousel-arrow')) return;
-      pointerId = event.pointerId;
-      startX = event.clientX;
-      startY = event.clientY;
-      dragX = 0;
-      dragging = false;
-      horizontal = false;
-      carousel.setPointerCapture(pointerId);
-    });
-
-    carousel.addEventListener('pointermove', function(event) {
-      if (event.pointerId !== pointerId) return;
-      var dx = event.clientX - startX;
-      var dy = event.clientY - startY;
-      if (!horizontal && Math.max(Math.abs(dx), Math.abs(dy)) > 8) {
-        horizontal = Math.abs(dx) > Math.abs(dy);
-        if (!horizontal) {
-          finishDrag(0);
-          return;
-        }
-      }
-      if (!horizontal) return;
-      event.preventDefault();
-      dragging = true;
-      var index = activeIndex();
-      var resistance = ((index === 0 && dx > 0) || (index === modes.length - 1 && dx < 0)) ? .28 : 1;
-      dragX = dx * resistance;
-      render(dragX, false);
-    });
-
-    carousel.addEventListener('pointerup', function(event) {
-      if (event.pointerId !== pointerId) return;
-      finishDrag(0);
-    });
-    carousel.addEventListener('pointercancel', function(event) {
-      if (event.pointerId !== pointerId) return;
-      finishDrag(0);
-    });
-    carousel.addEventListener('click', function(event) {
-      if (Date.now() < suppressClickUntil) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-    }, true);
-    window.addEventListener('resize', function() { render(0, false); });
-    render(0, false);
-  }
-
-  var originalSelect = welcomeSelectWorkspace;
-  welcomeSelectWorkspace = function(mode) {
-    originalSelect(mode);
-    window.requestAnimationFrame(function() { render(0, true); });
-  };
-
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
+(function disabledLegacyWelcomeWorkspaceSwipe() {
+  return;
+  var startX = null;
+  var startY = null;
+  document.addEventListener('touchstart', function(event) {
+    var carousel = event.target && event.target.closest ? event.target.closest('#welcomeWorkspaceCarousel') : null;
+    if (!carousel || !event.touches || event.touches.length !== 1) return;
+    startX = event.touches[0].clientX;
+    startY = event.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchend', function(event) {
+    if (startX === null || !event.changedTouches || !event.changedTouches.length) return;
+    var dx = event.changedTouches[0].clientX - startX;
+    var dy = event.changedTouches[0].clientY - startY;
+    startX = null;
+    startY = null;
+    if (Math.abs(dx) < 45 || Math.abs(dx) <= Math.abs(dy)) return;
+    welcomeCycleWorkspace(dx < 0 ? 1 : -1);
+  }, { passive: true });
 })();
 
 async function welcomeContinueWorkspace() {
@@ -2864,7 +2774,8 @@ document.addEventListener('visibilitychange', async function() {
 
 
 /* Build 356 — swipe/keyboard support for the rotational Welcome carousel. */
-(function initWelcomeWorkspaceCarousel() {
+(function disabledLegacyWelcomeWorkspaceCarousel() {
+  return;
   function setup() {
     var carousel = document.getElementById('welcomeWorkspaceCarousel');
     if (!carousel || carousel.dataset.carouselReady === '1') return;
@@ -2897,6 +2808,101 @@ document.addEventListener('visibilitychange', async function() {
     }, { passive: true });
 
     welcomeSelectWorkspace(welcomeSelectedWorkspace || 'viewer');
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
+  else setup();
+})();
+
+
+/* BUILD 466 — fixed-size infinite Welcome tile carousel.
+   The same three live DOM slides are reused and reordered after every swipe. */
+function welcomeContinueSpecificWorkspace(mode) {
+  window.__welcomeCarouselInternal = true;
+  welcomeSelectedWorkspace = mode;
+  window.__welcomeCarouselInternal = false;
+  return welcomeContinueWorkspace();
+}
+
+(function initFixedWelcomeTileCarousel() {
+  function setup() {
+    var carousel = document.getElementById('welcomeWorkspaceCarousel');
+    var viewport = carousel && carousel.querySelector('.welcome-carousel-viewport');
+    var track = document.getElementById('welcomeCarouselTrack');
+    if (!carousel || !viewport || !track || track.dataset.fixedReady === '1') return;
+    track.dataset.fixedReady = '1';
+    var modes = ['viewer', 'organiser', 'vault'];
+    var busy = false;
+    var startX = null;
+    var startY = null;
+
+    function modeOf(slide) { return slide && slide.getAttribute('data-mode'); }
+    function slides() { return Array.prototype.slice.call(track.querySelectorAll('.welcome-carousel-slide')); }
+    function resetCentre() {
+      track.style.transition = 'none';
+      track.style.transform = 'translate3d(-100%,0,0)';
+      track.offsetHeight;
+    }
+    function arrange(mode) {
+      var all = slides();
+      var byMode = {};
+      all.forEach(function(slide){ byMode[modeOf(slide)] = slide; });
+      var i = modes.indexOf(mode); if (i < 0) i = 0;
+      var order = [modes[(i + 2) % 3], modes[i], modes[(i + 1) % 3]];
+      order.forEach(function(name){ if (byMode[name]) track.appendChild(byMode[name]); });
+      resetCentre();
+    }
+    function selectInternal(mode) {
+      window.__welcomeCarouselInternal = true;
+      welcomeSelectWorkspace(mode);
+      window.__welcomeCarouselInternal = false;
+    }
+    function rotate(direction) {
+      if (busy) return;
+      busy = true;
+      var current = modes.indexOf(welcomeSelectedWorkspace); if (current < 0) current = 0;
+      var nextMode = modes[(current + (direction < 0 ? -1 : 1) + 3) % 3];
+      track.style.transition = 'transform 340ms cubic-bezier(.22,.78,.25,1)';
+      track.style.transform = direction > 0 ? 'translate3d(-200%,0,0)' : 'translate3d(0,0,0)';
+      function finish() {
+        track.removeEventListener('transitionend', finish);
+        if (direction > 0) track.appendChild(track.firstElementChild);
+        else track.insertBefore(track.lastElementChild, track.firstElementChild);
+        resetCentre();
+        selectInternal(nextMode);
+        busy = false;
+        var active = track.children[1] && track.children[1].querySelector('.welcome-workspace');
+        if (active) active.focus({preventScroll:true});
+      }
+      track.addEventListener('transitionend', finish);
+      setTimeout(function(){ if (busy) finish(); }, 430);
+    }
+    window.welcomeCarouselRotate = rotate;
+    window.welcomeCarouselJumpTo = function(mode, animate) {
+      if (!modes.includes(mode)) return;
+      if (animate) {
+        var current = modes.indexOf(welcomeSelectedWorkspace), target = modes.indexOf(mode);
+        var forward = (target - current + 3) % 3;
+        rotate(forward === 1 ? 1 : -1);
+      } else arrange(mode);
+    };
+    carousel.addEventListener('keydown', function(event){
+      if (event.key === 'ArrowLeft') { event.preventDefault(); rotate(-1); }
+      if (event.key === 'ArrowRight') { event.preventDefault(); rotate(1); }
+    });
+    viewport.addEventListener('touchstart', function(event){
+      if (!event.touches || event.touches.length !== 1) return;
+      startX = event.touches[0].clientX; startY = event.touches[0].clientY;
+    }, {passive:true});
+    viewport.addEventListener('touchend', function(event){
+      if (startX === null || !event.changedTouches || !event.changedTouches[0]) return;
+      var dx = event.changedTouches[0].clientX - startX;
+      var dy = event.changedTouches[0].clientY - startY;
+      startX = startY = null;
+      if (Math.abs(dx) < 42 || Math.abs(dx) <= Math.abs(dy)) return;
+      rotate(dx < 0 ? 1 : -1);
+    }, {passive:true});
+    arrange(welcomeSelectedWorkspace || 'viewer');
+    selectInternal(welcomeSelectedWorkspace || 'viewer');
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
   else setup();
