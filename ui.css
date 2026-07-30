@@ -23435,3 +23435,51 @@ html[data-theme="light"] #modeSelectOverlay .welcome-club-pill.selected {
   opacity: .62;
   pointer-events: none;
 }
+
+
+/* Build 460: move the existing live Next Slot Today card into the Rounds
+   welcome tile. The same DOM, timing gate and start-session action are reused. */
+#modeSelectOverlay .welcome-next-slot-host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+#modeSelectOverlay .welcome-launcher-start-card {
+  width: 100%;
+  margin: 14px 0 0;
+}
+#modeSelectOverlay .welcome-launcher-start-card .launcher-start-dialog {
+  min-height: 0;
+  padding: 14px 46px 14px 14px;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 12px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(45,206,137,.20), rgba(16,30,31,.86));
+}
+#modeSelectOverlay .welcome-launcher-start-card .launcher-start-icon {
+  width: 42px;
+  height: 42px;
+}
+#modeSelectOverlay .welcome-launcher-start-card .launcher-start-info strong {
+  font-size: 1rem;
+}
+#modeSelectOverlay .welcome-launcher-start-card .launcher-start-info span {
+  font-size: .78rem;
+  line-height: 1.35;
+}
+#modeSelectOverlay .welcome-launcher-start-card .launcher-start-action {
+  grid-column: 1 / -1;
+  width: 100%;
+  margin-top: 2px;
+  padding: 12px 14px;
+}
+#modeSelectOverlay .welcome-launcher-start-card .launcher-start-close {
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+}
+body.app-light #modeSelectOverlay .welcome-launcher-start-card .launcher-start-dialog,
+html[data-theme="light"] #modeSelectOverlay .welcome-launcher-start-card .launcher-start-dialog {
+  background: linear-gradient(135deg, rgba(45,206,137,.20), rgba(255,255,255,.88));
+}

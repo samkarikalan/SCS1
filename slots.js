@@ -4706,12 +4706,12 @@ async function renderLauncherStartSessionCard() {
   } else {
     card.dataset.slotId = nextSlotId;
     card.innerHTML = '<div class="launcher-start-dialog">' +
-      '<button class="launcher-start-close" type="button" aria-label="Close" onclick="closeLauncherStartSessionCard()">&times;</button>' +
+      '<button class="launcher-start-close" type="button" aria-label="Close" onclick="event.stopPropagation(); closeLauncherStartSessionCard()">&times;</button>' +
       '<div class="launcher-start-icon">▶</div>' +
       '<div class="launcher-start-info"><strong data-launcher-slot-title>' + _vsEscape(titleText) + '</strong>' +
         '<span data-launcher-slot-detail>' + _vsEscape(timeText) + ' · ' + _vsEscape(slot.venue || clubName) + ' · ' + confirmed + ' ' + _vsEscape(_vsT('playersPlural', 'players')) + '</span></div>' +
       '<button class="launcher-start-action" data-launcher-slot-action type="button"' + (!canStart ? ' disabled' : '') +
-        ' onclick="launcherStartSlotSession()">' + _vsEscape(actionText) + '</button></div>';
+        ' onclick="event.stopPropagation(); launcherStartSlotSession()">' + _vsEscape(actionText) + '</button></div>';
   }
   card.style.display = 'flex';
   if (_launcherStartCardTimer) clearTimeout(_launcherStartCardTimer);

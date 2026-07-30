@@ -2,7 +2,7 @@
 <!-- CLUBS v1.7.4 -->
 <html lang="en">
 <head>
-  <script>window.SCS_APP_VERSION = "1.12.54"; window.SCS_BUILD = "459";</script>
+  <script>window.SCS_APP_VERSION = "1.12.55"; window.SCS_BUILD = "460";</script>
   <script>
     // Build 416: mode selection and authentication screens remain scrollable in landscape.
     (function () {
@@ -209,14 +209,8 @@ html,body{overscroll-behavior:none;}
                 <span class="welcome-organiser-club-pills" id="welcomeOrganiserClubPills" aria-label="Select club"></span>
               </span>
             </span>
-            <span class="welcome-next-slot-card welcome-round-slot-tile" id="welcomeOrganiserNextSlot"
-              role="button" tabindex="-1" aria-disabled="true"
-              onclick="event.stopPropagation(); welcomeOpenOrganiserUpcomingSlot(event)"
-              onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();welcomeOpenOrganiserUpcomingSlot(event)}">
-              <span class="welcome-next-slot-label" data-i18n="hubTodaySlot">Today's Slot</span>
-              <strong id="welcomeOrganiserNextSlotTitle">No slot today</strong>
-              <small id="welcomeOrganiserNextSlotMeta">A posted slot today will appear here.</small>
-              <span class="welcome-round-slot-arrow" aria-hidden="true">→</span>
+            <span class="welcome-next-slot-host" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()">
+              <span id="launcherStartSessionCard" class="launcher-start-session-card welcome-launcher-start-card" style="display:none;"></span>
             </span>
           </span>
         </button>
@@ -697,9 +691,6 @@ html,body{overscroll-behavior:none;}
       </button>
     </div>
   </div>
-
-  <!-- Due slot appears inline on Organiser home, below the mode cards. -->
-  <div id="launcherStartSessionCard" class="launcher-start-session-card" style="display:none;"></div>
 
   <!-- Extra tools moved to the workspace selection screen. -->
 
