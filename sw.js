@@ -1,10 +1,10 @@
 /* Sports Club Scheduler service worker — complete installed-app updates. */
-const CACHE_NAME = 'scs-app-build-464-dots-helper-outside';
-const APP_SHELL = './index.html?v=464';
+const CACHE_NAME = 'scs-app-build-465-blue-compact-empty-slot';
+const APP_SHELL = './index.html?v=465';
 
 const ASSETS = [
   APP_SHELL,
-  './ui.css?v=459', './rounds.css?v=259',
+  './ui.css?v=465', './rounds.css?v=259',
   './snapshot.js?v=259', './supabase.js?v=389', './auth.js?v=409',
   './authUI.js?v=434', './subscription.js?v=308', './HomeScreen.js?v=405',
   './engjap.js?v=459', './main.js?v=459', './games.js?v=408',

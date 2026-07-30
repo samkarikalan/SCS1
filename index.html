@@ -2,7 +2,7 @@
 <!-- CLUBS v1.7.4 -->
 <html lang="en">
 <head>
-  <script>window.SCS_APP_VERSION = "1.12.59"; window.SCS_BUILD = "464";</script>
+  <script>window.SCS_APP_VERSION = "1.12.60"; window.SCS_BUILD = "465";</script>
   <script>
     // Build 416: mode selection and authentication screens remain scrollable in landscape.
     (function () {
@@ -117,7 +117,7 @@ html,body{overscroll-behavior:none;}
 
   <script src="report.js?v=259" defer></script>
 
-  <link rel="stylesheet" href="ui.css?v=464">
+  <link rel="stylesheet" href="ui.css?v=465">
   <link rel="stylesheet" href="rounds.css?v=259">
 </head>
 <body>
@@ -212,6 +212,11 @@ html,body{overscroll-behavior:none;}
             </span>
             <span class="welcome-next-slot-host" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()">
               <span id="launcherStartSessionCard" class="launcher-start-session-card welcome-launcher-start-card" style="display:none;"></span>
+              <span class="welcome-rounds-empty" aria-live="polite">
+                <span class="welcome-rounds-empty-label">NEXT SLOT</span>
+                <strong>No upcoming slot</strong>
+                <small>Your next session will appear here.</small>
+              </span>
             </span>
           </span>
         </button>
