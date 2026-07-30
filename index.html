@@ -2,7 +2,7 @@
 <!-- CLUBS v1.7.4 -->
 <html lang="en">
 <head>
-  <script>window.SCS_APP_VERSION = "1.12.58"; window.SCS_BUILD = "463";</script>
+  <script>window.SCS_APP_VERSION = "1.12.59"; window.SCS_BUILD = "464";</script>
   <script>
     // Build 416: mode selection and authentication screens remain scrollable in landscape.
     (function () {
@@ -117,7 +117,7 @@ html,body{overscroll-behavior:none;}
 
   <script src="report.js?v=259" defer></script>
 
-  <link rel="stylesheet" href="ui.css?v=463">
+  <link rel="stylesheet" href="ui.css?v=464">
   <link rel="stylesheet" href="rounds.css?v=259">
 </head>
 <body>
@@ -257,6 +257,11 @@ html,body{overscroll-behavior:none;}
         </button>
         <button class="welcome-carousel-arrow welcome-carousel-next" type="button" aria-label="Next workspace" onclick="event.stopPropagation(); welcomeCycleWorkspace(1)">›</button>
       </div>
+      <button class="welcome-continue" type="button" onclick="welcomeContinueWorkspace()">
+        <span id="welcomeContinueLabel">Enter My Hub</span><span aria-hidden="true">→</span>
+      </button>
+      </div>
+
       <div class="welcome-carousel-dots" role="tablist" aria-label="Workspace position">
         <button class="welcome-carousel-dot active" type="button" aria-label="Player" aria-selected="true" onclick="welcomeSelectWorkspace('viewer')"></button>
         <button class="welcome-carousel-dot" type="button" aria-label="Organiser" aria-selected="false" onclick="welcomeSelectWorkspace('organiser')"></button>
@@ -270,10 +275,6 @@ html,body{overscroll-behavior:none;}
           <span aria-hidden="true">·</span>
           <span id="welcomeNextAction2" data-i18n="playerCardAction2">View Ranks</span>
         </span>
-      </div>
-      <button class="welcome-continue" type="button" onclick="welcomeContinueWorkspace()">
-        <span id="welcomeContinueLabel">Enter My Hub</span><span aria-hidden="true">→</span>
-      </button>
       </div>
 
       <div id="welcomePhotoSheet" class="welcome-photo-sheet" hidden onclick="if(event.target===this) welcomeClosePhotoMenu()">

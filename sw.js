@@ -1,6 +1,6 @@
 /* Sports Club Scheduler service worker — complete installed-app updates. */
-const CACHE_NAME = 'scs-app-build-463-welcome-card-layout';
-const APP_SHELL = './index.html?v=463';
+const CACHE_NAME = 'scs-app-build-464-dots-helper-outside';
+const APP_SHELL = './index.html?v=464';
 
 const ASSETS = [
   APP_SHELL,

@@ -23676,3 +23676,39 @@ html[data-theme="light"] #modeSelectOverlay .welcome-card-frame {
   }
   #modeSelectOverlay .welcome-footer { margin-top: 18px !important; }
 }
+
+
+/* ==========================================================================\n   BUILD 464 — Final welcome card boundary flow\n   Keep the Enter Hub action inside the bordered card. Place the carousel dots\n   and contextual help subtitle below the boundary and above the Help control.\n   Layout only: existing IDs, handlers and navigation are untouched.\n   ========================================================================== */
+#modeSelectOverlay .welcome-card-frame {
+  padding-bottom: 14px !important;
+}
+#modeSelectOverlay .welcome-card-frame > .welcome-continue {
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  width: 100% !important;
+  margin: 12px auto 0 !important;
+}
+#modeSelectOverlay .welcome-card-frame + .welcome-carousel-dots {
+  margin: 12px auto 0 !important;
+}
+#modeSelectOverlay .welcome-card-frame ~ .welcome-next-steps {
+  margin-top: 8px !important;
+}
+@media (max-width:430px) and (orientation:portrait) {
+  #modeSelectOverlay .welcome-card-frame {
+    padding-bottom: 12px !important;
+  }
+  #modeSelectOverlay .welcome-card-frame > .welcome-continue {
+    height: 58px !important;
+    min-height: 58px !important;
+    margin-top: 12px !important;
+  }
+  #modeSelectOverlay .welcome-card-frame + .welcome-carousel-dots {
+    margin-top: 11px !important;
+  }
+  #modeSelectOverlay .welcome-card-frame ~ .welcome-next-steps {
+    margin-top: 7px !important;
+  }
+}
