@@ -680,79 +680,64 @@ function welcomeRemoveProfilePhoto() {
 
 var welcomeTileSliding = false;
 
-/* Build 469 — move the existing bordered card exactly as rendered.
-   No carousel sizing is applied: the live Build 464 card keeps its own
-   width, height, padding and internal layout. A temporary visual clone is
-   used only during the 360 ms transition, then removed. */
+/* Build 470 — stable whole-card slide.
+   The existing Build 470 bordered card is never cloned, rebuilt or resized.
+   It leaves the viewport as one object, the selected live workspace changes
+   while the card is fully off-screen, and that same card enters from the
+   opposite side. Only translate3d is animated. */
 function welcomeCycleWorkspace(direction) {
   if (welcomeTileSliding) return;
   var modes = ['viewer', 'organiser', 'vault'];
   var current = modes.indexOf(welcomeSelectedWorkspace);
   if (current < 0) current = 0;
   var step = direction < 0 ? -1 : 1;
-  var next = (current + step + modes.length) % modes.length;
+  var nextMode = modes[(current + step + modes.length) % modes.length];
   var frame = document.querySelector('#modeSelectOverlay .welcome-card-frame');
-  var overlay = document.getElementById('modeSelectOverlay');
-  if (!frame || !overlay || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    welcomeSelectWorkspace(modes[next]);
+
+  if (!frame || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    welcomeSelectWorkspace(nextMode);
     return;
   }
 
   welcomeTileSliding = true;
-  var rect = frame.getBoundingClientRect();
-  var clone = frame.cloneNode(true);
-  clone.classList.add('welcome-card-motion-clone');
-  clone.setAttribute('aria-hidden', 'true');
-  clone.querySelectorAll('[id]').forEach(function(el) { el.removeAttribute('id'); });
-  clone.querySelectorAll('[onclick],[onkeydown],[onchange]').forEach(function(el) {
-    el.removeAttribute('onclick');
-    el.removeAttribute('onkeydown');
-    el.removeAttribute('onchange');
-  });
-  clone.querySelectorAll('button,[role="button"],input').forEach(function(el) {
-    el.setAttribute('tabindex', '-1');
-    el.style.pointerEvents = 'none';
-  });
-  clone.style.left = rect.left + 'px';
-  clone.style.top = rect.top + 'px';
-  clone.style.width = rect.width + 'px';
-  clone.style.height = rect.height + 'px';
-  document.body.appendChild(clone);
+  var travel = Math.ceil(window.innerWidth + frame.getBoundingClientRect().width);
+  var exitX = step > 0 ? -travel : travel;
+  var enterX = -exitX;
+  var duration = 260;
+  var easing = 'cubic-bezier(.22,.72,.2,1)';
 
-  var travel = Math.max(window.innerWidth, rect.width + 32);
-  var incomingStart = step > 0 ? travel : -travel;
-  var outgoingEnd = -incomingStart;
-
-  frame.classList.add('welcome-card-is-moving');
-  frame.style.transition = 'none';
-  frame.style.transform = 'translate3d(' + incomingStart + 'px,0,0)';
-
-  // Change only the live card content; its original dimensions remain intact.
-  welcomeSelectWorkspace(modes[next]);
-  void frame.offsetWidth;
-
-  requestAnimationFrame(function() {
-    frame.style.transition = 'transform 360ms cubic-bezier(.22,.72,.2,1)';
-    clone.style.transition = 'transform 360ms cubic-bezier(.22,.72,.2,1)';
-    frame.style.transform = 'translate3d(0,0,0)';
-    clone.style.transform = 'translate3d(' + outgoingEnd + 'px,0,0)';
-  });
+  frame.style.willChange = 'transform';
+  frame.style.transition = 'transform ' + duration + 'ms ' + easing;
+  frame.style.transform = 'translate3d(' + exitX + 'px,0,0)';
 
   window.setTimeout(function() {
-    if (clone.parentNode) clone.parentNode.removeChild(clone);
-    frame.style.transition = '';
-    frame.style.transform = '';
-    frame.classList.remove('welcome-card-is-moving');
-    welcomeTileSliding = false;
-  }, 410);
+    // The card is fully outside the viewport here. Update the live content,
+    // then place the same unchanged card beyond the opposite edge.
+    welcomeSelectWorkspace(nextMode);
+    frame.style.transition = 'none';
+    frame.style.transform = 'translate3d(' + enterX + 'px,0,0)';
+    void frame.offsetWidth;
+
+    requestAnimationFrame(function() {
+      frame.style.transition = 'transform ' + duration + 'ms ' + easing;
+      frame.style.transform = 'translate3d(0,0,0)';
+    });
+
+    window.setTimeout(function() {
+      frame.style.transition = '';
+      frame.style.transform = '';
+      frame.style.willChange = '';
+      welcomeTileSliding = false;
+    }, duration + 40);
+  }, duration + 20);
 }
 
 (function enableWelcomeWorkspaceSwipe() {
   var startX = null;
   var startY = null;
   document.addEventListener('touchstart', function(event) {
-    var carousel = event.target && event.target.closest ? event.target.closest('#welcomeWorkspaceCarousel') : null;
-    if (!carousel || !event.touches || event.touches.length !== 1) return;
+    var frame = event.target && event.target.closest ? event.target.closest('.welcome-card-frame') : null;
+    if (!frame || !event.touches || event.touches.length !== 1) return;
     startX = event.touches[0].clientX;
     startY = event.touches[0].clientY;
   }, { passive: true });

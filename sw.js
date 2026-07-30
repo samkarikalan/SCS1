@@ -1,5 +1,5 @@
 /* Sports Club Scheduler service worker — complete installed-app updates. */
-const CACHE_NAME = 'scs-app-build-469-existing-card-swipe';
+const CACHE_NAME = 'scs-app-build-470-stable-whole-card-slide';
 const APP_SHELL = './index.html?v=464';
 
 const ASSETS = [
