@@ -1,6 +1,6 @@
 /* Sports Club Scheduler service worker — complete installed-app updates. */
-const CACHE_NAME = 'scs-app-build-462-welcome-button-inside-blue-motion';
-const APP_SHELL = './index.html?v=459';
+const CACHE_NAME = 'scs-app-build-463-welcome-card-layout';
+const APP_SHELL = './index.html?v=463';
 
 const ASSETS = [
   APP_SHELL,

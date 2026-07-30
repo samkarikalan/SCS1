@@ -23602,3 +23602,77 @@ html[data-theme="light"] #modeSelectOverlay .welcome-workspace[aria-checked="tru
   #modeSelectOverlay .welcome-workspace,
   #modeSelectOverlay .welcome-continue { transition: none !important; }
 }
+
+/* ==========================================================================\n   BUILD 463 — Welcome card layout correction only\n   The existing workspace, dots, helper and Enter button are enclosed by one\n   visual card. IDs, handlers, colours, data and navigation remain unchanged.\n   ========================================================================== */
+#modeSelectOverlay .welcome-card-frame {
+  position: relative;
+  width: calc(100% - 28px);
+  margin: 0 auto;
+  padding: 0 14px 16px;
+  border: 2px solid var(--welcome-accent-border);
+  border-radius: 22px;
+  background: rgba(20, 18, 48, .42);
+  box-shadow: 0 16px 38px rgba(0,105,220,.18), inset 0 1px 0 rgba(255,255,255,.08);
+  overflow: visible;
+}
+#modeSelectOverlay .welcome-card-frame .welcome-workspaces {
+  width: 100% !important;
+  margin: 0 !important;
+  padding-bottom: 0 !important;
+  box-sizing: border-box !important;
+}
+#modeSelectOverlay .welcome-card-frame .welcome-workspace.active,
+#modeSelectOverlay .welcome-card-frame .welcome-workspace[aria-checked="true"] {
+  border-color: transparent !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+#modeSelectOverlay .welcome-card-frame .welcome-carousel-dots {
+  margin-top: 8px !important;
+}
+#modeSelectOverlay .welcome-card-frame .welcome-next-steps {
+  margin-top: 10px !important;
+}
+#modeSelectOverlay .welcome-card-frame .welcome-continue {
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  width: 100% !important;
+  margin: 14px auto 0 !important;
+}
+body.app-light #modeSelectOverlay .welcome-card-frame,
+html[data-theme="light"] #modeSelectOverlay .welcome-card-frame {
+  background: rgba(255,255,255,.76);
+  box-shadow: 0 16px 34px rgba(4,92,181,.14), inset 0 1px 0 rgba(255,255,255,.85);
+}
+@media (max-width:430px) and (orientation:portrait) {
+  #modeSelectOverlay .welcome-card-frame {
+    width: calc(100% - 28px);
+    padding: 0 10px 14px;
+    border-radius: 20px;
+  }
+  #modeSelectOverlay .welcome-card-frame .welcome-workspaces {
+    width: 100% !important;
+  }
+  #modeSelectOverlay .welcome-card-frame .welcome-workspace.viewer.active,
+  #modeSelectOverlay .welcome-card-frame .welcome-workspace.viewer[aria-checked="true"],
+  #modeSelectOverlay .welcome-card-frame .welcome-workspace.organiser.active,
+  #modeSelectOverlay .welcome-card-frame .welcome-workspace.organiser[aria-checked="true"],
+  #modeSelectOverlay .welcome-card-frame .welcome-workspace.vault.active,
+  #modeSelectOverlay .welcome-card-frame .welcome-workspace.vault[aria-checked="true"] {
+    width: 100% !important;
+    flex-basis: 100% !important;
+    margin: 0 !important;
+    border-radius: 18px !important;
+  }
+  #modeSelectOverlay .welcome-card-frame .welcome-carousel-prev { left: -24px !important; }
+  #modeSelectOverlay .welcome-card-frame .welcome-carousel-next { right: -24px !important; }
+  #modeSelectOverlay .welcome-card-frame .welcome-continue {
+    width: 100% !important;
+    height: 58px !important;
+    min-height: 58px !important;
+    margin-top: 12px !important;
+  }
+  #modeSelectOverlay .welcome-footer { margin-top: 18px !important; }
+}
