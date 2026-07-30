@@ -506,9 +506,6 @@ function welcomeSelectWorkspace(mode) {
   }
   updateWelcomeWorkspaceClubNames();
   updateWelcomeHubCard(mode);
-  if (!window.__welcomeCarouselInternal && typeof window.welcomeCarouselJumpTo === 'function') {
-    window.welcomeCarouselJumpTo(mode, false);
-  }
 }
 
 function updateWelcomeHubHelper(mode) {
@@ -681,19 +678,39 @@ function welcomeRemoveProfilePhoto() {
 }
 
 
+var welcomeTileSliding = false;
 function welcomeCycleWorkspace(direction) {
-  if (typeof window.welcomeCarouselRotate === 'function') {
-    window.welcomeCarouselRotate(direction < 0 ? -1 : 1);
-    return;
-  }
+  if (welcomeTileSliding) return;
   var modes = ['viewer', 'organiser', 'vault'];
   var current = modes.indexOf(welcomeSelectedWorkspace);
   if (current < 0) current = 0;
-  welcomeSelectWorkspace(modes[(current + (direction < 0 ? -1 : 1) + modes.length) % modes.length]);
+  var step = direction < 0 ? -1 : 1;
+  var next = (current + step + modes.length) % modes.length;
+  var outgoing = document.getElementById('experienceMode' + (modes[current] === 'viewer' ? 'Viewer' : modes[current] === 'organiser' ? 'Organiser' : 'Vault'));
+  var incoming = document.getElementById('experienceMode' + (next === 0 ? 'Viewer' : next === 1 ? 'Organiser' : 'Vault'));
+  if (!outgoing || !incoming || outgoing === incoming) { welcomeSelectWorkspace(modes[next]); return; }
+
+  welcomeTileSliding = true;
+  var fromClass = step > 0 ? 'scs-slide-from-right' : 'scs-slide-from-left';
+  var toClass = step > 0 ? 'scs-slide-to-left' : 'scs-slide-to-right';
+  incoming.classList.add('scs-slide-visible', fromClass);
+  outgoing.classList.add('scs-slide-visible');
+  void incoming.offsetWidth;
+  incoming.classList.add('scs-slide-animate');
+  outgoing.classList.add('scs-slide-animate');
+  requestAnimationFrame(function(){
+    incoming.classList.remove(fromClass);
+    outgoing.classList.add(toClass);
+  });
+  setTimeout(function(){
+    outgoing.classList.remove('scs-slide-visible','scs-slide-animate','scs-slide-to-left','scs-slide-to-right');
+    incoming.classList.remove('scs-slide-visible','scs-slide-animate','scs-slide-from-left','scs-slide-from-right');
+    welcomeSelectWorkspace(modes[next]);
+    welcomeTileSliding = false;
+  }, 390);
 }
 
-(function disabledLegacyWelcomeWorkspaceSwipe() {
-  return;
+(function enableWelcomeWorkspaceSwipe() {
   var startX = null;
   var startY = null;
   document.addEventListener('touchstart', function(event) {
@@ -2774,8 +2791,7 @@ document.addEventListener('visibilitychange', async function() {
 
 
 /* Build 356 — swipe/keyboard support for the rotational Welcome carousel. */
-(function disabledLegacyWelcomeWorkspaceCarousel() {
-  return;
+(function initWelcomeWorkspaceCarousel() {
   function setup() {
     var carousel = document.getElementById('welcomeWorkspaceCarousel');
     if (!carousel || carousel.dataset.carouselReady === '1') return;
@@ -2787,7 +2803,7 @@ document.addEventListener('visibilitychange', async function() {
       var current = modes.indexOf(welcomeSelectedWorkspace);
       if (current < 0) current = 0;
       var next = (current + direction + modes.length) % modes.length;
-      welcomeSelectWorkspace(modes[next]);
+      welcomeCycleWorkspace(direction);
       var selected = carousel.querySelector('.welcome-workspace.active');
       if (selected) selected.focus({ preventScroll: true });
     }
@@ -2808,101 +2824,6 @@ document.addEventListener('visibilitychange', async function() {
     }, { passive: true });
 
     welcomeSelectWorkspace(welcomeSelectedWorkspace || 'viewer');
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
-  else setup();
-})();
-
-
-/* BUILD 466 — fixed-size infinite Welcome tile carousel.
-   The same three live DOM slides are reused and reordered after every swipe. */
-function welcomeContinueSpecificWorkspace(mode) {
-  window.__welcomeCarouselInternal = true;
-  welcomeSelectedWorkspace = mode;
-  window.__welcomeCarouselInternal = false;
-  return welcomeContinueWorkspace();
-}
-
-(function initFixedWelcomeTileCarousel() {
-  function setup() {
-    var carousel = document.getElementById('welcomeWorkspaceCarousel');
-    var viewport = carousel && carousel.querySelector('.welcome-carousel-viewport');
-    var track = document.getElementById('welcomeCarouselTrack');
-    if (!carousel || !viewport || !track || track.dataset.fixedReady === '1') return;
-    track.dataset.fixedReady = '1';
-    var modes = ['viewer', 'organiser', 'vault'];
-    var busy = false;
-    var startX = null;
-    var startY = null;
-
-    function modeOf(slide) { return slide && slide.getAttribute('data-mode'); }
-    function slides() { return Array.prototype.slice.call(track.querySelectorAll('.welcome-carousel-slide')); }
-    function resetCentre() {
-      track.style.transition = 'none';
-      track.style.transform = 'translate3d(-100%,0,0)';
-      track.offsetHeight;
-    }
-    function arrange(mode) {
-      var all = slides();
-      var byMode = {};
-      all.forEach(function(slide){ byMode[modeOf(slide)] = slide; });
-      var i = modes.indexOf(mode); if (i < 0) i = 0;
-      var order = [modes[(i + 2) % 3], modes[i], modes[(i + 1) % 3]];
-      order.forEach(function(name){ if (byMode[name]) track.appendChild(byMode[name]); });
-      resetCentre();
-    }
-    function selectInternal(mode) {
-      window.__welcomeCarouselInternal = true;
-      welcomeSelectWorkspace(mode);
-      window.__welcomeCarouselInternal = false;
-    }
-    function rotate(direction) {
-      if (busy) return;
-      busy = true;
-      var current = modes.indexOf(welcomeSelectedWorkspace); if (current < 0) current = 0;
-      var nextMode = modes[(current + (direction < 0 ? -1 : 1) + 3) % 3];
-      track.style.transition = 'transform 340ms cubic-bezier(.22,.78,.25,1)';
-      track.style.transform = direction > 0 ? 'translate3d(-200%,0,0)' : 'translate3d(0,0,0)';
-      function finish() {
-        track.removeEventListener('transitionend', finish);
-        if (direction > 0) track.appendChild(track.firstElementChild);
-        else track.insertBefore(track.lastElementChild, track.firstElementChild);
-        resetCentre();
-        selectInternal(nextMode);
-        busy = false;
-        var active = track.children[1] && track.children[1].querySelector('.welcome-workspace');
-        if (active) active.focus({preventScroll:true});
-      }
-      track.addEventListener('transitionend', finish);
-      setTimeout(function(){ if (busy) finish(); }, 430);
-    }
-    window.welcomeCarouselRotate = rotate;
-    window.welcomeCarouselJumpTo = function(mode, animate) {
-      if (!modes.includes(mode)) return;
-      if (animate) {
-        var current = modes.indexOf(welcomeSelectedWorkspace), target = modes.indexOf(mode);
-        var forward = (target - current + 3) % 3;
-        rotate(forward === 1 ? 1 : -1);
-      } else arrange(mode);
-    };
-    carousel.addEventListener('keydown', function(event){
-      if (event.key === 'ArrowLeft') { event.preventDefault(); rotate(-1); }
-      if (event.key === 'ArrowRight') { event.preventDefault(); rotate(1); }
-    });
-    viewport.addEventListener('touchstart', function(event){
-      if (!event.touches || event.touches.length !== 1) return;
-      startX = event.touches[0].clientX; startY = event.touches[0].clientY;
-    }, {passive:true});
-    viewport.addEventListener('touchend', function(event){
-      if (startX === null || !event.changedTouches || !event.changedTouches[0]) return;
-      var dx = event.changedTouches[0].clientX - startX;
-      var dy = event.changedTouches[0].clientY - startY;
-      startX = startY = null;
-      if (Math.abs(dx) < 42 || Math.abs(dx) <= Math.abs(dy)) return;
-      rotate(dx < 0 ? 1 : -1);
-    }, {passive:true});
-    arrange(welcomeSelectedWorkspace || 'viewer');
-    selectInternal(welcomeSelectedWorkspace || 'viewer');
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
   else setup();

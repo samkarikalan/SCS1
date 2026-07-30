@@ -1,13 +1,13 @@
 /* Sports Club Scheduler service worker — complete installed-app updates. */
-const CACHE_NAME = 'scs-app-build-466-fixed-infinite-tile-carousel';
-const APP_SHELL = './index.html?v=466';
+const CACHE_NAME = 'scs-app-build-468-complete-tile-only-swipe';
+const APP_SHELL = './index.html?v=468';
 
 const ASSETS = [
   APP_SHELL,
-  './ui.css?v=466', './rounds.css?v=259',
+  './ui.css?v=468', './rounds.css?v=259',
   './snapshot.js?v=259', './supabase.js?v=389', './auth.js?v=409',
   './authUI.js?v=434', './subscription.js?v=308', './HomeScreen.js?v=405',
-  './engjap.js?v=459', './main.js?v=466', './games.js?v=408',
+  './engjap.js?v=459', './main.js?v=468', './games.js?v=408',
   './rounds.js?v=408', './mbm.js?v=259', './players.js?v=259',
   './importPlayers.js?v=259', './settings.js?v=329', './summary.js?v=259',
   './help.js?v=259', './profile.js?v=301', './dashboard.js?v=259',
