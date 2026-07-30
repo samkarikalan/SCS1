@@ -2,7 +2,7 @@
 <!-- CLUBS v1.7.4 -->
 <html lang="en">
 <head>
-  <script>window.SCS_APP_VERSION = "1.12.56"; window.SCS_BUILD = "461";</script>
+  <script>window.SCS_APP_VERSION = "1.12.57"; window.SCS_BUILD = "462";</script>
   <script>
     // Build 416: mode selection and authentication screens remain scrollable in landscape.
     (function () {
@@ -117,7 +117,7 @@ html,body{overscroll-behavior:none;}
 
   <script src="report.js?v=259" defer></script>
 
-  <link rel="stylesheet" href="ui.css?v=459">
+  <link rel="stylesheet" href="ui.css?v=462">
   <link rel="stylesheet" href="rounds.css?v=259">
 </head>
 <body>
@@ -255,6 +255,9 @@ html,body{overscroll-behavior:none;}
           </span>
         </button>
         <button class="welcome-carousel-arrow welcome-carousel-next" type="button" aria-label="Next workspace" onclick="event.stopPropagation(); welcomeCycleWorkspace(1)">›</button>
+        <button class="welcome-continue" type="button" onclick="welcomeContinueWorkspace()">
+          <span id="welcomeContinueLabel">Enter My Hub</span><span aria-hidden="true">→</span>
+        </button>
       </div>
       <div class="welcome-carousel-dots" role="tablist" aria-label="Workspace position">
         <button class="welcome-carousel-dot active" type="button" aria-label="Player" aria-selected="true" onclick="welcomeSelectWorkspace('viewer')"></button>
@@ -270,10 +273,6 @@ html,body{overscroll-behavior:none;}
           <span id="welcomeNextAction2" data-i18n="playerCardAction2">View Ranks</span>
         </span>
       </div>
-
-      <button class="welcome-continue" type="button" onclick="welcomeContinueWorkspace()">
-        <span id="welcomeContinueLabel">Enter My Hub</span><span aria-hidden="true">→</span>
-      </button>
 
       <div id="welcomePhotoSheet" class="welcome-photo-sheet" hidden onclick="if(event.target===this) welcomeClosePhotoMenu()">
         <div class="welcome-photo-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="welcomePhotoSheetTitle">

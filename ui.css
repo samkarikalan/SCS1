@@ -23500,3 +23500,105 @@ html[data-theme="light"] #modeSelectOverlay .welcome-launcher-start-card .launch
 #modeSelectOverlay .welcome-launcher-start-card .launcher-start-close {
   z-index: 2;
 }
+
+
+/* ==========================================================================\n   BUILD 462 — Welcome UI polish only\n   - Existing Enter action moved visually inside the selected hub card.\n   - Electric-blue brand palette for light and dark themes.\n   - Smooth, restrained carousel and press feedback.\n   No IDs, handlers, navigation or data logic changed.\n   ========================================================================== */
+#modeSelectOverlay {
+  --welcome-accent: #2388ff;
+  --welcome-accent-strong: #0874ea;
+  --welcome-accent-soft: rgba(35,136,255,.18);
+  --welcome-accent-border: rgba(77,161,255,.58);
+}
+#modeSelectOverlay .welcome-workspaces {
+  position: relative !important;
+  padding-bottom: 76px !important;
+  box-sizing: content-box !important;
+}
+#modeSelectOverlay .welcome-workspace.active,
+#modeSelectOverlay .welcome-workspace[aria-checked="true"] {
+  border-color: var(--welcome-accent-border) !important;
+  box-shadow: 0 16px 38px rgba(0,105,220,.18), inset 0 1px 0 rgba(255,255,255,.08) !important;
+  transition: transform .26s cubic-bezier(.22,.8,.3,1), opacity .22s ease, box-shadow .26s ease, border-color .22s ease !important;
+}
+#modeSelectOverlay .welcome-workspace:not(.active):not([aria-checked="true"]) {
+  transition: transform .26s cubic-bezier(.22,.8,.3,1), opacity .22s ease !important;
+}
+#modeSelectOverlay .welcome-continue {
+  position: absolute !important;
+  left: 30px !important;
+  right: 30px !important;
+  bottom: 12px !important;
+  z-index: 15 !important;
+  width: auto !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  margin: 0 !important;
+  border: 1px solid rgba(255,255,255,.16) !important;
+  border-radius: 16px !important;
+  background: linear-gradient(135deg, var(--welcome-accent), var(--welcome-accent-strong)) !important;
+  color: #fff !important;
+  box-shadow: 0 10px 24px rgba(0,111,231,.28) !important;
+  transition: transform .12s ease, filter .18s ease, box-shadow .18s ease !important;
+}
+#modeSelectOverlay .welcome-continue:active {
+  transform: scale(.975) !important;
+  filter: brightness(.96) !important;
+  box-shadow: 0 5px 14px rgba(0,111,231,.22) !important;
+}
+#modeSelectOverlay .welcome-carousel-dot.active,
+#modeSelectOverlay .welcome-club-pill.selected .welcome-club-pill-dot {
+  background: var(--welcome-accent) !important;
+}
+#modeSelectOverlay .welcome-carousel-dot.active,
+#modeSelectOverlay .welcome-role-photo-wrap,
+#modeSelectOverlay .welcome-player-photo-wrap,
+#modeSelectOverlay .welcome-club-pill.selected {
+  border-color: var(--welcome-accent-border) !important;
+}
+#modeSelectOverlay .welcome-player-stat strong,
+#modeSelectOverlay .welcome-role-stat strong,
+#modeSelectOverlay .welcome-role-stat-icon,
+#modeSelectOverlay .welcome-next-slot-label,
+#modeSelectOverlay .welcome-club-pill-arrow {
+  color: var(--welcome-accent) !important;
+}
+#modeSelectOverlay .welcome-tile-assist {
+  border-color: var(--welcome-accent-border) !important;
+  color: #8fc6ff !important;
+  background: var(--welcome-accent-soft) !important;
+}
+#modeSelectOverlay .welcome-refresh-btn,
+#modeSelectOverlay .welcome-theme-toggle {
+  color: var(--welcome-accent) !important;
+}
+body.app-light #modeSelectOverlay,
+html[data-theme="light"] #modeSelectOverlay {
+  --welcome-accent: #0879e8;
+  --welcome-accent-strong: #0067cc;
+  --welcome-accent-soft: rgba(8,121,232,.10);
+  --welcome-accent-border: rgba(8,121,232,.34);
+}
+body.app-light #modeSelectOverlay .welcome-workspace.active,
+html[data-theme="light"] #modeSelectOverlay .welcome-workspace.active,
+body.app-light #modeSelectOverlay .welcome-workspace[aria-checked="true"],
+html[data-theme="light"] #modeSelectOverlay .welcome-workspace[aria-checked="true"] {
+  box-shadow: 0 16px 34px rgba(4,92,181,.14), inset 0 1px 0 rgba(255,255,255,.85) !important;
+}
+@media (max-width:430px) and (orientation:portrait) {
+  #modeSelectOverlay .welcome-workspaces { padding-bottom: 70px !important; }
+  #modeSelectOverlay .welcome-continue {
+    left: 29px !important;
+    right: 29px !important;
+    bottom: 10px !important;
+    height: 50px !important;
+    min-height: 50px !important;
+    font-size: 17px !important;
+  }
+  #modeSelectOverlay .welcome-carousel-dots { margin-top: 4px !important; }
+  #modeSelectOverlay .welcome-next-steps { margin-top: 4px !important; }
+  #modeSelectOverlay .welcome-footer { margin-top: 14px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #modeSelectOverlay .welcome-workspace,
+  #modeSelectOverlay .welcome-continue { transition: none !important; }
+}
