@@ -4688,7 +4688,7 @@ async function renderLauncherStartSessionCard() {
   var sameSlot = _launcherDueSlot && _launcherDueSlot.slotId === nextSlotId &&
     card.dataset.slotId === nextSlotId && card.firstElementChild;
 
-  _launcherDueSlot = { slotId: nextSlotId, clubId: String(clubId), clubName: clubName };
+  _launcherDueSlot = { slotId: nextSlotId, clubId: String(clubId), clubName: clubName, canStart: canStart };
 
   if (sameSlot) {
     // Keep the existing card node completely stable. Only change the small
@@ -4699,19 +4699,28 @@ async function renderLauncherStartSessionCard() {
     if (titleEl && titleEl.textContent !== titleText) titleEl.textContent = titleText;
     var detailText = timeText + ' · ' + (slot.venue || clubName) + ' · ' + confirmed + ' ' + _vsT('playersPlural', 'players');
     if (detailEl && detailEl.textContent !== detailText) detailEl.textContent = detailText;
+    var dialogEl = card.querySelector('.launcher-start-dialog');
+    if (dialogEl) {
+      dialogEl.dataset.canStart = canStart ? '1' : '0';
+      dialogEl.setAttribute('aria-disabled', canStart ? 'false' : 'true');
+      dialogEl.tabIndex = canStart ? 0 : -1;
+      dialogEl.classList.toggle('can-start', canStart);
+    }
     if (actionEl) {
       if (actionEl.textContent !== actionText) actionEl.textContent = actionText;
-      actionEl.disabled = !canStart;
+      actionEl.setAttribute('aria-disabled', canStart ? 'false' : 'true');
+      actionEl.classList.toggle('is-disabled', !canStart);
     }
   } else {
     card.dataset.slotId = nextSlotId;
-    card.innerHTML = '<div class="launcher-start-dialog">' +
-      '<button class="launcher-start-close" type="button" aria-label="Close" onclick="event.stopPropagation(); closeLauncherStartSessionCard()">&times;</button>' +
-      '<div class="launcher-start-icon">▶</div>' +
-      '<div class="launcher-start-info"><strong data-launcher-slot-title>' + _vsEscape(titleText) + '</strong>' +
-        '<span data-launcher-slot-detail>' + _vsEscape(timeText) + ' · ' + _vsEscape(slot.venue || clubName) + ' · ' + confirmed + ' ' + _vsEscape(_vsT('playersPlural', 'players')) + '</span></div>' +
-      '<button class="launcher-start-action" data-launcher-slot-action type="button"' + (!canStart ? ' disabled' : '') +
-        ' onclick="event.stopPropagation(); launcherStartSlotSession()">' + _vsEscape(actionText) + '</button></div>';
+    card.innerHTML = '<span class="launcher-start-dialog' + (canStart ? ' can-start' : '') + '" role="button" tabindex="' + (canStart ? '0' : '-1') + '" aria-disabled="' + (canStart ? 'false' : 'true') + '" data-can-start="' + (canStart ? '1' : '0') + '"' +
+      ' onclick="event.stopPropagation(); if(this.dataset.canStart===\'1\') launcherStartSlotSession()"' +
+      ' onkeydown="if((event.key===\'Enter\'||event.key===\' \')&&this.dataset.canStart===\'1\'){event.preventDefault();event.stopPropagation();launcherStartSlotSession()}">' +
+      '<span class="launcher-start-close" role="button" tabindex="0" aria-label="Close" onclick="event.stopPropagation(); closeLauncherStartSessionCard()" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();event.stopPropagation();closeLauncherStartSessionCard()}">&times;</span>' +
+      '<span class="launcher-start-icon">▶</span>' +
+      '<span class="launcher-start-info"><strong data-launcher-slot-title>' + _vsEscape(titleText) + '</strong>' +
+        '<span data-launcher-slot-detail>' + _vsEscape(timeText) + ' · ' + _vsEscape(slot.venue || clubName) + ' · ' + confirmed + ' ' + _vsEscape(_vsT('playersPlural', 'players')) + '</span></span>' +
+      '<span class="launcher-start-action' + (!canStart ? ' is-disabled' : '') + '" data-launcher-slot-action role="button" aria-disabled="' + (!canStart ? 'true' : 'false') + '">' + _vsEscape(actionText) + '</span></span>';
   }
   card.style.display = 'flex';
   if (_launcherStartCardTimer) clearTimeout(_launcherStartCardTimer);
@@ -4732,6 +4741,7 @@ function closeLauncherStartSessionCard() {
 }
 
 async function launcherStartSlotSession() {
+  if (!_launcherDueSlot || !_launcherDueSlot.canStart) return;
   var slotId = _launcherDueSlot && _launcherDueSlot.slotId;
   var clubId = _launcherDueSlot && _launcherDueSlot.clubId;
   var clubName = _launcherDueSlot && _launcherDueSlot.clubName;

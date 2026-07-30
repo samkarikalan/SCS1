@@ -1,5 +1,5 @@
 /* Sports Club Scheduler service worker — complete installed-app updates. */
-const CACHE_NAME = 'scs-app-build-460-move-start-slot-to-welcome';
+const CACHE_NAME = 'scs-app-build-461-welcome-slot-action-fix';
 const APP_SHELL = './index.html?v=459';
 
 const ASSETS = [

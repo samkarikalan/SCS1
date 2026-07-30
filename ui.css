@@ -23483,3 +23483,20 @@ body.app-light #modeSelectOverlay .welcome-launcher-start-card .launcher-start-d
 html[data-theme="light"] #modeSelectOverlay .welcome-launcher-start-card .launcher-start-dialog {
   background: linear-gradient(135deg, rgba(45,206,137,.20), rgba(255,255,255,.88));
 }
+
+/* BUILD 461 — The moved Rounds slot card keeps its complete interaction.
+   The welcome tile is itself a button, so nested native buttons are invalid.
+   The slot controls use role=button and the whole visible card starts rounds. */
+#modeSelectOverlay .welcome-launcher-start-card .launcher-start-dialog.can-start {
+  cursor: pointer;
+}
+#modeSelectOverlay .welcome-launcher-start-card .launcher-start-dialog.can-start:active {
+  transform: scale(.992);
+}
+#modeSelectOverlay .welcome-launcher-start-card .launcher-start-action.is-disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+#modeSelectOverlay .welcome-launcher-start-card .launcher-start-close {
+  z-index: 2;
+}
