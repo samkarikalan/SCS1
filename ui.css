@@ -23800,3 +23800,38 @@ html[data-theme="light"] #modeSelectOverlay .welcome-rounds-empty small { color:
     font-size: 13px !important;
   }
 }
+
+/* ==========================================================================\n   BUILD 466 — Instagram-style finger-following Welcome swipe\n   One full tile per page; drag follows the finger and snaps smoothly.\n   ========================================================================== */
+#modeSelectOverlay .welcome-card-frame .welcome-workspaces {
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+  overflow: hidden !important;
+  touch-action: pan-y pinch-zoom !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+#modeSelectOverlay .welcome-card-frame .welcome-workspace,
+#modeSelectOverlay .welcome-card-frame .welcome-workspace.active,
+#modeSelectOverlay .welcome-card-frame .welcome-workspace[aria-checked="true"] {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+  flex: none !important;
+  margin: 0 !important;
+  opacity: 1 !important;
+  transform: translate3d(0,0,0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+#modeSelectOverlay .welcome-card-frame .welcome-workspaces.is-dragging .welcome-workspace {
+  pointer-events: none;
+}
+#modeSelectOverlay .welcome-card-frame .welcome-carousel-arrow {
+  z-index: 20 !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  #modeSelectOverlay .welcome-card-frame .welcome-workspace { transition-duration: 1ms !important; }
+}

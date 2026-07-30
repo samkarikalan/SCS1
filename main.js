@@ -686,24 +686,120 @@ function welcomeCycleWorkspace(direction) {
   welcomeSelectWorkspace(modes[next]);
 }
 
+/* Build 466: finger-following Welcome carousel with smooth snap. */
 (function enableWelcomeWorkspaceSwipe() {
-  var startX = null;
-  var startY = null;
-  document.addEventListener('touchstart', function(event) {
-    var carousel = event.target && event.target.closest ? event.target.closest('#welcomeWorkspaceCarousel') : null;
-    if (!carousel || !event.touches || event.touches.length !== 1) return;
-    startX = event.touches[0].clientX;
-    startY = event.touches[0].clientY;
-  }, { passive: true });
-  document.addEventListener('touchend', function(event) {
-    if (startX === null || !event.changedTouches || !event.changedTouches.length) return;
-    var dx = event.changedTouches[0].clientX - startX;
-    var dy = event.changedTouches[0].clientY - startY;
-    startX = null;
-    startY = null;
-    if (Math.abs(dx) < 45 || Math.abs(dx) <= Math.abs(dy)) return;
-    welcomeCycleWorkspace(dx < 0 ? 1 : -1);
-  }, { passive: true });
+  var modes = ['viewer', 'organiser', 'vault'];
+  var carousel = null;
+  var cards = [];
+  var pointerId = null;
+  var startX = 0;
+  var startY = 0;
+  var dragX = 0;
+  var dragging = false;
+  var horizontal = false;
+  var suppressClickUntil = 0;
+
+  function activeIndex() {
+    var index = modes.indexOf(welcomeSelectedWorkspace);
+    return index < 0 ? 0 : index;
+  }
+
+  function render(offset, animate) {
+    if (!carousel || !cards.length) return;
+    var width = carousel.clientWidth || 1;
+    var index = activeIndex();
+    carousel.classList.toggle('is-dragging', !animate);
+    cards.forEach(function(card, cardIndex) {
+      var position = (cardIndex - index) * width + offset;
+      card.style.transform = 'translate3d(' + position + 'px,0,0)';
+      card.style.transition = animate ? 'transform 420ms cubic-bezier(.22,.72,.2,1)' : 'none';
+      card.style.visibility = Math.abs(cardIndex - index) > 1 ? 'hidden' : 'visible';
+    });
+  }
+
+  function finishDrag(velocityDirection) {
+    if (pointerId === null) return;
+    var width = carousel ? carousel.clientWidth : 0;
+    var threshold = Math.min(90, Math.max(48, width * .18));
+    var direction = Math.abs(dragX) >= threshold ? (dragX < 0 ? 1 : -1) : velocityDirection;
+    var index = activeIndex();
+    if (direction === 1 && index >= modes.length - 1) direction = 0;
+    if (direction === -1 && index <= 0) direction = 0;
+    if (dragging) suppressClickUntil = Date.now() + 450;
+    pointerId = null;
+    dragging = false;
+    horizontal = false;
+    dragX = 0;
+    if (direction) welcomeSelectWorkspace(modes[index + direction]);
+    render(0, true);
+  }
+
+  function init() {
+    carousel = document.getElementById('welcomeWorkspaceCarousel');
+    if (!carousel || carousel.dataset.swipe466 === '1') return;
+    carousel.dataset.swipe466 = '1';
+    cards = modes.map(function(mode) {
+      return document.getElementById('experienceMode' + (mode === 'viewer' ? 'Viewer' : mode === 'organiser' ? 'Organiser' : 'Vault'));
+    }).filter(Boolean);
+
+    carousel.addEventListener('pointerdown', function(event) {
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      if (event.target.closest('.welcome-tile-assist,.welcome-tile-logout,.welcome-role-edit,.welcome-player-edit,.welcome-organiser-club-pills,.welcome-next-slot-host,.welcome-carousel-arrow')) return;
+      pointerId = event.pointerId;
+      startX = event.clientX;
+      startY = event.clientY;
+      dragX = 0;
+      dragging = false;
+      horizontal = false;
+      carousel.setPointerCapture(pointerId);
+    });
+
+    carousel.addEventListener('pointermove', function(event) {
+      if (event.pointerId !== pointerId) return;
+      var dx = event.clientX - startX;
+      var dy = event.clientY - startY;
+      if (!horizontal && Math.max(Math.abs(dx), Math.abs(dy)) > 8) {
+        horizontal = Math.abs(dx) > Math.abs(dy);
+        if (!horizontal) {
+          finishDrag(0);
+          return;
+        }
+      }
+      if (!horizontal) return;
+      event.preventDefault();
+      dragging = true;
+      var index = activeIndex();
+      var resistance = ((index === 0 && dx > 0) || (index === modes.length - 1 && dx < 0)) ? .28 : 1;
+      dragX = dx * resistance;
+      render(dragX, false);
+    });
+
+    carousel.addEventListener('pointerup', function(event) {
+      if (event.pointerId !== pointerId) return;
+      finishDrag(0);
+    });
+    carousel.addEventListener('pointercancel', function(event) {
+      if (event.pointerId !== pointerId) return;
+      finishDrag(0);
+    });
+    carousel.addEventListener('click', function(event) {
+      if (Date.now() < suppressClickUntil) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }, true);
+    window.addEventListener('resize', function() { render(0, false); });
+    render(0, false);
+  }
+
+  var originalSelect = welcomeSelectWorkspace;
+  welcomeSelectWorkspace = function(mode) {
+    originalSelect(mode);
+    window.requestAnimationFrame(function() { render(0, true); });
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();
 
 async function welcomeContinueWorkspace() {
