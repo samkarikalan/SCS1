@@ -686,7 +686,7 @@ function welcomeCycleWorkspace(direction) {
   welcomeSelectWorkspace(modes[next]);
 }
 
-/* Build 466: finger-following Welcome carousel with smooth snap. */
+/* Build 467: full-card finger-following Welcome carousel with smooth snap. */
 (function enableWelcomeWorkspaceSwipe() {
   var modes = ['viewer', 'organiser', 'vault'];
   var carousel = null;
@@ -711,9 +711,10 @@ function welcomeCycleWorkspace(direction) {
     carousel.classList.toggle('is-dragging', !animate);
     cards.forEach(function(card, cardIndex) {
       var position = (cardIndex - index) * width + offset;
-      card.style.transform = 'translate3d(' + position + 'px,0,0)';
-      card.style.transition = animate ? 'transform 420ms cubic-bezier(.22,.72,.2,1)' : 'none';
-      card.style.visibility = Math.abs(cardIndex - index) > 1 ? 'hidden' : 'visible';
+      card.style.setProperty('display', 'flex', 'important');
+      card.style.setProperty('transform', 'translate3d(' + position + 'px,0,0)', 'important');
+      card.style.setProperty('transition', animate ? 'transform 420ms cubic-bezier(.22,.72,.2,1)' : 'none', 'important');
+      card.style.setProperty('visibility', Math.abs(cardIndex - index) > 1 ? 'hidden' : 'visible', 'important');
     });
   }
 
@@ -736,8 +737,8 @@ function welcomeCycleWorkspace(direction) {
 
   function init() {
     carousel = document.getElementById('welcomeWorkspaceCarousel');
-    if (!carousel || carousel.dataset.swipe466 === '1') return;
-    carousel.dataset.swipe466 = '1';
+    if (!carousel || carousel.dataset.swipe467 === '1') return;
+    carousel.dataset.swipe467 = '1';
     cards = modes.map(function(mode) {
       return document.getElementById('experienceMode' + (mode === 'viewer' ? 'Viewer' : mode === 'organiser' ? 'Organiser' : 'Vault'));
     }).filter(Boolean);

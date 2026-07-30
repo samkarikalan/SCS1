@@ -23835,3 +23835,66 @@ html[data-theme="light"] #modeSelectOverlay .welcome-rounds-empty small { color:
 @media (prefers-reduced-motion: reduce) {
   #modeSelectOverlay .welcome-card-frame .welcome-workspace { transition-duration: 1ms !important; }
 }
+
+/* =========================================================
+   BUILD 467 — COMPLETE CARD SWIPE
+   Every workspace card remains mounted and the full card,
+   including its border, photo, content and actions, moves.
+   ========================================================= */
+#modeSelectOverlay #welcomeWorkspaceCarousel.welcome-workspaces {
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+  min-height: 300px !important;
+  height: 300px !important;
+  margin: 0 !important;
+  padding: 6px 58px 8px !important;
+  overflow: hidden !important;
+  touch-action: pan-y !important;
+  contain: layout paint !important;
+}
+#modeSelectOverlay #welcomeWorkspaceCarousel .welcome-workspace,
+#modeSelectOverlay #welcomeWorkspaceCarousel .welcome-workspace.active,
+#modeSelectOverlay #welcomeWorkspaceCarousel .welcome-workspace[aria-checked="true"],
+#modeSelectOverlay #welcomeWorkspaceCarousel .welcome-workspace:not(.active):not([aria-checked="true"]) {
+  position: absolute !important;
+  top: 6px !important;
+  left: 58px !important;
+  display: flex !important;
+  width: calc(100% - 116px) !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  min-height: 284px !important;
+  height: 284px !important;
+  margin: 0 !important;
+  padding: 32px 20px 24px !important;
+  border-radius: 28px !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  z-index: 2 !important;
+  will-change: transform !important;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+}
+#modeSelectOverlay #welcomeWorkspaceCarousel.is-dragging .welcome-workspace {
+  pointer-events: none !important;
+}
+@media (max-width: 390px) {
+  #modeSelectOverlay #welcomeWorkspaceCarousel.welcome-workspaces {
+    min-height: 286px !important;
+    height: 286px !important;
+    padding-left: 48px !important;
+    padding-right: 48px !important;
+  }
+  #modeSelectOverlay #welcomeWorkspaceCarousel .welcome-workspace,
+  #modeSelectOverlay #welcomeWorkspaceCarousel .welcome-workspace.active,
+  #modeSelectOverlay #welcomeWorkspaceCarousel .welcome-workspace[aria-checked="true"],
+  #modeSelectOverlay #welcomeWorkspaceCarousel .welcome-workspace:not(.active):not([aria-checked="true"]) {
+    left: 48px !important;
+    width: calc(100% - 96px) !important;
+    min-height: 270px !important;
+    height: 270px !important;
+    padding: 28px 16px 20px !important;
+  }
+}

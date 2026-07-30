@@ -1,5 +1,5 @@
 /* Sports Club Scheduler service worker — complete installed-app updates. */
-const CACHE_NAME = 'scs-app-build-466-smooth-welcome-swipe';
+const CACHE_NAME = 'scs-app-build-467-complete-tile-swipe';
 const APP_SHELL = './index.html?v=466';
 
 const ASSETS = [
