@@ -2464,25 +2464,79 @@ function getPlayMode() {
     : "random";
 }
 
+function getGameGenerationMode() {
+  const savedMode = localStorage.getItem("gameGenerationMode");
+  if (savedMode === "standard" || savedMode === "unique" || savedMode === "balanced") {
+    return savedMode;
+  }
+  // One-time compatibility with the previous Unique Games switch.
+  const oldUnique = localStorage.getItem("uniqueGamesMode");
+  return oldUnique === "false" ? "standard" : "unique";
+}
+
 function getUniqueGamesMode() {
-  const saved = localStorage.getItem("uniqueGamesMode");
-  if (saved === null) return true;
-  return saved !== "false";
+  return getGameGenerationMode() === "unique";
+}
+
+function generateBalancedGames() {
+  // Balanced generation is performed by the stateless worker.
+  // This function keeps the UI mode hook active.
+  return true;
+}
+
+function syncGameGenerationRadios(mode) {
+  document.querySelectorAll('input[type="radio"][value="' + mode + '"]').forEach(radio => {
+    if (radio.name === "homeGameGenerationMode" || radio.name === "roundGameGenerationMode") {
+      radio.checked = true;
+    }
+  });
+}
+
+function setGameGenerationMode(mode, persist) {
+  const selected = (mode === "unique" || mode === "balanced") ? mode : "standard";
+  syncGameGenerationRadios(selected);
+  if (persist !== false) localStorage.setItem("gameGenerationMode", selected);
+
+  // Preserve the existing scheduler contract: only Unique Games sets this flag.
+  const uniqueEnabled = selected === "unique";
+  localStorage.setItem("uniqueGamesMode", uniqueEnabled ? "true" : "false");
+  if (typeof schedulerState !== "undefined") {
+    schedulerState.gameGenerationMode = selected;
+    schedulerState.uniqueGamesMode = uniqueEnabled;
+  }
+
+  if (selected === "balanced") generateBalancedGames();
 }
 
 function setUniqueGamesMode(enabled, persist) {
-  const on = enabled !== false;
-  document.querySelectorAll("#uniqueGamesToggle").forEach(toggle => {
-    toggle.checked = on;
-  });
-  if (persist !== false) localStorage.setItem("uniqueGamesMode", on ? "true" : "false");
-  if (typeof schedulerState !== "undefined") schedulerState.uniqueGamesMode = on;
+  setGameGenerationMode(enabled === false ? "standard" : "unique", persist);
 }
+
+// Build 527: robust touch/click wiring for both Game Generation radio groups.
+// The inline change handlers remain as a fallback; this listener guarantees
+// selection also works when tapping the text or anywhere in the row on iOS PWA.
+document.addEventListener("change", function (event) {
+  const target = event.target;
+  if (!(target instanceof HTMLInputElement) || target.type !== "radio") return;
+  if (target.name !== "homeGameGenerationMode" && target.name !== "roundGameGenerationMode") return;
+  setGameGenerationMode(target.value, true);
+});
+
+document.addEventListener("click", function (event) {
+  const row = event.target.closest && event.target.closest(".game-mode-radio-row");
+  if (!row) return;
+  const radio = row.querySelector('input[type="radio"]');
+  if (!radio || radio.disabled) return;
+  if (!radio.checked) {
+    radio.checked = true;
+    setGameGenerationMode(radio.value, true);
+  }
+});
 
 const modeToggle = document.getElementById("modeToggle");
 const modeLabel  = document.getElementById("modeLabel");
 
-// Restore saved mode
+// Restore saved winner-marking mode
 modeToggle.checked = localStorage.getItem("playMode") === "competitive";
 updateModeLabel();
 toggleMinRoundsVisibility(); // ← restore on load
@@ -2491,6 +2545,7 @@ modeToggle.addEventListener("change", () => {
   localStorage.setItem("playMode", getPlayMode());
   updateModeLabel();
   toggleMinRoundsVisibility();
+  document.querySelectorAll('#stepModeToggle').forEach(toggle => { toggle.checked = modeToggle.checked; });
   if (currentState === "active") {
     const isComp = getPlayMode() === 'competitive';
     document.querySelectorAll('.win-cup').forEach(cup => {
@@ -2501,16 +2556,8 @@ modeToggle.addEventListener("change", () => {
   }
 });
 
-// Unique Games toggle
-const uniqueGamesToggle = document.getElementById("uniqueGamesToggle");
-if (uniqueGamesToggle) {
-  setUniqueGamesMode(getUniqueGamesMode(), false);
-  document.querySelectorAll("#uniqueGamesToggle").forEach(toggle => {
-    toggle.addEventListener("change", () => {
-      setUniqueGamesMode(toggle.checked, true);
-    });
-  });
-}
+// Restore and synchronize the three game-generation radio groups.
+setGameGenerationMode(getGameGenerationMode(), false);
 
 // Min Rounds value
 // minRoundsRow removed from UI -- no warm-up concept
@@ -2523,7 +2570,7 @@ function toggleMinRoundsVisibility() {
 
 function updateModeLabel() {
   const lbl = document.getElementById('modeLabel');
-  if (lbl) lbl.textContent = getPlayMode() === "competitive" ? "🏆" : "🎲";
+  if (lbl) lbl.textContent = "";
 }
 
 // Check if all games in current round have winners -- enable End button
@@ -2857,3 +2904,32 @@ function updateCourtPills() {
     _ctpRefreshBtn(typeBtn, i);
   }
 }
+
+
+// Build 530: expandable Round Settings card on the Organiser dashboard.
+function setOrgRoundSettingsExpanded(expanded, persist) {
+  const card = document.getElementById('organiserCourtsCard');
+  const header = document.getElementById('orgRoundSettingsHeader');
+  const body = document.getElementById('orgRoundSettingsBody');
+  if (!card || !header || !body) return;
+
+  card.classList.toggle('is-collapsed', !expanded);
+  header.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+  body.setAttribute('aria-hidden', expanded ? 'false' : 'true');
+
+  if (persist !== false) {
+    try { localStorage.setItem('scsOrgRoundSettingsExpanded', expanded ? '1' : '0'); } catch (_) {}
+  }
+}
+
+function toggleOrgRoundSettings() {
+  const card = document.getElementById('organiserCourtsCard');
+  if (!card) return;
+  setOrgRoundSettingsExpanded(card.classList.contains('is-collapsed'), true);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  let expanded = false;
+  try { expanded = localStorage.getItem('scsOrgRoundSettingsExpanded') === '1'; } catch (_) {}
+  setOrgRoundSettingsExpanded(expanded, false);
+});

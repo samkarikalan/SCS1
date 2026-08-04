@@ -156,8 +156,9 @@ function initTheme() {
 }
 
 function initFontSize() {
-  const savedSize = localStorage.getItem("appFontSize") || "xlarge";
-  setFontSize(savedSize);
+  const savedScale = localStorage.getItem("appFontScale");
+  const legacySize = localStorage.getItem("appFontSize") || "xlarge";
+  setFontSize(savedScale !== null ? Number(savedScale) : legacySize);
 }
 
 function applyTheme(mode) {
@@ -201,19 +202,47 @@ function scsToggleTheme() {
   applyTheme(current === 'light' ? 'dark' : 'light');
 }
 
-function setFontSize(size) {
-  const root = document.documentElement;
-  if (size === "small")  root.style.setProperty("--base-font-size", "15px");
-  if (size === "medium") root.style.setProperty("--base-font-size", "16px");
-  if (size === "large")  root.style.setProperty("--base-font-size", "17px");
-  if (size === "xlarge") root.style.setProperty("--base-font-size", "18px");
-  root.setAttribute("data-font-size", size);
-  localStorage.setItem("appFontSize", size);
-  document.querySelectorAll("#font_small, #font_medium, #font_large, #font_xlarge").forEach(el => {
-    el.classList.remove("active");
-  });
-  document.getElementById(`font_${size}`)?.classList.add("active");
+function _fontScaleFromValue(value) {
+  const legacy = { small: 94, medium: 100, large: 106, xlarge: 112 };
+  if (typeof value === 'string' && legacy[value] !== undefined) return legacy[value];
+  const n = Number(value);
+  return Number.isFinite(n) ? Math.max(88, Math.min(200, n)) : 112;
 }
+
+function _fontScaleBucket(scale) {
+  if (scale < 97) return 'small';
+  if (scale < 104) return 'medium';
+  if (scale < 110) return 'large';
+  return 'xlarge';
+}
+
+function setFontSize(value) {
+  const root = document.documentElement;
+  const scale = _fontScaleFromValue(value);
+  const rem = scale / 100;
+  root.style.setProperty('--base-font-size', rem.toFixed(3).replace(/0+$/,'').replace(/\.$/,'') + 'rem');
+  root.style.setProperty('--app-font-scale', rem.toFixed(3).replace(/0+$/,'').replace(/\.$/,'') || '1');
+  root.setAttribute('data-font-size', _fontScaleBucket(scale));
+  root.setAttribute('data-font-scale', String(scale));
+  localStorage.setItem('appFontScale', String(scale));
+  localStorage.setItem('appFontSize', _fontScaleBucket(scale));
+  const slider = document.getElementById('fontScaleSlider');
+  const valueEl = document.getElementById('fontScaleValue');
+  if (slider) slider.value = String(scale);
+  if (valueEl) valueEl.textContent = Math.round(scale) + '%';
+}
+
+function appearFontSliderInput(value) {
+  const scale = _fontScaleFromValue(value);
+  _appearPending.font = scale;
+  const valueEl = document.getElementById('fontScaleValue');
+  if (valueEl) valueEl.textContent = Math.round(scale) + '%';
+  const theme = _appearPending.theme || localStorage.getItem('app-theme') || 'light';
+  const style = _appearPending.tile || localStorage.getItem('kbrr_tile_style') || 'flat';
+  _renderPreview(theme, style, scale);
+  _appearUpdateApplyBtn();
+}
+
 
 /* ── Appearance panel: pending selections ── */
 var _appearPending = { theme: null, font: null, tile: null };
@@ -221,16 +250,18 @@ var _appearPending = { theme: null, font: null, tile: null };
 function appearSyncFromSaved() {
   // Sync pill active states from saved prefs when settings page opens
   const theme = localStorage.getItem('app-theme') || 'light';
-  const font  = localStorage.getItem('appFontSize') || 'xlarge';
+  const font  = Number(localStorage.getItem('appFontScale')) || _fontScaleFromValue(localStorage.getItem('appFontSize') || 'xlarge');
   const tile  = localStorage.getItem('kbrr_tile_style') || 'flat';
 
   // Theme pills
   ['theme_light','theme_dark'].forEach(id => document.getElementById(id)?.classList.remove('active'));
   document.getElementById(theme === 'light' ? 'theme_light' : 'theme_dark')?.classList.add('active');
 
-  // Font pills
-  ['font_small','font_medium','font_large'].forEach(id => document.getElementById(id)?.classList.remove('active'));
-  document.getElementById('font_' + font)?.classList.add('active');
+  // iOS-style font slider
+  const fontSlider = document.getElementById('fontScaleSlider');
+  const fontValue = document.getElementById('fontScaleValue');
+  if (fontSlider) fontSlider.value = String(font);
+  if (fontValue) fontValue.textContent = Math.round(font) + '%';
 
   // Tile buttons
   ['styleBtn1','styleBtn2','styleBtn3'].forEach(id => document.getElementById(id)?.classList.remove('active'));
@@ -264,8 +295,8 @@ function _renderPreview(theme, style, font) {
   const t = theme === 'light' ? light : dark;
 
   // ── Font sizes ──
-  const fontSizes = { small: { name: '0.52rem', sub: '0.42rem' }, medium: { name: '0.65rem', sub: '0.52rem' }, large: { name: '0.85rem', sub: '0.65rem' }, xlarge: { name: '1.0rem', sub: '0.78rem' } };
-  const fs = fontSizes[font] || fontSizes.medium;
+  const previewScale = _fontScaleFromValue(font) / 100;
+  const fs = { name: (0.85 * previewScale).toFixed(3) + 'rem', sub: (0.65 * previewScale).toFixed(3) + 'rem' };
 
   // ── Tile colours per style ──
   // Dark Color mode uses deeper accents so white labels remain readable.
@@ -351,7 +382,7 @@ function appearSelect(type, value, btn) {
   // Get current effective values (pending overrides saved)
   const theme = _appearPending.theme || localStorage.getItem('app-theme') || 'light';
   const style = _appearPending.tile  || localStorage.getItem('kbrr_tile_style') || 'flat';
-  const font  = _appearPending.font  || localStorage.getItem('appFontSize') || 'xlarge';
+  const font  = _appearPending.font  || Number(localStorage.getItem('appFontScale')) || _fontScaleFromValue(localStorage.getItem('appFontSize') || 'xlarge');
 
   // Re-render preview with all three combined
   _renderPreview(theme, style, font);
@@ -368,7 +399,7 @@ function _appearUpdateApplyBtn() {
     if (bar) bar.style.display = '';
     const parts = [];
     if (_appearPending.theme) parts.push(_appearPending.theme === 'light' ? '☀️ Light' : '🌙 Dark');
-    if (_appearPending.font)  parts.push(_appearPending.font.charAt(0).toUpperCase() + _appearPending.font.slice(1) + ' font');
+    if (_appearPending.font)  parts.push(Math.round(_appearPending.font) + '% font');
     if (_appearPending.tile)  parts.push(_appearPending.tile.charAt(0).toUpperCase() + _appearPending.tile.slice(1) + ' tiles');
     if (label) label.textContent = parts.join(' · ') + ' — tap Apply';
   } else {
@@ -1595,3 +1626,144 @@ if (document.readyState === 'loading') {
 } else {
   initLanguage();
 }
+
+
+/* ============================================================
+   BUILD 490 — Settings-controlled single sync schedule
+   kbrr_last_sync is the only persisted sync status/timestamp.
+============================================================ */
+var _scsSettingsSyncTimer = null;
+var _scsSyncGatewayPromise = null;
+
+function scsGetSyncInterval() {
+  var value = parseInt(localStorage.getItem('scs_sync_interval_minutes') || '5', 10);
+  return [0,1,5,15,30,60].includes(value) ? value : 5;
+}
+
+function scsReadLastSync() {
+  try {
+    var raw = localStorage.getItem('kbrr_last_sync');
+    if (!raw) return null;
+    var saved = JSON.parse(raw);
+    if (!saved || typeof saved !== 'object') return null;
+    // Older builds stored only the human-readable message. Keep it readable,
+    // but do not invent a time that was never recorded.
+    return saved;
+  } catch (_) { return null; }
+}
+
+function scsFormatLastSync(timestamp) {
+  if (!timestamp) return (typeof t === 'function' ? t('never') : 'Never');
+  try {
+    return new Intl.DateTimeFormat(document.documentElement.lang || undefined, {
+      day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'
+    }).format(new Date(Number(timestamp)));
+  } catch (_) { return new Date(Number(timestamp)).toLocaleString(); }
+}
+
+function scsUpdateSyncSettingsUI() {
+  var interval = scsGetSyncInterval();
+  var select = document.getElementById('settingsSyncInterval');
+  if (select) select.value = String(interval);
+  var saved = scsReadLastSync();
+  var lastEl = document.getElementById('settingsLastSync');
+  if (lastEl) lastEl.textContent = saved && saved.at ? scsFormatLastSync(saved.at) : (typeof t === 'function' ? t('never') : 'Never');
+  var head = document.getElementById('settingsHeaderSyncStatus');
+  if (head) head.textContent = (typeof t === 'function' ? t('sync') : 'Sync');
+}
+
+function scsScheduleAutoSync() {
+  if (_scsSettingsSyncTimer) clearInterval(_scsSettingsSyncTimer);
+  _scsSettingsSyncTimer = null;
+  var minutes = scsGetSyncInterval();
+  if (!minutes) return;
+  _scsSettingsSyncTimer = setInterval(function() {
+    if (document.visibilityState === 'visible') scsSyncGateway('auto', true);
+  }, minutes * 60 * 1000);
+}
+
+function scsSetSyncInterval(value) {
+  var minutes = parseInt(value, 10);
+  if (![0,1,5,15,30,60].includes(minutes)) minutes = 5;
+  localStorage.setItem('scs_sync_interval_minutes', String(minutes));
+  scsScheduleAutoSync();
+  var message = document.getElementById('settingsSyncMessage');
+  if (message) message.textContent = minutes ? ((typeof t === 'function' ? t('autoSyncSet') : 'Automatic sync updated.')) : ((typeof t === 'function' ? t('manualSyncSet') : 'Automatic sync is off.'));
+}
+
+async function scsSyncGateway(source, quiet) {
+  // One gateway and one in-flight promise for startup/resume/automatic/manual requests.
+  if (_scsSyncGatewayPromise) return _scsSyncGatewayPromise;
+
+  var buttons = [document.getElementById('settingsHeaderSyncBtn'), document.getElementById('settingsSyncNowBtn')].filter(Boolean);
+  buttons.forEach(function(btn){ btn.disabled = true; btn.classList.add('is-syncing'); });
+  var message = document.getElementById('settingsSyncMessage');
+  if (message && !quiet) message.textContent = (typeof t === 'function' ? t('syncing') : 'Syncing…');
+
+  _scsSyncGatewayPromise = (async function() {
+    try {
+      if (typeof flushSyncQueue === 'function') await flushSyncQueue();
+
+      // The original server-master player sync remains the authoritative core.
+      // It records kbrr_last_sync and emits scs:data-synced on completion.
+      if (typeof syncToLocal === 'function') await syncToLocal();
+
+      var jobs = [];
+      function add(fn) { if (typeof fn === 'function') jobs.push(Promise.resolve().then(fn)); }
+      add(typeof syncGlobalPlayersCache === 'function' ? syncGlobalPlayersCache : null);
+      add(typeof restoreUserClubRoles === 'function' ? restoreUserClubRoles : null);
+      add(typeof getOrganiserEligibleClubs === 'function' ? getOrganiserEligibleClubs : null);
+      add(typeof _mcsLoadMonthSlots === 'function' ? _mcsLoadMonthSlots : null);
+      add(typeof _vhsLoadMonthSlots === 'function' ? _vhsLoadMonthSlots : null);
+      add(typeof renderLauncherStartSessionCard === 'function' ? renderLauncherStartSessionCard : null);
+      await Promise.allSettled(jobs);
+      if (typeof window.scsPrefetchWelcomeHubData === 'function') await window.scsPrefetchWelcomeHubData();
+
+      // If the core sync could not write a status (for example no club selected),
+      // record completion here using the same canonical key.
+      var saved = scsReadLastSync();
+      var now = Date.now();
+      if (!saved || !saved.at) {
+        localStorage.setItem('kbrr_last_sync', JSON.stringify({
+          msg: (typeof t === 'function' ? t('syncCompleted') : 'Sync completed.'),
+          color: '#2dce89', at: now, ok: true
+        }));
+        window.dispatchEvent(new CustomEvent('scs:data-synced', { detail:{ source:source || 'manual', at:now, ok:true } }));
+      }
+      scsUpdateSyncSettingsUI();
+      if (message && !quiet) message.textContent = (typeof t === 'function' ? t('syncCompleted') : 'Sync completed.');
+      return true;
+    } catch (error) {
+      console.warn('SCS sync gateway failed:', error);
+      if (message && !quiet) message.textContent = (typeof t === 'function' ? t('syncFailed') : 'Sync failed. Please try again.');
+      return false;
+    } finally {
+      buttons.forEach(function(btn){ btn.disabled = false; btn.classList.remove('is-syncing'); });
+      _scsSyncGatewayPromise = null;
+    }
+  })();
+  return _scsSyncGatewayPromise;
+}
+
+// Keep the UI callback name for existing HTML, but route it to the one gateway.
+function scsRunManualSync(source, quiet) { return scsSyncGateway(source || 'manual', !!quiet); }
+window.scsSyncGateway = scsSyncGateway;
+window.scsRunManualSync = scsRunManualSync;
+window.scsSetSyncInterval = scsSetSyncInterval;
+
+window.addEventListener('scs:data-synced', scsUpdateSyncSettingsUI);
+window.addEventListener('storage', function(event) {
+  if (event.key === 'kbrr_last_sync') scsUpdateSyncSettingsUI();
+});
+document.addEventListener('DOMContentLoaded', function() {
+  scsUpdateSyncSettingsUI();
+  scsScheduleAutoSync();
+});
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState !== 'visible') return;
+  var minutes = scsGetSyncInterval();
+  var saved = scsReadLastSync();
+  var last = saved && Number(saved.at) ? Number(saved.at) : 0;
+  if (minutes && Date.now() - last >= minutes * 60 * 1000) scsSyncGateway('resume', true);
+});
+

@@ -486,7 +486,7 @@ async function showUpgradeScreen(reason) {
   screen.innerHTML =
     '<div style="width:100%;max-width:400px;">' +
     (!isExpired ? '<div style="text-align:right;margin-bottom:8px;">' +
-      '<button onclick="hideUpgradeScreen()" style="background:none;border:none;color:var(--muted,#888);font-size:1.5rem;cursor:pointer;padding:4px 8px;line-height:1;">✕</button>' +
+      '<button class="subscription-close-x" type="button" aria-label="Close" onclick="hideUpgradeScreen()">✕</button>' +
     '</div>' : '') +
     '<div style="text-align:center;margin-bottom:28px;">' +
       '<div style="font-size:2.5rem;margin-bottom:10px;">' + (isExpired ? '⏰' : isBasic_ ? '⬆️' : '🏸') + '</div>' +

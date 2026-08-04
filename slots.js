@@ -2373,8 +2373,29 @@ async function vaultSlotsStartRoundsFromSlot(slotId) {
   try {
     const slot = await vaultSlotsLoadOne(slotId);
     if (!slot) throw new Error('Slot not found');
+    if (slot.played_session_id || String(slot.status || '').toLowerCase() === 'played') {
+      alert(t('slotAlreadyStarted') || 'This slot has already been started.');
+      if (typeof renderLauncherStartSessionCard === 'function') renderLauncherStartSessionCard();
+      if (typeof renderDashboard === 'function') renderDashboard();
+      return;
+    }
     const sessionMode = _vsSlotSessionMode(slot);
     const claims = (slot.claims || []).filter(c => c.status === 'confirmed');
+
+    // Use the same permission rule as the Dashboard Start Session action:
+    // the signed-in player must be one of the confirmed slot players.
+    const authUser = (typeof authGetUser === 'function') ? authGetUser() : null;
+    if (authUser && authUser.id) {
+      const myMemberships = await sbGet('memberships',
+        `club_id=eq.${club.id}&user_account_id=eq.${authUser.id}&select=player_id`
+      ).catch(() => []);
+      const myPlayerIds = new Set((myMemberships || []).map(m => String(m.player_id || '')).filter(Boolean));
+      const joined = claims.some(c => myPlayerIds.has(String(c.player_id || '')));
+      if (!joined) {
+        alert(t('joinSlotToStart') || 'Join this slot to start');
+        return;
+      }
+    }
     const playerIds = [...new Set((claims || []).map(c => c.player_id).filter(Boolean).map(String))];
     if (playerIds.length < 4) {
       alert(t('need4ConfirmedSlotPlayers') || 'Need at least 4 confirmed players to start rounds from this slot.');
@@ -2425,6 +2446,16 @@ async function vaultSlotsStartRoundsFromSlot(slotId) {
       return;
     }
 
+    // Create and link the live session before changing the local round state.
+    // This prevents a failed DB start from merely importing players and allows
+    // the slot to become unavailable immediately after a successful start.
+    if (typeof setMySessionId === 'function') setMySessionId(null);
+    const sessionId = (typeof dbStartSession === 'function') ? await dbStartSession(slotId) : null;
+    if (!sessionId) {
+      alert(t('linkedSessionCreateFailed') || 'Could not create a linked session for this slot. Please check connection and try again.');
+      return;
+    }
+
     schedulerState.allPlayers.splice(0, schedulerState.allPlayers.length, ...unique);
     schedulerState.activeplayers.splice(
       0, schedulerState.activeplayers.length,
@@ -2452,13 +2483,12 @@ async function vaultSlotsStartRoundsFromSlot(slotId) {
     if (typeof syncRatings === 'function') syncRatings();
     if (typeof homeUpdateStepper === 'function') homeUpdateStepper();
     if (typeof dbClaimSessionSlots === 'function') dbClaimSessionSlots(unique.map(p => p.name));
-    if (typeof setMySessionId === 'function') setMySessionId(null);
-    const sessionId = (typeof dbStartSession === 'function') ? await dbStartSession(slotId) : null;
-    if (!sessionId) {
-      alert(t('linkedSessionCreateFailed') || 'Could not create a linked session for this slot. Please check connection and try again.');
-      return;
-    }
-    if (sessionId && typeof saveRoundsToDb === 'function') await saveRoundsToDb();
+    if (typeof saveRoundsToDb === 'function') await saveRoundsToDb();
+
+    // Refresh both cards from the DB immediately. The linked slot is now marked
+    // played, so it disappears and cannot be started a second time.
+    if (typeof renderLauncherStartSessionCard === 'function') renderLauncherStartSessionCard();
+    if (typeof renderDashboard === 'function') renderDashboard();
 
     document.getElementById('vsManageOverlay')?.remove();
     const dateSheet = document.getElementById('vsDateSheetOverlay');
@@ -2500,6 +2530,17 @@ function vaultSlotsCloseDateSheet(e) {
   if (e && e.target !== document.getElementById('vsDateSheetOverlay')) return;
   const overlay = document.getElementById('vsDateSheetOverlay');
   if (overlay) overlay.style.display = 'none';
+  var fromAssist = false;
+  try {
+    fromAssist = sessionStorage.getItem('scs_slot_from_assist') === '1';
+    if (fromAssist) sessionStorage.removeItem('scs_slot_from_assist');
+  } catch (err) {}
+  if (fromAssist && typeof scsGuideReturnFromChild === 'function') {
+    setTimeout(function() {
+      if (typeof scsGuideReturnFromVaultSlotManager === 'function') scsGuideReturnFromVaultSlotManager();
+      else scsGuideReturnFromChild();
+    }, 40);
+  }
 }
 
 /* ══════════════════════════════════════════════
@@ -2553,7 +2594,8 @@ var _mcsCarouselSlotId = null;
 var _mcsAutoSyncTimer = null;
 var _mcsAutoSyncBusy = false;
 var _mcsLastAutoSyncAt = 0;
-var _mcsAutoSyncMs = 30000; // Quietly check for slot joins/cancellations without constant redraws.
+// Build 490: no independent Profile/My slots sync interval.
+// Automatic refresh is controlled only by the Settings sync gateway.
 var _mcsDebugInfo = null; // temporary diagnostics for club filtering
 var _mcsRefreshQueued = false;
 var _mcsRefreshTimer = null;
@@ -2813,19 +2855,10 @@ async function myCardSlotsAutoSyncNow(force) {
 }
 
 function myCardSlotsStartAutoSync() {
-  if (_mcsAutoSyncTimer) return;
-
-  _mcsAutoSyncTimer = setInterval(function() {
-    myCardSlotsAutoSyncNow(false);
-  }, _mcsAutoSyncMs);
-
-  // Refresh as soon as the user returns to the app/tab.
-  document.addEventListener('visibilitychange', function() {
-    if (!document.hidden) myCardSlotsAutoSyncNow(false);
-  });
-  window.addEventListener('focus', function() {
-    myCardSlotsAutoSyncNow(false);
-  });
+  // Intentionally no timer here. The Settings sync gateway is the only
+  // automatic scheduler, so the selected interval (including Never) is obeyed.
+  if (_mcsAutoSyncTimer) clearInterval(_mcsAutoSyncTimer);
+  _mcsAutoSyncTimer = null;
 }
 
 function myCardSlotsStopAutoSync() {
@@ -4609,122 +4642,135 @@ var _launcherDueSlot = null;
 var _launcherStartCardTimer = null;
 async function renderLauncherStartSessionCard() {
   await vaultSlotsCleanupExpired(false).catch(function(){});
-  var card = document.getElementById('launcherStartSessionCard');
-  if (!card) return;
-  // Do not clear the existing launcher card during periodic checks. It is
-  // replaced only when the actual next slot changes or no longer qualifies.
+  var organiserCard = document.getElementById('organiserNextSlotCard');
+  var launcherCard = document.getElementById('launcherStartSessionCard');
+  if (!organiserCard && !launcherCard) return;
 
   var clubId = localStorage.getItem('kbrr_org_club_id') || '';
+  var clubName = localStorage.getItem('kbrr_org_club_name') || 'Club';
   if (!clubId || typeof dbGetSlotsForRange !== 'function') return;
 
-  // The signed-in organiser must personally be confirmed in the slot.
   var authUser = (typeof authGetUser === 'function') ? authGetUser() : null;
-  if (!authUser || !authUser.id || typeof sbGet !== 'function') return;
-  var memberships = await sbGet('memberships',
-    'club_id=eq.' + clubId + '&user_account_id=eq.' + authUser.id + '&select=player_id')
-    .catch(function() { return []; });
-  var organiserPlayerIds = new Set((memberships || []).map(function(membership) {
-    return membership && membership.player_id ? String(membership.player_id) : '';
-  }).filter(Boolean));
-  if (!organiserPlayerIds.size) return;
+  var organiserPlayerIds = new Set();
+  if (authUser && authUser.id && typeof sbGet === 'function') {
+    var memberships = await sbGet('memberships',
+      'club_id=eq.' + clubId + '&user_account_id=eq.' + authUser.id + '&select=player_id')
+      .catch(function() { return null; });
+    if (memberships !== null) {
+      organiserPlayerIds = new Set((memberships || []).map(function(membership) {
+        return membership && membership.player_id ? String(membership.player_id) : '';
+      }).filter(Boolean));
+    }
+  }
 
   var now = new Date();
   var today = typeof localDateStr === 'function' ? localDateStr(now) : now.toISOString().slice(0, 10);
   var minutesNow = now.getHours() * 60 + now.getMinutes();
-  var slots = await dbGetSlotsForRange(clubId, today, today).catch(function() { return []; });
-  // Always show today's next eligible slot. Starting is unlocked only from
-  // 15 minutes before its scheduled start time.
-  var todaySlots = (slots || []).filter(function(slot) {
-    if (!slot || slot.played_session_id) return false;
-    if (String(slot.status || '').toLowerCase() !== 'posted') return false;
-
-    // Keep the card visible only until the scheduled session end time.
-    var endParts = String(slot.end_time || '').split(':');
-    if (endParts.length >= 2) {
-      var endMinutes = (parseInt(endParts[0], 10) || 0) * 60 + (parseInt(endParts[1], 10) || 0);
-      if (minutesNow >= endMinutes) return false;
-    }
-
-    return (slot.claims || []).some(function(claim) {
-      return claim && organiserPlayerIds.has(String(claim.player_id || '')) && claim.status === 'confirmed';
-    });
-  }).sort(function(a, b) {
-    return String(a.start_time || '').localeCompare(String(b.start_time || ''));
+  var rangeEndDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 90);
+  var rangeEnd = typeof localDateStr === 'function' ? localDateStr(rangeEndDate) : rangeEndDate.toISOString().slice(0, 10);
+  var slotsLoadSucceeded = true;
+  var slots = await dbGetSlotsForRange(clubId, today, rangeEnd).catch(function(error) {
+    slotsLoadSucceeded = false;
+    console.warn('Upcoming organiser slot refresh failed:', error);
+    return null;
   });
-  if (!todaySlots.length) {
-    card.style.display = 'none';
-    card.innerHTML = '';
-    delete card.dataset.slotId;
-    _launcherDueSlot = null;
+
+  // Preserve the last successfully rendered card during a temporary DB/network failure.
+  if (!slotsLoadSucceeded || !Array.isArray(slots)) {
+    if (_launcherStartCardTimer) clearTimeout(_launcherStartCardTimer);
+    _launcherStartCardTimer = setTimeout(renderLauncherStartSessionCard, 15000);
     return;
   }
 
-  // Prefer the next future slot. If a slot has already reached/passed its
-  // start time but is still unstarted, keep it available instead of hiding it.
-  var slot = todaySlots.find(function(candidate) {
-    var timeParts = String(candidate.start_time || '').split(':');
-    var candidateMinutes = (parseInt(timeParts[0], 10) || 0) * 60 + (parseInt(timeParts[1], 10) || 0);
-    return candidateMinutes >= minutesNow;
-  }) || todaySlots[todaySlots.length - 1];
-  var dismissKey = 'scs_start_popup_closed_' + String(slot.id);
-  if (sessionStorage.getItem(dismissKey) === '1') return;
-  var confirmed = (slot.claims || []).filter(function(c) { return c.status === 'confirmed'; }).length;
-  var clubName = localStorage.getItem('kbrr_org_club_name') || slot._viewerClubName || 'Club';
-  var timeText = String(slot.start_time || '').slice(0, 5);
-  var slotParts = String(slot.start_time || '').split(':');
-  var slotStartMinutes = (parseInt(slotParts[0], 10) || 0) * 60 + (parseInt(slotParts[1], 10) || 0);
-  var unlockMinutes = slotStartMinutes - 15;
-  var isWithinStartWindow = minutesNow >= unlockMinutes;
-  var canStart = isWithinStartWindow && confirmed >= 4;
-  var unlockHour = Math.floor((unlockMinutes + 1440) % 1440 / 60);
-  var unlockMinute = (unlockMinutes + 1440) % 60;
-  var unlockText = String(unlockHour).padStart(2, '0') + ':' + String(unlockMinute).padStart(2, '0');
-  var titleText = isWithinStartWindow ? (t('sessionReadyToStart') || 'Session ready to start') : 'Next Slot Today';
-  var actionText = canStart
-    ? (t('startSession') || 'Start Session')
-    : (!isWithinStartWindow ? 'Enabled at ' + unlockText : (t('need4Players') || 'Need 4 players'));
-
-  var nextSlotId = String(slot.id);
-  var sameSlot = _launcherDueSlot && _launcherDueSlot.slotId === nextSlotId &&
-    card.dataset.slotId === nextSlotId && card.firstElementChild;
-
-  _launcherDueSlot = { slotId: nextSlotId, clubId: String(clubId), clubName: clubName, canStart: canStart };
-
-  if (sameSlot) {
-    // Keep the existing card node completely stable. Only change the small
-    // values whose state can genuinely change while this same slot remains next.
-    var titleEl = card.querySelector('[data-launcher-slot-title]');
-    var detailEl = card.querySelector('[data-launcher-slot-detail]');
-    var actionEl = card.querySelector('[data-launcher-slot-action]');
-    if (titleEl && titleEl.textContent !== titleText) titleEl.textContent = titleText;
-    var detailText = timeText + ' · ' + (slot.venue || clubName) + ' · ' + confirmed + ' ' + _vsT('playersPlural', 'players');
-    if (detailEl && detailEl.textContent !== detailText) detailEl.textContent = detailText;
-    var dialogEl = card.querySelector('.launcher-start-dialog');
-    if (dialogEl) {
-      dialogEl.dataset.canStart = canStart ? '1' : '0';
-      dialogEl.setAttribute('aria-disabled', canStart ? 'false' : 'true');
-      dialogEl.tabIndex = canStart ? 0 : -1;
-      dialogEl.classList.toggle('can-start', canStart);
+  var upcomingSlots = slots.filter(function(slot) {
+    if (!slot || slot.played_session_id) return false;
+    if (String(slot.status || '').toLowerCase() !== 'posted') return false;
+    var slotDate = String(slot.slot_date || '');
+    if (!slotDate || slotDate < today) return false;
+    if (slotDate === today) {
+      var endParts = String(slot.end_time || '').split(':');
+      if (endParts.length >= 2) {
+        var endMinutes = (parseInt(endParts[0], 10) || 0) * 60 + (parseInt(endParts[1], 10) || 0);
+        if (minutesNow >= endMinutes) return false;
+      }
     }
-    if (actionEl) {
-      if (actionEl.textContent !== actionText) actionEl.textContent = actionText;
-      actionEl.setAttribute('aria-disabled', canStart ? 'false' : 'true');
-      actionEl.classList.toggle('is-disabled', !canStart);
-    }
-  } else {
-    card.dataset.slotId = nextSlotId;
-    card.innerHTML = '<span class="launcher-start-dialog' + (canStart ? ' can-start' : '') + '" role="button" tabindex="' + (canStart ? '0' : '-1') + '" aria-disabled="' + (canStart ? 'false' : 'true') + '" data-can-start="' + (canStart ? '1' : '0') + '"' +
-      ' onclick="event.stopPropagation(); if(this.dataset.canStart===\'1\') launcherStartSlotSession()"' +
-      ' onkeydown="if((event.key===\'Enter\'||event.key===\' \')&&this.dataset.canStart===\'1\'){event.preventDefault();event.stopPropagation();launcherStartSlotSession()}">' +
-      '<span class="launcher-start-close" role="button" tabindex="0" aria-label="Close" onclick="event.stopPropagation(); closeLauncherStartSessionCard()" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();event.stopPropagation();closeLauncherStartSessionCard()}">&times;</span>' +
-      '<span class="launcher-start-icon">▶</span>' +
-      '<span class="launcher-start-info"><strong data-launcher-slot-title>' + _vsEscape(titleText) + '</strong>' +
-        '<span data-launcher-slot-detail>' + _vsEscape(timeText) + ' · ' + _vsEscape(slot.venue || clubName) + ' · ' + confirmed + ' ' + _vsEscape(_vsT('playersPlural', 'players')) + '</span></span>' +
-      '<span class="launcher-start-action' + (!canStart ? ' is-disabled' : '') + '" data-launcher-slot-action role="button" aria-disabled="' + (!canStart ? 'true' : 'false') + '">' + _vsEscape(actionText) + '</span></span>';
+    return true;
+  }).sort(function(a, b) {
+    return String(a.slot_date || '').localeCompare(String(b.slot_date || '')) ||
+      String(a.start_time || '').localeCompare(String(b.start_time || ''));
+  });
+
+  if (!upcomingSlots.length) {
+    [organiserCard, launcherCard].forEach(function(host) {
+      if (!host) return;
+      host.style.display = 'none';
+      host.innerHTML = '';
+      delete host.dataset.slotId;
+    });
+    _launcherDueSlot = null;
+    if (_launcherStartCardTimer) clearTimeout(_launcherStartCardTimer);
+    _launcherStartCardTimer = setTimeout(renderLauncherStartSessionCard, 15000);
+    return;
   }
-  card.style.display = 'flex';
+
+  var slot = upcomingSlots[0];
+  slot._viewerClubName = clubName;
+  var confirmedClaims = (slot.claims || []).filter(function(claim) {
+    return claim && claim.status === 'confirmed';
+  });
+  var organiserJoined = confirmedClaims.some(function(claim) {
+    return organiserPlayerIds.has(String(claim.player_id || ''));
+  });
+  var slotDateText = String(slot.slot_date || '');
+  var isTodaySlot = slotDateText === today;
+  var startParts = String(slot.start_time || '').split(':');
+  var slotStartMinutes = (parseInt(startParts[0], 10) || 0) * 60 + (parseInt(startParts[1], 10) || 0);
+  var isWithinStartWindow = isTodaySlot && minutesNow >= slotStartMinutes - 15;
+  var canStart = isTodaySlot && isWithinStartWindow && confirmedClaims.length >= 4 && organiserJoined;
+
+  function buildFreshDashboardCard() {
+    if (typeof _buildDashboardSlotCard !== 'function') return null;
+    var dashboardCard = _buildDashboardSlotCard(slot);
+    dashboardCard.classList.add('organiser-dashboard-slot-card');
+    var startBtn = dashboardCard.querySelector('.mc-slot-action-btn');
+    if (startBtn) {
+      var reason = '';
+      if (!organiserJoined) reason = t('joinSlotToStart') || 'Join this slot to start';
+      else if (!isTodaySlot) reason = slotDateText;
+      else if (!isWithinStartWindow) {
+        var unlock = (slotStartMinutes - 15 + 1440) % 1440;
+        reason = 'Enabled at ' + String(Math.floor(unlock / 60)).padStart(2, '0') + ':' + String(unlock % 60).padStart(2, '0');
+      } else if (confirmedClaims.length < 4) reason = t('need4Players') || 'Need 4 players';
+      startBtn.disabled = !canStart;
+      startBtn.textContent = canStart ? (t('startSession') || 'Start Session') : reason;
+      startBtn.onclick = async function(event) {
+        event.stopPropagation();
+        if (!canStart || startBtn.disabled || typeof vaultSlotsStartRoundsFromSlot !== 'function') return;
+        startBtn.disabled = true;
+        startBtn.textContent = t('starting') || 'Starting...';
+        try {
+          await vaultSlotsStartRoundsFromSlot(slot.id);
+        } finally {
+          if (typeof renderLauncherStartSessionCard === 'function') renderLauncherStartSessionCard();
+        }
+      };
+    }
+    return dashboardCard;
+  }
+
+  [organiserCard, launcherCard].forEach(function(host) {
+    if (!host) return;
+    var fresh = buildFreshDashboardCard();
+    if (!fresh) return;
+    host.innerHTML = '';
+    host.appendChild(fresh);
+    host.dataset.slotId = String(slot.id || '');
+    host.style.display = 'flex';
+  });
+
+  _launcherDueSlot = { slotId: String(slot.id || ''), clubId: String(clubId), clubName: clubName, canStart: canStart };
   if (_launcherStartCardTimer) clearTimeout(_launcherStartCardTimer);
-  _launcherStartCardTimer = setTimeout(function() { renderLauncherStartSessionCard(); }, 15000);
+  _launcherStartCardTimer = setTimeout(renderLauncherStartSessionCard, 15000);
 }
 
 function closeLauncherStartSessionCard() {

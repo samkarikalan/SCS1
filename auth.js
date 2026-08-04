@@ -304,8 +304,8 @@ function _showDisplacedNotice() {
     'position:fixed', 'top:20px', 'left:50%', 'transform:translateX(-50%)',
     'background:#e63757', 'color:#fff', 'padding:12px 20px', 'border-radius:12px',
     'font-size:0.85rem', 'font-weight:600', 'z-index:99999',
-    'box-shadow:0 4px 20px rgba(0,0,0,0.3)', 'text-align:center',
-    'max-width:280px', 'line-height:1.4'
+    'box-shadow:0 .25rem 1.25rem rgba(0,0,0,0.3)', 'text-align:center',
+    'max-width:17.5rem', 'line-height:1.4'
   ].join(';');
   toast.textContent = '⚠️ You were signed out because another device signed in.';
   document.body.appendChild(toast);

@@ -161,6 +161,9 @@ document.addEventListener("DOMContentLoaded", () => {
    MODAL OPEN / CLOSE
 ========================= */
 function newImportShowModal() {
+  var assistPlayersPage = document.getElementById('playersPage');
+  newImportModal.classList.toggle('scs-assist-import-modal',
+    !!(assistPlayersPage && assistPlayersPage.classList.contains('scs-assist-child-page')));
   newImportModal.style.display = "flex";
   syncPlayersFromMaster(); // ensure latest ratings before rendering
   newImportLoadHistory();
@@ -202,6 +205,7 @@ function newImportShowModal() {
 
 function newImportHideModal() {
   newImportModal.style.display = "none";
+  newImportModal.classList.remove('scs-assist-import-modal');
   if (newImportModal.dataset) {
     delete newImportModal.dataset.returnMode;
     delete newImportModal.dataset.targetSlotId;

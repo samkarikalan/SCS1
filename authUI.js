@@ -99,7 +99,7 @@ function authCloseToModeSelection() {
   if (typeof _refreshWelcomeSubtitle === 'function') _refreshWelcomeSubtitle();
   if (typeof mlSyncLangDisplay === 'function') mlSyncLangDisplay();
   if (typeof window.scsPrefetchWelcomeHubData === 'function') {
-    window.scsPrefetchWelcomeHubData().catch(function(error) {
+    window.scsPrefetchWelcomeHubData(true).catch(function(error) {
       console.warn('Welcome hub refresh skipped:', error);
     });
   }
@@ -212,7 +212,7 @@ async function authStartLineLogin(button) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: handoff.id, verifier: handoff.verifier, deviceCode: handoff.deviceCode })
-      });
+      }, 12000);
       if (!createResponse.ok) throw new Error('handoff_not_ready');
       var deviceUrl = WORKER_URL + '/auth/line/device?code=' + encodeURIComponent(handoff.deviceCode);
       authSetLineButtonsLoading(false);
@@ -540,7 +540,7 @@ async function authPollLineHandoff() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: handoff.id, verifier: handoff.verifier })
-    });
+    }, 10000);
     var data = await response.json().catch(function() { return {}; });
     if (data.status === 'complete' && data.ticket) {
       localStorage.removeItem('scs_line_handoff');
@@ -654,10 +654,43 @@ async function authHandleLineCallback() {
 /* -- Google Login: browser and iOS installed-PWA handoff -- */
 var _googleHandoffTimer = null;
 var _googleHandoffPolling = false;
+var _googleLoadingRecoveryTimer = null;
+
+function authGoogleFetch(url, options, timeoutMs) {
+  var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  var timer = controller ? setTimeout(function() { controller.abort(); }, timeoutMs || 12000) : null;
+  var requestOptions = Object.assign({}, options || {});
+  if (controller) requestOptions.signal = controller.signal;
+  return fetch(url, requestOptions).finally(function() { if (timer) clearTimeout(timer); });
+}
+
+function authHasActiveUser() {
+  try {
+    return typeof authIsLoggedIn === 'function' && authIsLoggedIn();
+  } catch (error) {
+    return false;
+  }
+}
+
+function authRecoverGoogleButtonsIfLoggedOut() {
+  // The Google button may be enabled again only when SCS still has no
+  // authenticated user. This prevents a completed login from presenting a
+  // second Google-login prompt when the app resumes.
+  if (authHasActiveUser()) return false;
+  document.querySelectorAll('.auth-btn-google').forEach(function(button) {
+    button.disabled = false;
+    button.classList.remove('is-loading');
+  });
+  return true;
+}
 
 function authSetGoogleButtonsLoading(loading) {
+  clearTimeout(_googleLoadingRecoveryTimer);
   document.querySelectorAll('.auth-btn-google').forEach(function(button) {
-    button.disabled = !!loading;
+    // Keep Google login retryable at all times. The visual loading state may be
+    // shown, but the control itself must remain enabled so a cancelled Safari/
+    // Chrome handoff can immediately start a fresh OAuth attempt.
+    button.disabled = false;
     button.classList.toggle('is-loading', !!loading);
   });
 }
@@ -678,25 +711,31 @@ function authGoogleErrorMessage(code) {
 }
 
 async function authStartGoogleLogin(button) {
+  // A fresh tap always replaces any abandoned or stale Google handoff.
+  clearTimeout(_googleHandoffTimer);
+  _googleHandoffPolling = false;
+  localStorage.removeItem('scs_google_handoff');
   if (button) {
-    button.disabled = true;
+    button.disabled = false;
     button.classList.add('is-loading');
   }
+  sessionStorage.removeItem('scs_google_login_started');
   sessionStorage.setItem('scs_google_login_started', '1');
+
   if (authIsIOSStandalone()) {
-    // Open the browser directly from the user's tap. Do not show an extra in-app handoff page.
-    var loginWindow = window.open('about:blank', 'scs-google-login');
+    // Keep the installed PWA's storage isolated and complete Google externally.
+    // The one-time handoff ticket is then consumed inside the PWA and stored here.
+    var loginWindow = window.open('about:blank', 'scs-google-login-' + Date.now());
     var handoff = authCreateLineHandoff();
     localStorage.setItem('scs_google_handoff', JSON.stringify(handoff));
     try {
-      var response = await fetch(WORKER_URL + '/auth/google/handoff/create', {
+      var createResponse = await authGoogleFetch(WORKER_URL + '/auth/google/handoff/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: handoff.id, verifier: handoff.verifier, deviceCode: handoff.deviceCode })
-      });
-      if (!response.ok) throw new Error('handoff_not_ready');
+      }, 12000);
+      if (!createResponse.ok) throw new Error('handoff_not_ready');
       var deviceUrl = WORKER_URL + '/auth/google/device?code=' + encodeURIComponent(handoff.deviceCode);
-      authSetGoogleButtonsLoading(false);
       if (loginWindow && !loginWindow.closed) loginWindow.location.replace(deviceUrl);
       else window.location.assign(deviceUrl);
       authResumeGoogleHandoff(true);
@@ -709,6 +748,7 @@ async function authStartGoogleLogin(button) {
     }
     return;
   }
+
   window.location.assign(WORKER_URL + '/auth/google/start');
 }
 
@@ -836,7 +876,7 @@ function authShowGoogleReturnScreen(status) {
   screen.innerHTML = '<div style="max-width:360px;width:100%;padding:30px 24px;border-radius:22px;background:var(--surface,#1b1c25);border:1px solid var(--border,#343645);box-shadow:0 18px 50px rgba(0,0,0,.28);">'
     + '<div style="width:58px;height:58px;border-radius:16px;background:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;"><img src="google-g.svg?v=354" alt="Google" width="38" height="38"></div>'
     + '<div style="font-size:1.12rem;font-weight:800;color:var(--text,#fff);margin-bottom:10px;">' + (cancelled ? (t('googleLoginCancelled') || 'Google login was cancelled.') : (t('googleHandoffComplete') || 'Google login complete')) + '</div>'
-    + '<div style="font-size:.9rem;line-height:1.55;color:var(--muted,#aaa);">' + (t('googleReturnToApp') || 'Close this browser and return to the installed SCS app. Login will complete automatically.') + '</div>'
+    + '<div style="font-size:.9rem;line-height:1.55;color:var(--muted,#aaa);">' + (t('googleReturnToApp') || 'Tap ✕ to return to SCS.') + '</div>'
     + '<div style="display:flex;align-items:center;justify-content:center;gap:13px;margin-top:22px;padding:14px;border-radius:14px;background:var(--bg,#0f0f13);color:var(--text,#fff);font-size:.88rem;font-weight:700;"><img src="icon-512.png?v=312" alt="SCS" width="48" height="48" style="border-radius:12px;">' + (t('lineOpenPwaStep') || 'Open SCS from your Home Screen') + '</div>'
     + '</div>';
   document.body.appendChild(screen);
@@ -866,10 +906,10 @@ async function authPollGoogleHandoff() {
   }
   _googleHandoffPolling = true;
   try {
-    var response = await fetch(WORKER_URL + '/auth/google/handoff/status', {
+    var response = await authGoogleFetch(WORKER_URL + '/auth/google/handoff/status', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: handoff.id, verifier: handoff.verifier })
-    });
+    }, 10000);
     var data = await response.json().catch(function() { return {}; });
     if (data.status === 'complete' && data.ticket) {
       localStorage.removeItem('scs_google_handoff');
@@ -888,6 +928,8 @@ async function authPollGoogleHandoff() {
     }
   } catch (error) {
     // The installed PWA may be briefly suspended while the browser is in front.
+    // Recover only if the user is still logged out.
+    authRecoverGoogleButtonsIfLoggedOut();
   } finally {
     _googleHandoffPolling = false;
   }
@@ -898,13 +940,9 @@ async function authPollGoogleHandoff() {
 function authResumeGoogleHandoff(immediate) {
   var raw = localStorage.getItem('scs_google_handoff');
   if (!raw) return;
-  if (authIsIOSStandalone() && !document.getElementById('scs-google-device-screen')) {
-    try {
-      var handoff = JSON.parse(raw);
-      if (handoff && handoff.deviceCode) authShowGoogleDeviceScreen(handoff);
-    } catch (error) {}
-  }
-  authSetGoogleButtonsLoading(true);
+  // Continue checking the previous handoff without locking the Google control.
+  // A retry tap will clear this stale handoff and create a completely new one.
+  authSetGoogleButtonsLoading(false);
   clearTimeout(_googleHandoffTimer);
   _googleHandoffTimer = setTimeout(authPollGoogleHandoff, immediate ? 100 : 500);
 }
@@ -1202,7 +1240,7 @@ function authShowModeLauncher() {
   var overlay = document.getElementById('modeSelectOverlay');
   if (overlay) overlay.style.display = 'flex';
   if (typeof window.scsPrefetchWelcomeHubData === 'function') {
-    window.scsPrefetchWelcomeHubData().catch(function(error) {
+    window.scsPrefetchWelcomeHubData(true).catch(function(error) {
       console.warn('Welcome hub refresh skipped:', error);
     });
   }

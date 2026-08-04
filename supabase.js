@@ -439,7 +439,60 @@ async function dbAddClub(clubName, selectPassword, adminPassword, registrationEm
   // Always store creator's user id in created_by
   if (user && user.id) payload.created_by = user.id;
   const created = await sbPost('clubs', payload);
-  return created[0];
+  const club = created[0];
+
+  // The creator must immediately be a member of the club they created.
+  // Club selectors and the Slot Manager are membership-driven, so creating
+  // only the clubs row leaves the new club invisible to its owner.
+  if (club && club.id && user && user.id) {
+    var creatorPlayerId = null;
+    try {
+      var accountRows = await sbGet('user_accounts',
+        'id=eq.' + encodeURIComponent(user.id) + '&select=nickname,email,gender');
+      var account = accountRows && accountRows[0] ? accountRows[0] : {};
+      var creatorNickname = String(
+        account.nickname || user.nickname || user.display_name ||
+        account.email || user.email || 'Club Owner'
+      ).trim();
+      if (creatorNickname.indexOf('@') > 0) creatorNickname = creatorNickname.split('@')[0];
+      var creatorGender = (account.gender === 'Female' || user.gender === 'Female') ? 'Female' : 'Male';
+
+      // Idempotent guard in case a retry happens after a slow network response.
+      var existingMembership = await sbGet('memberships',
+        'club_id=eq.' + encodeURIComponent(club.id) +
+        '&user_account_id=eq.' + encodeURIComponent(user.id) + '&select=id');
+
+      if (!existingMembership || !existingMembership.length) {
+        var playerRows = await sbPost('players', {
+          name: creatorNickname,
+          gender: creatorGender,
+          global_rating: 1.0,
+          global_points: 0,
+          user_account_id: user.id
+        });
+        creatorPlayerId = playerRows && playerRows[0] ? playerRows[0].id : null;
+        if (!creatorPlayerId) throw new Error('Could not create the owner player record.');
+
+        await sbPost('memberships', {
+          player_id: creatorPlayerId,
+          club_id: club.id,
+          nickname: creatorNickname,
+          club_rating: 1.0,
+          club_points: 0,
+          user_account_id: user.id
+        });
+      }
+    } catch (membershipError) {
+      // Do not leave a half-created club that the owner cannot access.
+      if (creatorPlayerId) await sbDelete('players', 'id=eq.' + encodeURIComponent(creatorPlayerId)).catch(function(){});
+      await sbDelete('clubs', 'id=eq.' + encodeURIComponent(club.id)).catch(function(){});
+      throw new Error('Club could not be linked to your player account: ' + (membershipError.message || membershipError));
+    }
+  }
+
+  localStorage.removeItem(CACHE_PLAYERS);
+  localStorage.removeItem(CACHE_TIMESTAMP);
+  return club;
 }
 
 // ─────────────────────────────────────────────────────────────

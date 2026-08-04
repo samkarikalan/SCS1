@@ -923,6 +923,9 @@ function getGender(name, allPlayers) {
 }
 
 function selectRestingAndPlaying(state) {
+  // In Standard mode every format uses the same participation-first DFS.
+  // Typed-game and freshness logic may arrange only this fixed playing group.
+  if (state.topDownStandardMode) return selectStandardParticipantsDFS(state);
   const { activeplayers, numCourts, fixedPairs, restQueue, courtFormats = [], courtTypes = [], allPlayers = [], pairPlayedSet, opponentMap = {} } = state;
   const total           = activeplayers.length;
   const playersPerRound = courtFormats.length
@@ -1004,121 +1007,9 @@ function selectRestingAndPlaying(state) {
     }
   }
 
-  // ── Unique Games Mode ────────────────────────────────────────────────────────
-  // A "unique game" = all 4 cross-opponent matchups are completely fresh.
-  // opponentMap[A][C]=0 AND [A][D]=0 AND [B][C]=0 AND [B][D]=0
-  // If such a game exists in the full pool but not in current playing pool,
-  // swap in the needed players ignoring rest queue.
-  if (state.uniqueGamesMode && numResting > 0) {
-    const oppMap  = state.opponentMap || {};
-    const ppSet   = state.pairPlayedSet || new Set();
-    const fullPool = activeplayers;
-    const playingSet = new Set(playing);
-
-    // Check if a game is fully unique — all 4 opponent cross-matchups are fresh
-    function isFullyUnique(p1, p2) {
-      for (const a of p1)
-        for (const b of p2)
-          if ((oppMap[a] || {})[b]) return false;
-      return true;
-    }
-
-    // Score a game — opponent freshness primary, partner freshness secondary
-    // Max score = 42 (all 4 opponent matchups fresh + both pairs new)
-    function gameScore(p1, p2) {
-      let oppFresh = 0;
-      for (const a of p1)
-        for (const b of p2)
-          if (!((oppMap[a] || {})[b])) oppFresh++;
-
-      const pairFresh =
-        (!ppSet.has(pairKey(p1[0], p1[1])) ? 1 : 0) +
-        (!ppSet.has(pairKey(p2[0], p2[1])) ? 1 : 0);
-
-      return oppFresh * 10 + pairFresh; // max 42
-    }
-
-    // Find best game from full pool — prioritise fully unique games
-    let bestGame = null, bestScore = -1;
-
-    for (let i = 0; i < fullPool.length - 3; i++) {
-      for (let j = i + 1; j < fullPool.length - 2; j++) {
-        for (let k = j + 1; k < fullPool.length - 1; k++) {
-          for (let l = k + 1; l < fullPool.length; l++) {
-            const four = [fullPool[i], fullPool[j], fullPool[k], fullPool[l]];
-            // Skip if all 4 already playing — current pool handles them
-            if (four.every(p => playingSet.has(p))) continue;
-
-            const pairings = [
-              { p1: [four[0],four[1]], p2: [four[2],four[3]] },
-              { p1: [four[0],four[2]], p2: [four[1],four[3]] },
-              { p1: [four[0],four[3]], p2: [four[1],four[2]] },
-            ];
-
-            for (const { p1, p2 } of pairings) {
-              const score = gameScore(p1, p2);
-              if (score > bestScore) {
-                bestScore = score;
-                bestGame  = { p1, p2, four };
-              }
-            }
-          }
-        }
-      }
-    }
-
-    // Only override rest queue if we found a fresher game than what playing pool offers
-    if (bestGame && bestScore > 0) {
-      // Check current playing pool's best score
-      let currentBest = -1;
-      const playing4 = [...playingSet];
-      for (let i = 0; i < playing4.length - 3; i++) {
-        for (let j = i+1; j < playing4.length - 2; j++) {
-          for (let k = j+1; k < playing4.length - 1; k++) {
-            for (let l = k+1; l < playing4.length; l++) {
-              const f = [playing4[i],playing4[j],playing4[k],playing4[l]];
-              const sc = Math.max(
-                gameScore([f[0],f[1]],[f[2],f[3]]),
-                gameScore([f[0],f[2]],[f[1],f[3]]),
-                gameScore([f[0],f[3]],[f[1],f[2]])
-              );
-              if (sc > currentBest) currentBest = sc;
-            }
-          }
-        }
-      }
-
-      // Only swap if full pool offers strictly better freshness
-      if (bestScore > currentBest) {
-        const restValue = p => Number((state.restCount || {})[p] || 0);
-        // Unique matches may change who rests, but must not make the rest
-        // distribution less fair.
-        const neededFromRest = bestGame.four
-          .filter(p => !playingSet.has(p))
-          .sort((a, b) => restValue(b) - restValue(a));
-        const toSwapOut = [...playing]
-          .filter(p => !bestGame.four.includes(p))
-          .sort((a, b) => restValue(a) - restValue(b))
-          .slice(0, neededFromRest.length);
-
-        const fairSwap = toSwapOut.length === neededFromRest.length &&
-          neededFromRest.every((pullIn, i) =>
-            restValue(toSwapOut[i]) <= restValue(pullIn)
-          );
-
-        if (fairSwap) {
-          for (let i = 0; i < neededFromRest.length; i++) {
-            const pullIn  = neededFromRest[i];
-            const pushOut = toSwapOut[i];
-            resting = resting.filter(p => p !== pullIn);
-            resting.push(pushOut);
-            playing = playing.filter(p => p !== pushOut);
-            playing.push(pullIn);
-          }
-        }
-      }
-    }
-  }
+  // Unique Games must never change the players selected by the existing
+  // play/rest algorithm. Court grouping and pair selection happen later in
+  // randomRound(), using only this fixed `playing` list.
 
   return { resting, playing };
 }
@@ -1303,6 +1194,481 @@ function getMatchupScores(allPairs, opponentMap) {
   return scores;
 }
 
+
+// Build free-doubles games from the already-selected playing list.
+// Previous-round rested players are distributed across courts first, then
+// remaining players are shuffled/swapped between groups to maximise unique
+// partnerships. The play/rest decision itself is never changed here.
+function buildGroupedUniqueGames(state, playing) {
+  const { numCourts, pairPlayedSet, opponentMap = {}, allRounds = [] } = state;
+  if (!numCourts || playing.length !== numCourts * 4) return null;
+
+  const last = allRounds.length ? allRounds[allRounds.length - 1] : null;
+  const lastPlaying = new Set(
+    last?.games ? last.games.flatMap(g => [...(g.pair1 || []), ...(g.pair2 || [])]) : []
+  );
+  const returningRested = playing.filter(p => last && !lastPlaying.has(p));
+  const continuing = playing.filter(p => !returningRested.includes(p));
+
+  function arrangements(group) {
+    const [a,b,c,d] = group;
+    return [
+      [[a,b],[c,d]],
+      [[a,c],[b,d]],
+      [[a,d],[b,c]],
+    ];
+  }
+
+  function scoreGame(pair1, pair2) {
+    const partnerRepeats =
+      (pairPlayedSet.has(pairKey(pair1[0], pair1[1])) ? 1 : 0) +
+      (pairPlayedSet.has(pairKey(pair2[0], pair2[1])) ? 1 : 0);
+    let opponentRepeats = 0;
+    for (const a of pair1) for (const b of pair2) {
+      opponentRepeats += Number((opponentMap[a] || {})[b] || 0);
+    }
+    return { partnerRepeats, opponentRepeats };
+  }
+
+  let best = null;
+  const attempts = Math.max(300, numCourts * 250);
+
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    const groups = Array.from({ length: numCourts }, () => []);
+    const rr = shuffle(returningRested);
+    const cc = shuffle(continuing);
+    const courtOffset = attempt % numCourts;
+
+    // Spread last-round rested players as evenly as possible. Rotate the court
+    // receiving any extra player so the same court is not favoured repeatedly.
+    rr.forEach((p, i) => groups[(courtOffset + i) % numCourts].push(p));
+
+    // Fill all remaining court positions from the unchanged playing list.
+    for (let c = 0; c < numCourts; c++) {
+      while (groups[c].length < 4 && cc.length) groups[c].push(cc.pop());
+    }
+    if (groups.some(g => g.length !== 4)) continue;
+
+    const games = [];
+    let partnerRepeats = 0;
+    let opponentRepeats = 0;
+
+    for (let c = 0; c < numCourts; c++) {
+      let courtBest = null;
+      for (const [pair1, pair2] of arrangements(groups[c])) {
+        const sc = scoreGame(pair1, pair2);
+        const key = [sc.partnerRepeats, sc.opponentRepeats, Math.random()];
+        if (!courtBest || key[0] < courtBest.key[0] ||
+            (key[0] === courtBest.key[0] && key[1] < courtBest.key[1]) ||
+            (key[0] === courtBest.key[0] && key[1] === courtBest.key[1] && key[2] < courtBest.key[2])) {
+          courtBest = { key, pair1, pair2, sc };
+        }
+      }
+      partnerRepeats += courtBest.sc.partnerRepeats;
+      opponentRepeats += courtBest.sc.opponentRepeats;
+      games.push({ court: c + 1, pair1: [...courtBest.pair1], pair2: [...courtBest.pair2] });
+    }
+
+    const key = [partnerRepeats, opponentRepeats];
+    if (!best || key[0] < best.key[0] || (key[0] === best.key[0] && key[1] < best.key[1])) {
+      best = { key, games };
+      if (partnerRepeats === 0 && opponentRepeats === 0) break;
+    }
+  }
+
+  return best?.games || null;
+}
+
+
+// Standard V2: participation-first DFS.
+// Stage 1 chooses the playing/resting group using only participation fairness.
+// Stage 2 reuses the proven pair/opponent search inside that fixed group.
+function selectStandardParticipantsDFS(state) {
+  const active = [...(state.activeplayers || [])];
+  const requestedSlots = (state.courtFormats || []).length
+    ? state.courtFormats.reduce((sum, fmt) => sum + (fmt === 'singles' ? 2 : 4), 0)
+    : (state.numCourts || 0) * 4;
+  const slots = Math.min(active.length, Math.max(0, requestedSlots));
+  const restNeeded = active.length - slots;
+  const playedCount = state.playedCount || {};
+  const restCount = state.restCount || {};
+  const previousRest = new Set();
+  const rounds = state.allRounds || [];
+  if (rounds.length) {
+    for (const raw of rounds[rounds.length - 1]?.resting || []) {
+      previousRest.add(String(raw).split('#')[0]);
+    }
+  }
+  if (restNeeded <= 0) return { playing: active, resting: [] };
+
+  const fixedMap = new Map();
+  for (const [a,b] of state.fixedPairs || []) {
+    if (active.includes(a) && active.includes(b)) {
+      fixedMap.set(a,b); fixedMap.set(b,a);
+    }
+  }
+  const units = [];
+  const seen = new Set();
+  for (const p of active) {
+    if (seen.has(p)) continue;
+    const mate = fixedMap.get(p);
+    if (mate && !seen.has(mate)) {
+      units.push([p,mate]); seen.add(p); seen.add(mate);
+    } else {
+      units.push([p]); seen.add(p);
+    }
+  }
+
+  const qpos = new Map((state.restQueue || []).map((p,i)=>[p,i]));
+  let best = null;
+  const chosen = [];
+
+  function score(resting) {
+    const restSet = new Set(resting);
+    const afterPlayed = active.map(p => (playedCount[p] || 0) + (restSet.has(p) ? 0 : 1));
+    const afterRest = active.map(p => (restCount[p] || 0) + (restSet.has(p) ? 1 : 0));
+    const playedSpread = Math.max(...afterPlayed) - Math.min(...afterPlayed);
+    const restSpread = Math.max(...afterRest) - Math.min(...afterRest);
+    const playedSquares = afterPlayed.reduce((a,v)=>a+v*v,0);
+    const restSquares = afterRest.reduce((a,v)=>a+v*v,0);
+    const consecutiveRest = resting.reduce((a,p)=>a+(previousRest.has(p)?1:0),0);
+    const queuePenalty = resting.reduce((a,p)=>a+(qpos.has(p)?qpos.get(p):active.length),0);
+    // Lexicographic priority encoded as a tuple.
+    return [playedSpread, playedSquares, restSpread, restSquares, consecutiveRest, queuePenalty];
+  }
+  function better(a,b) {
+    if (!b) return true;
+    for (let i=0;i<a.length;i++) {
+      if (a[i] !== b[i]) return a[i] < b[i];
+    }
+    return false;
+  }
+  function dfs(i,count) {
+    if (count > restNeeded) return;
+    if (i === units.length) {
+      if (count !== restNeeded) return;
+      const resting = chosen.flat();
+      const sc = score(resting);
+      if (better(sc,best?.score)) best = { score: sc, resting: [...resting] };
+      return;
+    }
+    // Rest this complete unit.
+    chosen.push(units[i]);
+    dfs(i+1, count + units[i].length);
+    chosen.pop();
+    // Play this unit.
+    dfs(i+1, count);
+  }
+  dfs(0,0);
+
+  // A fixed-pair unit can make the exact rest count impossible (for example,
+  // one rest required but every player belongs to a fixed pair). Fall back to
+  // the fairest individual selection rather than returning an invalid round.
+  if (!best) {
+    const ordered = [...active].sort((a,b) => {
+      const pa = playedCount[a] || 0, pb = playedCount[b] || 0;
+      if (pa !== pb) return pb - pa; // higher played rests first
+      const ra = restCount[a] || 0, rb = restCount[b] || 0;
+      if (ra !== rb) return ra - rb; // fewer rests rests first
+      return (qpos.get(a) ?? active.length) - (qpos.get(b) ?? active.length);
+    });
+    best = { resting: ordered.slice(0,restNeeded) };
+  }
+  const restSet = new Set(best.resting);
+  return { resting: best.resting, playing: active.filter(p=>!restSet.has(p)) };
+}
+
+function buildStandardFreshGamesDFS(state, playing) {
+  const numCourts = state.numCourts || 0;
+  if (!numCourts || playing.length !== numCourts * 4) return null;
+
+  const pairCounts = new Map();
+  const opponentCounts = new Map();
+  const gameCounts = new Map();
+  const rounds = state.allRounds || [];
+  const previous = rounds.length ? rounds[rounds.length - 1] : null;
+  const previousGameKeys = new Set();
+  const previousPartnerKeys = new Set();
+  const previousOpponentKeys = new Set();
+  const previousPlaying = new Set();
+
+  const pkey = (a,b) => [a,b].sort().join('|');
+  const gkey = players => [...players].sort().join('|');
+  const inc = (map,key,n=1) => map.set(key,(map.get(key)||0)+n);
+
+  for (const round of rounds) {
+    for (const g of round.games || []) {
+      const p1 = g.pair1 || [], p2 = g.pair2 || [];
+      if (p1.length !== 2 || p2.length !== 2) continue;
+      inc(pairCounts,pkey(p1[0],p1[1]));
+      inc(pairCounts,pkey(p2[0],p2[1]));
+      for (const a of p1) for (const b of p2) inc(opponentCounts,pkey(a,b));
+      inc(gameCounts,gkey([...p1,...p2]));
+    }
+  }
+  for (const g of previous?.games || []) {
+    const p1 = g.pair1 || [], p2 = g.pair2 || [];
+    if (p1.length !== 2 || p2.length !== 2) continue;
+    previousGameKeys.add(gkey([...p1,...p2]));
+    previousPartnerKeys.add(pkey(p1[0],p1[1]));
+    previousPartnerKeys.add(pkey(p2[0],p2[1]));
+    for (const a of p1) for (const b of p2) previousOpponentKeys.add(pkey(a,b));
+    [...p1,...p2].forEach(p=>previousPlaying.add(p));
+  }
+
+  const returning = new Set(playing.filter(p => previous && !previousPlaying.has(p)));
+  const fixedMate = new Map();
+  for (const [a,b] of state.fixedPairs || []) {
+    if (playing.includes(a) && playing.includes(b)) {
+      fixedMate.set(a,b); fixedMate.set(b,a);
+    }
+  }
+
+  function arrangements(group) {
+    const [a,b,c,d] = group;
+    return [
+      [[a,b],[c,d]], [[a,c],[b,d]], [[a,d],[b,c]]
+    ];
+  }
+  function validFixed(group,pair1,pair2) {
+    const groupSet = new Set(group);
+    for (const p of group) {
+      const mate = fixedMate.get(p);
+      if (!mate) continue;
+      if (!groupSet.has(mate)) return false;
+      const together = (pair1.includes(p) && pair1.includes(mate)) ||
+                       (pair2.includes(p) && pair2.includes(mate));
+      if (!together) return false;
+    }
+    return true;
+  }
+  function scoreGame(pair1,pair2) {
+    const players = [...pair1,...pair2];
+    const exactKey = gkey(players);
+    const pairKeys = [pkey(pair1[0],pair1[1]),pkey(pair2[0],pair2[1])];
+    const oppKeys = [];
+    for (const a of pair1) for (const b of pair2) oppKeys.push(pkey(a,b));
+    const historicalPairRepeats = pairKeys.reduce((n,k)=>n+(pairCounts.get(k)||0),0);
+    const historicalOpponentRepeats = oppKeys.reduce((n,k)=>n+(opponentCounts.get(k)||0),0);
+    return {
+      pair1:[...pair1], pair2:[...pair2], players,
+      returningCount: players.reduce((n,p)=>n+(returning.has(p)?1:0),0),
+      vector: [
+        gameCounts.get(exactKey)||0,
+        historicalPairRepeats,
+        historicalOpponentRepeats,
+        previousGameKeys.has(exactKey)?1:0,
+        pairKeys.reduce((n,k)=>n+(previousPartnerKeys.has(k)?1:0),0),
+        oppKeys.reduce((n,k)=>n+(previousOpponentKeys.has(k)?1:0),0)
+      ]
+    };
+  }
+  function addVec(a,b) { return a.map((v,i)=>v+b[i]); }
+  function better(a,b) {
+    if (!b) return true;
+    for (let i=0;i<a.length;i++) if (a[i]!==b[i]) return a[i]<b[i];
+    return false;
+  }
+
+  let best = null;
+  let nodes = 0;
+  const MAX_NODES = 180000;
+  const maxReturningPerCourt = returning.size <= numCourts ? 1 : Math.ceil(returning.size/numCourts);
+
+  function dfs(remaining,games,vector,returningDistributionPenalty) {
+    if (++nodes > MAX_NODES) return;
+    if (!remaining.length) {
+      const full = [returningDistributionPenalty,...vector];
+      if (better(full,best?.score)) best={score:full,games:games.map((g,i)=>({court:i+1,pair1:g.pair1,pair2:g.pair2}))};
+      return;
+    }
+    if (games.length >= numCourts) return;
+    const first=remaining[0], rest=remaining.slice(1);
+    const candidates=[];
+    for (let i=0;i<rest.length-2;i++) for (let j=i+1;j<rest.length-1;j++) for (let k=j+1;k<rest.length;k++) {
+      const group=[first,rest[i],rest[j],rest[k]];
+      for (const [pair1,pair2] of arrangements(group)) {
+        if (!validFixed(group,pair1,pair2)) continue;
+        const c=scoreGame(pair1,pair2);
+        if (c.returningCount>maxReturningPerCourt) continue;
+        candidates.push(c);
+      }
+    }
+    candidates.sort((a,b)=>{
+      for (let i=0;i<a.vector.length;i++) if (a.vector[i]!==b.vector[i]) return a.vector[i]-b.vector[i];
+      return a.returningCount-b.returningCount;
+    });
+    for (const c of candidates.slice(0,80)) {
+      const used=new Set(c.players);
+      const next=remaining.filter(p=>!used.has(p));
+      const target = returning.size ? returning.size/numCourts : 0;
+      const penalty = returningDistributionPenalty + Math.abs(c.returningCount-target);
+      dfs(next,[...games,c],addVec(vector,c.vector),penalty);
+    }
+  }
+
+  dfs([...playing],[],[0,0,0,0,0,0],0);
+  return best?.games || null;
+}
+
+
+// Balanced mode = Standard participation + a frozen rating split for this round.
+// Balance is a hard constraint. Standard uniqueness/freshness scoring is then
+// applied only among structurally balanced candidates.
+function balancedRoundV1(state) {
+  const { resting, playing } = selectStandardParticipantsDFS(state);
+  const allPlayers = state.allPlayers || [];
+  const rating = name => getRating(name, allPlayers);
+  const gender = name => getGender(name, allPlayers);
+  const sorted = [...playing].sort((a,b) => rating(b) - rating(a) || String(a).localeCompare(String(b)));
+  const half = Math.ceil(sorted.length / 2);
+  const top = new Set(sorted.slice(0, half));
+  const bottom = new Set(sorted.slice(half));
+  const group = p => top.has(p) ? 'T' : 'B';
+
+  const formats = (state.courtFormats || []).length ? state.courtFormats : Array(state.numCourts).fill('doubles');
+  const types = state.courtTypes || [];
+  const rounds = state.allRounds || [];
+  const previous = rounds.length ? rounds[rounds.length - 1] : null;
+  const previousGameKeys = new Set((previous?.games || []).map(g => gameKey(g.pair1 || [], g.pair2 || [])));
+  const pairCounts = new Map();
+  const oppCounts = new Map();
+  const gameCounts = new Map();
+  for (const r of rounds) for (const g of (r.games || [])) {
+    const ps=[...(g.pair1||[]),...(g.pair2||[])];
+    gameCounts.set(gameKey(g.pair1||[],g.pair2||[]),(gameCounts.get(gameKey(g.pair1||[],g.pair2||[]))||0)+1);
+    if ((g.pair1||[]).length===2) {
+      for (const pair of [g.pair1,g.pair2]) { const k=pairKey(pair[0],pair[1]); pairCounts.set(k,(pairCounts.get(k)||0)+1); }
+      for (const a of g.pair1) for (const b of g.pair2) { const k=pairKey(a,b); oppCounts.set(k,(oppCounts.get(k)||0)+1); }
+    } else if (ps.length===2) { const k=pairKey(ps[0],ps[1]); oppCounts.set(k,(oppCounts.get(k)||0)+1); }
+  }
+  const previousRest = new Set((previous?.resting || []).map(x=>String(x).split('#')[0]));
+  const fixedMate = new Map();
+  for (const [a,b] of state.fixedPairs || []) if (playing.includes(a)&&playing.includes(b)) { fixedMate.set(a,b); fixedMate.set(b,a); }
+
+  function typeOK(players, fmt, type) {
+    const gs=players.map(group);
+    if (fmt==='singles') {
+      if (gs[0]!==gs[1]) return false;
+      if (type==='singles-men' || type==='MD' || type==='men') return players.every(p=>gender(p)==='Male');
+      if (type==='singles-women' || type==='LD' || type==='women') return players.every(p=>gender(p)==='Female');
+      return true;
+    }
+    const topCount=gs.filter(x=>x==='T').length;
+    // Valid balanced doubles patterns: two Top + two Bottom, or all four
+    // from the same half (same-level court).
+    if (!(topCount===2 || topCount===0 || topCount===4)) return false;
+    if (type==='MD' && !players.every(p=>gender(p)==='Male')) return false;
+    if (type==='LD' && !players.every(p=>gender(p)==='Female')) return false;
+    if (type==='XD') {
+      if (players.filter(p=>gender(p)==='Male').length!==2) return false;
+      if (players.filter(p=>gender(p)==='Female').length!==2) return false;
+    }
+    return true;
+  }
+  function fixedOK(pair1,pair2) {
+    const all=[...pair1,...pair2], set=new Set(all);
+    for (const p of all) { const m=fixedMate.get(p); if (!m) continue; if (!set.has(m)) return false; if (!((pair1.includes(p)&&pair1.includes(m))||(pair2.includes(p)&&pair2.includes(m)))) return false; }
+    return true;
+  }
+  function teamBalanceOK(pair1,pair2,fmt,type) {
+    if (fmt==='singles') return true;
+    const all=[...pair1,...pair2];
+    const topCount=all.filter(p=>group(p)==='T').length;
+    if (topCount===2) {
+      if (!(group(pair1[0])!==group(pair1[1]) && group(pair2[0])!==group(pair2[1]))) return false;
+    } else {
+      // Same-level court: both teams automatically have the same group structure.
+      if (!(topCount===0 || topCount===4)) return false;
+    }
+    if (type==='XD') return pair1.filter(p=>gender(p)==='Male').length===1 && pair2.filter(p=>gender(p)==='Male').length===1;
+    return true;
+  }
+  function candidateScore(pair1,pair2) {
+    const exact=gameKey(pair1,pair2);
+    const pairs=pair1.length===2?[pairKey(pair1[0],pair1[1]),pairKey(pair2[0],pair2[1])]:[];
+    const opp=[]; for (const a of pair1) for (const b of pair2) opp.push(pairKey(a,b));
+    return [
+      previousGameKeys.has(exact)?1:0,
+      gameCounts.get(exact)||0,
+      pairs.reduce((n,k)=>n+(pairCounts.get(k)||0),0),
+      opp.reduce((n,k)=>n+(oppCounts.get(k)||0),0)
+    ];
+  }
+  function add(a,b){return a.map((v,i)=>v+b[i]);}
+  function better(a,b){if(!b)return true; for(let i=0;i<a.length;i++){if(a[i]!==b[i])return a[i]<b[i];} return false;}
+  function candidatesFor(court, available) {
+    const fmt=formats[court]||'doubles', type=types[court]||(fmt==='singles'?'singles-free':'free');
+    const out=[];
+    if (fmt==='singles') {
+      for(let i=0;i<available.length-1;i++) for(let j=i+1;j<available.length;j++) {
+        const ps=[available[i],available[j]]; if(!typeOK(ps,fmt,type))continue;
+        out.push({pair1:[ps[0]],pair2:[ps[1]],players:ps,score:candidateScore([ps[0]],[ps[1]])});
+      }
+    } else {
+      for(let a=0;a<available.length-3;a++) for(let b=a+1;b<available.length-2;b++) for(let c=b+1;c<available.length-1;c++) for(let d=c+1;d<available.length;d++) {
+        const ps=[available[a],available[b],available[c],available[d]]; if(!typeOK(ps,fmt,type))continue;
+        const arr=[[[ps[0],ps[1]],[ps[2],ps[3]]],[[ps[0],ps[2]],[ps[1],ps[3]]],[[ps[0],ps[3]],[ps[1],ps[2]]]];
+        for(const [p1,p2] of arr) if(teamBalanceOK(p1,p2,fmt,type)&&fixedOK(p1,p2)) out.push({pair1:p1,pair2:p2,players:ps,score:candidateScore(p1,p2)});
+      }
+    }
+    out.sort((x,y)=>{for(let i=0;i<x.score.length;i++)if(x.score[i]!==y.score[i])return x.score[i]-y.score[i];return 0;});
+    return out.slice(0,600);
+  }
+
+  let best=null,nodes=0; const MAX=350000;
+  function dfs(remainingCourts,available,games,score,returningCounts){
+    if(++nodes>MAX)return;
+    if(!remainingCourts.length){
+      const target=previousRest.size?previousRest.size/formats.length:0;
+      const spreadPenalty=returningCounts.reduce((n,x)=>n+Math.abs(x-target),0);
+      const full=[spreadPenalty,...score];
+      if(better(full,best?.score))best={score:full,games:[...games].sort((a,b)=>a.court-b.court)};
+      return;
+    }
+    // Most-constrained court first avoids consuming players needed by XD/typed courts.
+    let chosenCourt=remainingCourts[0], chosenCandidates=candidatesFor(chosenCourt,available);
+    for(const c of remainingCourts.slice(1)){
+      const cc=candidatesFor(c,available);
+      if(cc.length<chosenCandidates.length){chosenCourt=c;chosenCandidates=cc;}
+    }
+    if(!chosenCandidates.length)return;
+    const nextCourts=remainingCourts.filter(c=>c!==chosenCourt);
+    for(const cand of chosenCandidates){
+      const used=new Set(cand.players);
+      dfs(nextCourts,available.filter(p=>!used.has(p)),[...games,{court:chosenCourt+1,pair1:cand.pair1,pair2:cand.pair2,isSingles:cand.pair1.length===1}],add(score,cand.score),[...returningCounts,cand.players.filter(p=>previousRest.has(p)).length]);
+    }
+  }
+  dfs(formats.map((_,i)=>i),[...playing],[],[0,0,0,0],[]);
+  if (!best) {
+    // Preserve validity if a strict balanced arrangement is mathematically impossible.
+    return typedRound(state);
+  }
+  state.roundIndex=(state.roundIndex||0)+1;
+  return {round:state.roundIndex,resting:resting.map(p=>`${p}#${(state.restCount[p]||0)+1}`),playing,games:best.games,balanceGroups:{top:[...top],bottom:[...bottom]}};
+}
+
+function standardRoundV2(state) {
+  const { restCount } = state;
+  const { resting, playing } = selectStandardParticipantsDFS(state);
+  let games = buildStandardFreshGamesDFS(state, playing);
+
+  // Safety fallback: retain the previous proven Standard game builder if DFS
+  // cannot complete within its bounded search.
+  if (!games || games.length !== state.numCourts) {
+    const fallback = randomRound({ ...state, activeplayers: playing, numCourts: state.numCourts });
+    games = fallback.games || [];
+  }
+
+  state.roundIndex = (state.roundIndex || 0) + 1;
+  return {
+    round: state.roundIndex,
+    resting: resting.map(p => `${p}#${(restCount[p] || 0) + 1}`),
+    playing,
+    games
+  };
+}
+
 function randomRound(state) {
   const { numCourts, fixedPairs, restCount, opponentMap, pairPlayedSet, lastRound = [] } = state;
   const { resting, playing } = selectRestingAndPlaying(state);
@@ -1323,6 +1689,21 @@ function randomRound(state) {
       games
     };
   }
+  // Version 1 grouped Unique Games algorithm. Fixed-pair rounds retain the
+  // established fixed-pair path so their existing behaviour is untouched.
+  if (state.uniqueGamesMode && fixedThisRound.length === 0) {
+    const groupedGames = buildGroupedUniqueGames(state, playing);
+    if (groupedGames && groupedGames.length === numCourts) {
+      state.roundIndex = (state.roundIndex || 0) + 1;
+      return {
+        round: state.roundIndex,
+        resting: resting.map(p => `${p}#${(restCount[p] || 0) + 1}`),
+        playing,
+        games: groupedGames
+      };
+    }
+  }
+
   const required = Math.floor(numCourts * 4 / 2) - fixedThisRound.length;
   let freePairs  = findDisjointPairs(freePlayers, pairPlayedSet, required, opponentMap) || [];
   if (freePairs.length < required) {
@@ -2322,7 +2703,18 @@ function typedBestRound(state) {
   }
 
   function roundScore(games) {
-    return games.reduce((s, g) => s + gameScore(g.pair1, g.pair2), 0);
+    const counts = state.gameTypeCounts || { MD:{}, LD:{}, XD:{}, singles:{} };
+    let freshness = 0;
+    let typePenalty = 0;
+    for (const g of games) {
+      freshness += gameScore(g.pair1, g.pair2);
+      const idx = Math.max(0, (g.court || 1) - 1);
+      const type = courtTypes[idx] || 'free';
+      const bucket = type === 'MD' ? counts.MD : type === 'LD' ? counts.LD : type === 'XD' ? counts.XD : null;
+      if (bucket) for (const p of [...g.pair1, ...g.pair2]) typePenalty += bucket[p] || 0;
+    }
+    // Type balance is above freshness, but participation has already been fixed.
+    return freshness - typePenalty * 100000;
   }
 
   // All permutations of picking k items from arr (returns arrays)
@@ -2536,12 +2928,106 @@ function typedBestRound(state) {
 }
 
 
+
+function buildNextHistory(state, result) {
+  const played = { ...(state.playedCount || {}) };
+  const rested = { ...(state.restCount || {}) };
+  const types = {
+    MD: { ...(state.gameTypeCounts?.MD || {}) },
+    LD: { ...(state.gameTypeCounts?.LD || {}) },
+    XD: { ...(state.gameTypeCounts?.XD || {}) },
+    singles: { ...(state.gameTypeCounts?.singles || {}) },
+  };
+  const pairSet = new Set(state.pairPlayedSet || []);
+  const gameSet = new Set(state.gamesMap || []);
+  const opponents = {};
+  for (const [p, inner] of Object.entries(state.opponentMap || {})) opponents[p] = { ...(inner || {}) };
+
+  const restingNames = (result.resting || []).map(p => String(p).split('#')[0]);
+  for (const p of restingNames) rested[p] = (rested[p] || 0) + 1;
+
+  const playedThisRound = [];
+  (result.games || []).forEach((game, index) => {
+    const names = [...(game.pair1 || []), ...(game.pair2 || [])];
+    playedThisRound.push(...names);
+    const isSingles = (game.pair1 || []).length === 1 && (game.pair2 || []).length === 1;
+    const type = game.type || game.courtType || (state.courtTypes || [])[index] || 'free';
+    for (const p of names) {
+      played[p] = (played[p] || 0) + 1;
+      if (isSingles) types.singles[p] = (types.singles[p] || 0) + 1;
+      else if (type === 'MD' || type === 'LD' || type === 'XD') types[type][p] = (types[type][p] || 0) + 1;
+    }
+    if (!isSingles) {
+      pairSet.add(pairKey(game.pair1[0], game.pair1[1]));
+      pairSet.add(pairKey(game.pair2[0], game.pair2[1]));
+    }
+    gameSet.add(gameKey(game.pair1 || [], game.pair2 || []));
+    for (const a of (game.pair1 || [])) {
+      if (!opponents[a]) opponents[a] = {};
+      for (const b of (game.pair2 || [])) {
+        if (!opponents[b]) opponents[b] = {};
+        opponents[a][b] = (opponents[a][b] || 0) + 1;
+        opponents[b][a] = (opponents[b][a] || 0) + 1;
+      }
+    }
+  });
+
+  let queue = Array.isArray(state.restQueue) ? [...state.restQueue] : [];
+  const restingSet = new Set(restingNames);
+  queue = queue.filter(p => !restingSet.has(String(p).split('#')[0]));
+  queue.push(...restingNames);
+
+  return {
+    playedCount: Object.entries(played),
+    restCount: Object.entries(rested),
+    restQueue: queue,
+    gameTypeCounts: {
+      MD: Object.entries(types.MD),
+      LD: Object.entries(types.LD),
+      XD: Object.entries(types.XD),
+      singles: Object.entries(types.singles),
+    },
+    pairPlayedSet: [...pairSet],
+    gamesMap: [...gameSet],
+    opponentMap: Object.entries(opponents).map(([p, inner]) => [p, Object.entries(inner)]),
+    previousRound: { games: result.games || [], resting: result.resting || [], playing: [...new Set(playedThisRound)] },
+  };
+}
+
+function buildRoundValidation(state, result) {
+  const players = (result.games || []).flatMap(g => [...(g.pair1 || []), ...(g.pair2 || [])]);
+  const resting = (result.resting || []).map(p => String(p).split('#')[0]);
+  const duplicatePlayers = new Set(players).size !== players.length;
+  const overlap = resting.some(p => players.includes(p));
+  const incompleteGames = (result.games || []).some(g => {
+    const singles = (g.pair1 || []).length === 1 && (g.pair2 || []).length === 1;
+    return singles ? false : (g.pair1 || []).length !== 2 || (g.pair2 || []).length !== 2;
+  });
+  const next = buildNextHistory(state, result);
+  const pc = Object.fromEntries(next.playedCount);
+  const rc = Object.fromEntries(next.restCount);
+  const active = state.activeplayers || [];
+  const playedVals = active.map(p => pc[p] || 0);
+  const restVals = active.map(p => rc[p] || 0);
+  return {
+    valid: !duplicatePlayers && !overlap && !incompleteGames,
+    duplicatePlayers,
+    restingPlayingOverlap: overlap,
+    incompleteGames,
+    playedSpread: playedVals.length ? Math.max(...playedVals) - Math.min(...playedVals) : 0,
+    restSpread: restVals.length ? Math.max(...restVals) - Math.min(...restVals) : 0,
+  };
+}
+
 async function handleGenerateRound(request, env) {
   const req           = await request.json();
-  const restCount     = Object.fromEntries(req.restCount || []);
-  const opponentMap   = Object.fromEntries((req.opponentMap || []).map(([p, inner]) => [p, Object.fromEntries(inner)]));
-  const pairPlayedSet = new Set(req.pairPlayedSet || []);
-  const gamesMap      = new Set(req.gamesMap || []);
+  const history       = req.history || {};
+  const restCount     = Object.fromEntries(history.restCount || req.restCount || []);
+  const playedCount   = Object.fromEntries(history.playedCount || req.playedCount || []);
+  const opponentSerial = history.opponentMap || req.opponentMap || [];
+  const opponentMap   = Object.fromEntries(opponentSerial.map(([p, inner]) => [p, Object.fromEntries(inner || [])]));
+  const pairPlayedSet = new Set(history.pairPlayedSet || req.pairPlayedSet || []);
+  const gamesMap      = new Set(history.gamesMap || req.gamesMap || []);
   const allRounds     = req.allRounds || [];
   let lastRound = [];
   if (allRounds.length) {
@@ -2553,8 +3039,9 @@ async function handleGenerateRound(request, env) {
     numCourts:              req.numCourts,
     courts:                 req.courts || req.numCourts,
     fixedPairs:             req.fixedPairs || [],
-    restQueue:              req.restQueue || [],
+    restQueue:              history.restQueue || req.restQueue || [],
     restCount,
+    playedCount,
     opponentMap,
     pairPlayedSet,
     gamesMap,
@@ -2570,6 +3057,15 @@ async function handleGenerateRound(request, env) {
     courtTypes:             req.courtTypes   || [],
     courtFormats:           req.courtFormats || [],
     uniqueGamesMode:        req.uniqueGamesMode || false,
+    balancedMode:           !!req.balancedMode,
+    topDownStandardMode:    !!req.topDownStandardMode,
+    requiredGames:          req.requiredGames || {},
+    gameTypeCounts: {
+      MD: Object.fromEntries(history.gameTypeCounts?.MD || req.gameTypeCounts?.MD || []),
+      LD: Object.fromEntries(history.gameTypeCounts?.LD || req.gameTypeCounts?.LD || []),
+      XD: Object.fromEntries(history.gameTypeCounts?.XD || req.gameTypeCounts?.XD || []),
+      singles: Object.fromEntries(history.gameTypeCounts?.singles || req.gameTypeCounts?.singles || []),
+    },
     allRounds:              allRounds,
     opponentMap:            opponentMap,
   };
@@ -2595,10 +3091,12 @@ async function handleGenerateRound(request, env) {
   let result = null;
   for (let attempt = 0; attempt < 3; attempt++) {
     let roundFn;
-    if (hasSinglesCourts) roundFn = typedRound;               // mixed Singles/Doubles → format-aware generator
-    else if (hasDoubleTypedCourts) roundFn = typedBestRound;  // MD/LD/XD Doubles → typed best round
-    else if (useComp) roundFn = competitiveRound;             // competitive → existing
-    else roundFn = randomRound;                               // free doubles → existing
+    if (state.balancedMode) roundFn = balancedRoundV1;         // Balanced → Standard + frozen Top/Bottom hard filter
+    else if (hasSinglesCourts) roundFn = typedRound;           // mixed Singles/Doubles → format-aware generator
+    else if (hasDoubleTypedCourts) roundFn = typedBestRound;   // MD/LD/XD Doubles → typed best round
+    else if (useComp) roundFn = competitiveRound;              // competitive → existing
+    else if (!state.uniqueGamesMode) roundFn = standardRoundV2; // Standard → participation-first DFS
+    else roundFn = randomRound;                                // Unique → existing grouped algorithm
     result = roundFn(state);
     const qc = validateRound(result, state);
     if (qc.valid) break;
@@ -2614,6 +3112,8 @@ async function handleGenerateRound(request, env) {
     }
   }
   if (!result) return json({ error: 'Failed to generate round' }, 500);
+  const nextHistory = buildNextHistory(state, result);
+  const validation = buildRoundValidation(state, result);
   return json({
     games:                         result.games,
     resting:                       result.resting,
@@ -2625,6 +3125,8 @@ async function handleGenerateRound(request, env) {
     updatedOpponentMap:            Object.entries(state.opponentMap).map(([p, inner]) => [p, Object.entries(inner)]),
     updatedFixedPairGameQueue:     state.fixedPairGameQueue,
     updatedFixedPairGameQueueHash: state.fixedPairGameQueueHash,
+    nextHistory,
+    validation,
   });
 }
 
@@ -3210,7 +3712,7 @@ async function handleGoogleStart(request, env) {
   authorize.searchParams.set('scope', 'openid profile email');
   authorize.searchParams.set('state', state);
   authorize.searchParams.set('nonce', nonce);
-  authorize.searchParams.set('prompt', 'select_account');
+  // Do not force account selection on every login; Google reuses the known account when possible.
 
   return new Response(null, {
     status: 302,

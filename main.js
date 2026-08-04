@@ -79,7 +79,10 @@ window.scsPrefetchAllWorkspaceData = function scsPrefetchAllWorkspaceData() {
     // Run it after role restoration and slot prefetch so every label/count/photo
     // uses the same resolved club context as the actual workspace pages.
     if (typeof window.scsPrefetchWelcomeHubData === 'function') {
-      await window.scsPrefetchWelcomeHubData();
+      // A fresh install may start an anonymous welcome request before account
+      // and club-role restoration completes. Force one resolved-role pass so
+      // the Round Manager club picker is populated on its first appearance.
+      await window.scsPrefetchWelcomeHubData(true);
     }
     window.__scsWorkspacePrefetchReady = true;
     window.dispatchEvent(new CustomEvent('scs:workspace-prefetch-ready'));
@@ -390,6 +393,11 @@ function updateWelcomeWorkspaceClubNames() {
     playerEl.hidden = !playerName;
     playerEl.classList.remove('is-login-prompt');
   }
+  var simplePlayerEl = document.getElementById('simpleMyNickname');
+  if (simplePlayerEl) {
+    simplePlayerEl.textContent = playerName || 'Player';
+    simplePlayerEl.hidden = false;
+  }
   var loginLabel = (typeof t === 'function' && t('login')) || 'Login';
   [
     ['welcomeOrganiserClubName', names.organiser, organiserVerified],
@@ -402,12 +410,21 @@ function updateWelcomeWorkspaceClubNames() {
     el.hidden = !text;
     el.classList.toggle('is-login-prompt', !item[2]);
   });
+  var simpleSlotClub = document.getElementById('simpleSlotClubName');
+  if (simpleSlotClub) {
+    simpleSlotClub.textContent = vaultVerified ? (names.vault || 'Club') : loginLabel;
+    simpleSlotClub.classList.toggle('is-login-prompt', !vaultVerified);
+  }
   var playerLogout = document.getElementById('welcomePlayerLogout');
   var organiserLogout = document.getElementById('welcomeOrganiserLogout');
   var vaultLogout = document.getElementById('welcomeVaultLogout');
+  var simplePlayerLogout = document.getElementById('simplePlayerLogout');
+  var simpleVaultLogout = document.getElementById('simpleVaultLogout');
   if (playerLogout) playerLogout.hidden = !playerName;
   if (organiserLogout) organiserLogout.hidden = !organiserVerified;
   if (vaultLogout) vaultLogout.hidden = !vaultVerified;
+  if (simplePlayerLogout) simplePlayerLogout.hidden = !playerName;
+  if (simpleVaultLogout) simpleVaultLogout.hidden = !vaultVerified;
 }
 
 async function welcomeManualRefresh() {
@@ -539,6 +556,8 @@ function updateWelcomeHubCard(mode) {
     photo.src = savedPhoto || (player && player.gender === 'Female' ? 'female.png' : 'male.png');
   }
   if (nameEl) nameEl.textContent = name;
+  var simpleNameEl = document.getElementById('simpleMyNickname');
+  if (simpleNameEl) simpleNameEl.textContent = name;
   var rating = Number(player && (player.global_rating ?? player.rating));
   var points = Number(player && (player.global_points ?? player.points));
   if (ratingEl) ratingEl.textContent = Number.isFinite(rating) && rating > 0 ? rating.toFixed(1) : '1.0';
@@ -703,8 +722,8 @@ function welcomeCycleWorkspace(direction) {
   var travel = Math.ceil(window.innerWidth + frame.getBoundingClientRect().width);
   var exitX = step > 0 ? -travel : travel;
   var enterX = -exitX;
-  var duration = 260;
-  var easing = 'cubic-bezier(.22,.72,.2,1)';
+  var duration = 130;
+  var easing = 'cubic-bezier(.2,.78,.25,1)';
 
   frame.style.willChange = 'transform';
   frame.style.transition = 'transform ' + duration + 'ms ' + easing;
@@ -728,8 +747,8 @@ function welcomeCycleWorkspace(direction) {
       frame.style.transform = '';
       frame.style.willChange = '';
       welcomeTileSliding = false;
-    }, duration + 40);
-  }, duration + 20);
+    }, duration + 18);
+  }, duration + 8);
 }
 
 (function enableWelcomeWorkspaceSwipe() {
@@ -919,7 +938,9 @@ function organiserAccessEscape(value) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-function showOrganiserAccessMenu(clubs) {
+function showOrganiserAccessMenu(clubs, options) {
+  options = options || {};
+  var directSelect = options.directSelect === true;
   return new Promise(function(resolve) {
     var existing = document.getElementById('organiserAccessOverlay');
     if (existing) existing.remove();
@@ -940,9 +961,9 @@ function showOrganiserAccessMenu(clubs) {
     overlay.innerHTML = `
       <section class="organiser-access-sheet" role="dialog" aria-modal="true" aria-labelledby="organiserAccessTitle">
         <button class="organiser-access-close" type="button" aria-label="Close">×</button>
-        <div class="organiser-access-icon" aria-hidden="true">▦</div>
+        ${directSelect ? '' : `<div class="organiser-access-icon" aria-hidden="true">▦</div>
         <h2 id="organiserAccessTitle">${organiserAccessEscape((typeof t === 'function' && t('continueAsOrganiser')) || 'Continue as Organiser')}</h2>
-        <p class="organiser-access-account">${organiserAccessEscape((typeof t === 'function' && t('signedInAs')) || 'Signed in as')} <strong>${organiserAccessEscape(playerName)}</strong></p>
+        <p class="organiser-access-account">${organiserAccessEscape((typeof t === 'function' && t('signedInAs')) || 'Signed in as')} <strong>${organiserAccessEscape(playerName)}</strong></p>`}
         <div class="organiser-access-label">${organiserAccessEscape((typeof t === 'function' && t('selectClubTitle')) || 'Select Club')}</div>
         <div class="organiser-access-clubs">
           ${clubs.map(function(club) {
@@ -957,9 +978,9 @@ function showOrganiserAccessMenu(clubs) {
             </button>`;
           }).join('')}
         </div>
-        <div class="organiser-access-actions">
+        ${directSelect ? '' : `<div class="organiser-access-actions">
           <button class="organiser-access-continue" type="button">${organiserAccessEscape((typeof t === 'function' && t('continueBtn')) || 'Continue')} <span aria-hidden="true">→</span></button>
-        </div>
+        </div>`}
       </section>`;
     document.body.appendChild(overlay);
 
@@ -973,15 +994,23 @@ function showOrganiserAccessMenu(clubs) {
     overlay.querySelectorAll('.organiser-access-club').forEach(function(button) {
       button.addEventListener('click', function() {
         selectedId = button.getAttribute('data-club-id') || selectedId;
+        if (directSelect) {
+          var selectedClub = clubs.find(function(club) { return club.id === selectedId; }) || clubs[0];
+          finish(selectedClub);
+          return;
+        }
         overlay.querySelectorAll('.organiser-access-club').forEach(function(item) {
           item.classList.toggle('selected', item === button);
         });
       });
     });
     overlay.querySelector('.organiser-access-close').addEventListener('click', function() { finish(null); });
-    overlay.querySelector('.organiser-access-continue').addEventListener('click', function() {
-      finish(clubs.find(function(club) { return club.id === selectedId; }) || clubs[0]);
-    });
+    var continueButton = overlay.querySelector('.organiser-access-continue');
+    if (continueButton) {
+      continueButton.addEventListener('click', function() {
+        finish(clubs.find(function(club) { return club.id === selectedId; }) || clubs[0]);
+      });
+    }
     overlay.addEventListener('click', function(event) { if (event.target === overlay) finish(null); });
   });
 }
@@ -1221,37 +1250,6 @@ async function initAppFlow() {
   }
 }
 
-function showOnboardingOverlay(reason) {
-  var overlay = document.getElementById('onboardingOverlay');
-  var title   = document.getElementById('onboardingTitle');
-  var msg     = document.getElementById('onboardingMsg');
-  var btn     = document.getElementById('onboardingBtn');
-  if (!overlay) return;
-
-  var goToVault = function() {
-    overlay.style.display = 'none';
-    // Hide home overlay if visible
-    var homeEl = document.getElementById('homePageOverlay');
-    if (homeEl) homeEl.style.display = 'none';
-    // Hide mode select if visible
-    var modeEl = document.getElementById('modeSelectOverlay');
-    if (modeEl) modeEl.style.display = 'none';
-    // Show vault page
-    showPage('vaultPage', null);
-  };
-
-  if (reason === 'notLoggedIn') {
-    if (title) title.textContent = t('welcomeToApp');
-    if (msg)   msg.textContent = t('connectClubToStart');
-    if (btn)   { btn.textContent = 'Connect to Club'; btn.onclick = goToVault; }
-  } else if (reason === 'noPlayers') {
-    if (title) title.textContent = t('noPlayersFoundWarn');
-    if (msg)   msg.textContent   = t('noPlayersYetVault');
-    if (btn)   { btn.textContent = t('goToVault'); btn.onclick = goToVault; }
-  }
-  overlay.style.display = 'flex';
-}
-
 /* ============================================================
    MAIN -- Navigation, tab access, scheduler init, round progression
    File: main.js
@@ -1334,10 +1332,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateSummaryPageAccess();
   // Init Supabase admin state (token + club)
   if (typeof clubAdminInit === "function") clubAdminInit();
-  // Sync Supabase players into local history (silent, background)
-  syncToLocal();
-  // Sync all global players into local cache (for offline import)
-  if (typeof syncGlobalPlayersCache === "function") syncGlobalPlayersCache();
+  // Player/global caches were already loaded by scsPrefetchAllWorkspaceData().
+  // Do not immediately start the same network sync again after startup.
+  // Sync all global players into local cache only as a fallback when prefetch was unavailable.
+  if (!window.__scsWorkspacePrefetchReady && typeof syncGlobalPlayersCache === "function") syncGlobalPlayersCache();
   // Clean up stale live_sessions from previous days
   if (typeof cleanupLiveSessions === "function") cleanupLiveSessions();
 
@@ -1899,14 +1897,18 @@ async function syncToLocal() {
 
     const count = synced.length;
     const msg   = `✅ ${count} ${t("playerPlural")} synced · ${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`;
-    localStorage.setItem("kbrr_last_sync", JSON.stringify({ msg, color: "#2dce89" }));
+    const syncedAt = Date.now();
+    localStorage.setItem("kbrr_last_sync", JSON.stringify({ msg, color: "#2dce89", at: syncedAt, ok: true }));
     setSyncIndicator(msg, "#2dce89");
+    window.dispatchEvent(new CustomEvent('scs:data-synced', { detail: { source: 'players', at: syncedAt, ok: true } }));
 
   } catch (e) {
     console.warn("syncToLocal failed:", e.message);
     const msg = t("offlineCache");
-    localStorage.setItem("kbrr_last_sync", JSON.stringify({ msg, color: "#e6a817" }));
+    const failedAt = Date.now();
+    localStorage.setItem("kbrr_last_sync", JSON.stringify({ msg, color: "#e6a817", at: failedAt, ok: false }));
     setSyncIndicator(msg, "#e6a817");
+    window.dispatchEvent(new CustomEvent('scs:data-synced', { detail: { source: 'players', at: failedAt, ok: false } }));
   }
 }
 
@@ -1983,6 +1985,23 @@ function requestVaultMode() {
 var _clubSetupTargetMode = null; // mode to enter after club is set up
 var _clubSetupCreateEmail = '';  // email during create-club OTP flow
 
+function _clubSetupClose(returnToAssist) {
+  var overlay = document.getElementById('clubSetupSheetOverlay');
+  if (overlay) overlay.remove();
+
+  var assistRole = '';
+  try {
+    assistRole = sessionStorage.getItem('scs_club_setup_from_assist') || '';
+    sessionStorage.removeItem('scs_club_setup_from_assist');
+  } catch (e) {}
+
+  if (returnToAssist !== false && assistRole) {
+    setTimeout(function() { scsOpenGuidedFunctions(assistRole); }, 80);
+    return true;
+  }
+  return false;
+}
+
 function _showClubSetupSheet(targetMode) {
   if (targetMode === 'organiser') {
     openOrganiserWorkspaceForMember();
@@ -2005,6 +2024,7 @@ function _showClubSetupSheet(targetMode) {
   overlay.style.cssText = 'position:fixed;inset:0;z-index:10020;background:rgba(0,0,0,0.6);display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)';
   overlay.innerHTML = `
     <div class="club-setup-sheet" id="clubSetupSheet">
+      <button type="button" class="club-setup-assist-close" aria-label="Close and return to Assist" onclick="_clubSetupClose(true)">✕</button>
       <div class="mode-sheet-handle"></div>
       <div class="mode-sheet-title">${modeLabel}</div>
       <p style="font-size:0.84rem;color:var(--text-dim);margin-bottom:16px;line-height:1.5">
@@ -2025,7 +2045,7 @@ function _showClubSetupSheet(targetMode) {
         <input type="password" id="csJoinPassword" class="auth-input" placeholder="${joinPasswordPh}" style="margin-bottom:10px">
         <div id="csJoinFeedback" style="font-size:0.82rem;color:var(--red);min-height:18px;margin-bottom:10px"></div>
         <div style="display:flex;gap:10px">
-          <button class="admin-modal-cancel" style="flex:1" onclick="document.getElementById('clubSetupSheetOverlay').remove()">${t('cancel') || 'Cancel'}</button>
+          <button class="admin-modal-cancel" style="flex:1" onclick="_clubSetupClose(true)">${t('cancel') || 'Cancel'}</button>
           <button class="admin-modal-ok" style="flex:1" onclick="_clubSetupJoin()">${t('joinBtn') || 'Join'}</button>
         </div>
       </div>
@@ -2037,14 +2057,14 @@ function _showClubSetupSheet(targetMode) {
           <input type="password" id="csCreateAdminPw" class="auth-input" placeholder="${t('enterAdminPasswordPh')}"  style="margin-bottom:10px">
           <div id="csCreateFeedback" style="font-size:0.82rem;min-height:18px;margin-bottom:10px"></div>
           <div style="display:flex;gap:10px">
-            <button class="admin-modal-cancel" style="flex:1" onclick="document.getElementById('clubSetupSheetOverlay').remove()">${t('cancel') || 'Cancel'}</button>
+            <button class="admin-modal-cancel" style="flex:1" onclick="_clubSetupClose(true)">${t('cancel') || 'Cancel'}</button>
             <button class="admin-modal-ok" style="flex:1" onclick="_clubSetupCreateDirect()">${t('createClub') || 'Create Club'}</button>
           </div>
         </div>
       </div>
     </div>
   `;
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  overlay.addEventListener('click', e => { if (e.target === overlay) _clubSetupClose(true); });
   document.body.appendChild(overlay);
   document.getElementById('clubSetupSheet').addEventListener('click', e => e.stopPropagation());
 
@@ -2194,7 +2214,7 @@ async function _clubSetupJoin() {
         localStorage.setItem('kbrr_app_mode', 'vault');
         applyMode('vault');
         updateModePill('vault');
-        if (typeof showHomeScreen === 'function') showHomeScreen();
+        if (!_clubSetupClose(true) && typeof showHomeScreen === 'function') showHomeScreen();
       } else if (mode === 'organiser') {
         // Organiser accepts user or admin password
         sessionStorage.setItem('scs_organiser_verified', '1');
@@ -2204,7 +2224,7 @@ async function _clubSetupJoin() {
         localStorage.setItem('kbrr_app_mode', 'organiser');
         applyMode('organiser');
         updateModePill('organiser');
-        if (typeof showHomeScreen === 'function') showHomeScreen();
+        if (!_clubSetupClose(true) && typeof showHomeScreen === 'function') showHomeScreen();
       }
     }, 700);
   } catch(e) { setFb('❌ ' + e.message, false); }
@@ -2264,7 +2284,7 @@ async function _clubSetupCreateDirect() {
       sessionStorage.setItem('appMode', mode);
       localStorage.setItem('kbrr_app_mode', mode);
       applyMode(mode);
-      if (typeof showHomeScreen === 'function') showHomeScreen();
+      if (!_clubSetupClose(true) && typeof showHomeScreen === 'function') showHomeScreen();
     }, 1000);
   } catch(e) { setFb('❌ ' + e.message, false); }
 }
@@ -2744,15 +2764,10 @@ async function _doEndSession(shuttleData) {
   // Clear saved snapshot — session is done
   if (typeof clearSnapshot === 'function') clearSnapshot();
 
-  // Reset organiser stepper to step 1
-  if (typeof _stepCourtsSet   !== 'undefined') _stepCourtsSet   = false;
-  if (typeof _stepPairsSeen   !== 'undefined') _stepPairsSeen   = false;
-  if (typeof _homeCurrentStep !== 'undefined') _homeCurrentStep = 0;
-
   // Clear player list UI
   if (typeof updatePlayerList === 'function') updatePlayerList();
 
-  // Go home — showHomeScreen calls homeUpdateStepper which shows step 1
+  // Go home after the completed session.
   if (typeof showHomeScreen === 'function') {
     showHomeScreen();
   }
@@ -2857,7 +2872,7 @@ var _scsGuideCurrentStep = null;
 var _scsGuideChildPageId = '';
 var _scsGuideConfig = {
   viewer: {
-    accent:'#2767e8', icon:'🏸', title:'Let’s set you up as a Player',
+    accent:'#2767e8', icon:'🏸', title:'Let’s Set Up MyHub',
     subtitle:'A few guided actions will get you ready to join and play.',
     note:'This helper appears only for an incomplete Player module. It will not change another module.',
     steps:[
@@ -2868,25 +2883,34 @@ var _scsGuideConfig = {
   },
   vault: {
     accent:'#20934b', icon:'🏢', title:'Let’s set up Club Manager',
-    subtitle:'Create the club, add its players and publish the first slot.',
+    subtitle:'Connect your club, create a player and publish the first slot.',
     note:'Each completed action is detected automatically. Existing Club Manager users continue normally.',
     steps:[
-      {id:'club', title:'Create Club', desc:'Create and connect your club.'},
-      {id:'players', title:'Add Players', desc:'Register or import players into the club.'},
-      {id:'slot', title:'Slot Creation', desc:'Create and publish the club’s first slot.'}
+      {id:'club', title:'Create / Join Your Club', desc:'Create a new club or connect to your existing club.'},
+      {id:'player', title:'Create New Player', desc:'Register one new player for the club.'},
+      {id:'slot', title:'Create Slot', desc:'Create and publish the club’s first slot.'}
     ]
   },
   organiser: {
-    accent:'#6937d5', icon:'📅', title:'Let’s set up Organiser',
-    subtitle:'Prepare the players, then start the correct available session.',
+    accent:'#6937d5', icon:'📅', title:'Let’s Set Up Round Manager',
+    subtitle:'Choose a club, prepare its players, then start the round.',
     note:'A slot can start only when it becomes available 15 minutes before its scheduled time. The helper does not alter that rule.',
     steps:[
-      {id:'club', title:'Join or Create a Club', desc:'Use a club you joined, or create one through Club Manager.'},
-      {id:'players', title:'Prepare Players', desc:'Use players from the available slot or add players for the round.'},
+      {id:'joinClub', title:'Join a Club', desc:'Search for your club and send a join request.'},
+      {id:'selectClub', title:'Select Club', desc:'Choose the club where you want to organise rounds.'},
+      {id:'newPlayer', title:'Create New Player', desc:'Register the first player when this club has no players.'},
+      {id:'players', title:'Add Players', desc:'Select at least four players for the round.'},
       {id:'round', title:'Start Round', desc:'Open the due slot and start when the existing 15-minute rule enables it.'}
     ]
   }
 };
+var _scsGuideOrganiserClubs=[];
+var _scsGuideOrganiserClubsLoading=false;
+var _scsGuideOrganiserClubsLoadedAt=0;
+var _scsGuideOrganiserPlayers=[];
+var _scsGuideOrganiserPlayersClubId='';
+var _scsGuideOrganiserPlayersLoading=false;
+var _scsGuideOrganiserPlayersLoadedAt=0;
 function _scsGuideKey(role){ return 'scs_guided_functions_'+role; }
 function _scsGuideHasPlayerName(){ var u=typeof authGetUser==='function'?authGetUser():null,p=typeof getMyPlayer==='function'?getMyPlayer():null;return !!((u&&(u.nickname||u.displayName))||(p&&(p.name||p.displayName||p.nickname))); }
 function _scsGuideNormaliseGender(value){
@@ -2920,7 +2944,87 @@ function _scsGuideHasGender(){
   return true;
 }
 function _scsGuideHasClub(){ var c=typeof getMyClub==='function'?getMyClub():null;return !!(c&&c.id); }
-function _scsGuideHasPlayers(){ return !!(window.schedulerState&&Array.isArray(schedulerState.allPlayers)&&schedulerState.allPlayers.length); }
+function _scsGuideGetOrganiserClubs(){
+  var hub=(window.__scsWelcomeHubData&&window.__scsWelcomeHubData.organiser)||{};
+  var hubClubs=Array.isArray(hub.clubs)?hub.clubs:[];
+  var combined=[].concat(_scsGuideOrganiserClubs||[],hubClubs||[]);
+  var seen=new Set(),result=[];
+  combined.forEach(function(club){
+    var id=String((club&&club.id)||'');
+    if(!id||seen.has(id))return;
+    seen.add(id);result.push(club);
+  });
+  if(!result.length&&hasVerifiedWorkspaceRole('organiser')){
+    var id=localStorage.getItem('kbrr_org_club_id')||'';
+    if(id)result.push({id:id,name:localStorage.getItem('kbrr_org_club_name')||'',source:'cache'});
+  }
+  return result;
+}
+function _scsGuideOrganiserHasMembership(){return _scsGuideGetOrganiserClubs().length>0;}
+function _scsGuideOrganiserSelectedClub(){
+  var clubs=_scsGuideGetOrganiserClubs();
+  var selected=String(window.__scsWelcomeOrganiserChoice||localStorage.getItem('kbrr_org_club_id')||'');
+  if(!selected){
+    var active=typeof getMyClub==='function'?getMyClub():null;
+    selected=String((active&&active.id)||'');
+  }
+  return clubs.find(function(club){return String(club.id)===selected;})||null;
+}
+function _scsGuideOrganiserHasSelectedClub(){return !!_scsGuideOrganiserSelectedClub();}
+function _scsGuideLoadOrganiserClubs(force){
+  if(typeof getOrganiserEligibleClubs!=='function'||_scsGuideOrganiserClubsLoading)return;
+  if(!force&&Date.now()-_scsGuideOrganiserClubsLoadedAt<5000)return;
+  _scsGuideOrganiserClubsLoading=true;
+  getOrganiserEligibleClubs().then(function(clubs){
+    _scsGuideOrganiserClubs=Array.isArray(clubs)?clubs:[];
+    _scsGuideOrganiserClubsLoadedAt=Date.now();
+  }).catch(function(){
+    _scsGuideOrganiserClubsLoadedAt=Date.now();
+  }).finally(function(){
+    _scsGuideOrganiserClubsLoading=false;
+    var overlay=document.getElementById('scsGuidedFunctions');
+    if(_scsGuideRole==='organiser'&&overlay&&!overlay.hidden)scsOpenGuidedFunctions('organiser');
+  });
+}
+function _scsGuideOrganiserClubId(){
+  var selected=_scsGuideOrganiserSelectedClub();
+  if(selected&&selected.id)return String(selected.id);
+  var active=typeof getMyClub==='function'?getMyClub():null;
+  return String((active&&active.id)||'');
+}
+function _scsGuideRefreshOrganiserPlayers(force){
+  if(typeof dbGetPlayers!=='function'||_scsGuideOrganiserPlayersLoading)return;
+  var clubId=_scsGuideOrganiserClubId();
+  if(!clubId){
+    _scsGuideOrganiserPlayers=[];
+    _scsGuideOrganiserPlayersClubId='';
+    _scsGuideOrganiserPlayersLoadedAt=Date.now();
+    return;
+  }
+  if(!force&&_scsGuideOrganiserPlayersClubId===clubId&&Date.now()-_scsGuideOrganiserPlayersLoadedAt<3000)return;
+  _scsGuideOrganiserPlayersLoading=true;
+  dbGetPlayers(!!force).then(function(players){
+    // Ignore a late response if the user changed clubs while loading.
+    if(_scsGuideOrganiserClubId()!==clubId)return;
+    _scsGuideOrganiserPlayers=Array.isArray(players)?players:[];
+    _scsGuideOrganiserPlayersClubId=clubId;
+    _scsGuideOrganiserPlayersLoadedAt=Date.now();
+  }).catch(function(){
+    if(_scsGuideOrganiserClubId()===clubId){
+      _scsGuideOrganiserPlayersLoadedAt=Date.now();
+    }
+  }).finally(function(){
+    _scsGuideOrganiserPlayersLoading=false;
+    var overlay=document.getElementById('scsGuidedFunctions');
+    if(_scsGuideRole==='organiser'&&overlay&&!overlay.hidden)scsOpenGuidedFunctions('organiser');
+  });
+}
+function _scsGuideHasPlayers(){
+  var clubId=_scsGuideOrganiserClubId();
+  var hasRegistered=!!(clubId&&_scsGuideOrganiserPlayersClubId===clubId&&_scsGuideOrganiserPlayers.length);
+  var hasSession=!!(window.schedulerState&&Array.isArray(schedulerState.allPlayers)&&schedulerState.allPlayers.length);
+  return hasRegistered||hasSession;
+}
 function _scsGuideSelectedPlayerCount(){
   if(!window.schedulerState)return 0;
   if(Array.isArray(schedulerState.activeplayers)&&schedulerState.activeplayers.length)return schedulerState.activeplayers.length;
@@ -3003,12 +3107,14 @@ function _scsGuideStepDone(role,id){
   }
   if(role==='vault'){
     if(id==='club') return _scsGuideHasClub()||hasVerifiedWorkspaceRole('vault');
-    if(id==='players') return _scsGuideHasPlayers();
+    if(id==='player') return _scsGuideHasPlayers();
     if(id==='slot') return false;
   }
   if(role==='organiser'){
-    if(id==='club') return _scsGuideHasClub()||hasVerifiedWorkspaceRole('organiser');
-    if(id==='players') return _scsGuideHasEnoughPlayers();
+    if(id==='joinClub') return _scsGuideOrganiserHasMembership();
+    if(id==='selectClub') return _scsGuideOrganiserHasSelectedClub();
+    if(id==='newPlayer') return _scsGuideOrganiserHasSelectedClub()&&_scsGuideHasPlayers();
+    if(id==='players') return _scsGuideOrganiserHasSelectedClub()&&_scsGuideHasEnoughPlayers();
     if(id==='round') return false;
   }
   return false;
@@ -3016,9 +3122,19 @@ function _scsGuideStepDone(role,id){
 
 function scsGuideAskGender(){
   var old=document.getElementById('scsGuideGenderModal'); if(old)old.remove();
+  var currentUser=typeof authGetUser==='function'?authGetUser():null;
+  var currentPlayer=typeof getMyPlayer==='function'?getMyPlayer():null;
+  var currentGender=_scsGuideNormaliseGender(
+    (currentUser&&currentUser.gender)||(currentPlayer&&currentPlayer.gender)||localStorage.getItem('scs_player_gender')
+  );
   var modal=document.createElement('div'); modal.id='scsGuideGenderModal'; modal.className='scs-guide-gender-modal';
   modal.innerHTML='<div class="scs-guide-gender-card"><button class="scs-guide-gender-close scs-popup-close-btn" type="button" aria-label="Close">×</button><div class="scs-guide-gender-icon">🏸</div><h3>Select your gender</h3><p>This helps SCS show the correct eligible slots.</p><div class="scs-guide-gender-actions"><button type="button" data-gender="Male">♂ Male</button><button type="button" data-gender="Female">♀ Female</button></div></div>';
   document.body.appendChild(modal);
+  modal.querySelectorAll('[data-gender]').forEach(function(btn){
+    var selected=btn.getAttribute('data-gender')===currentGender;
+    btn.classList.toggle('is-selected',selected);
+    btn.setAttribute('aria-pressed',selected?'true':'false');
+  });
   function close(){modal.remove();}
   modal.querySelector('.scs-guide-gender-close').onclick=close;
   modal.addEventListener('click',function(e){if(e.target===modal)close();});
@@ -3039,13 +3155,20 @@ function scsMigrateExistingGuides(){
   localStorage.setItem('scs_guided_functions_migrated_357','1');
 }
 function scsMaybeShowGuidedFunctions(role){
-  role=role||window.appMode||'viewer'; scsMigrateExistingGuides();
-  if(!_scsGuideConfig[role]||localStorage.getItem(_scsGuideKey(role))) return;
-  setTimeout(function(){scsOpenGuidedFunctions(role);},180);
+  // Retained as a compatibility no-op for older callers. Guided Functions
+  // open only from an explicit Assist action via scsOpenGuidedFunctions().
+  return false;
 }
 function scsOpenGuidedFunctions(role){
   var cfg=_scsGuideConfig[role]; if(!cfg)return; _scsGuideRole=role;
-  if(role==='organiser')_scsGuideRestoreSelectedPlayers();
+  if(role==='organiser'){
+    _scsGuideRestoreSelectedPlayers();
+    _scsGuideLoadOrganiserClubs(false);
+    // Player registration writes to the club database, not necessarily to the
+    // current session. Refresh the selected club's roster whenever Assist is
+    // shown so Create New Player / Add Players never use stale page state.
+    _scsGuideRefreshOrganiserPlayers(false);
+  }
   var overlay=document.getElementById('scsGuidedFunctions'); if(!overlay)return;
   // The helper is an app-level surface, never content within the currently
   // open Dashboard/Player/Club page. Reattach it to the document root in case
@@ -3057,15 +3180,39 @@ function scsOpenGuidedFunctions(role){
   var doneCount=0,current=null,html='';
   cfg.steps.forEach(function(step,i){
     var done=_scsGuideStepDone(role,step.id);
-    var locked=role==='organiser'&&step.id==='round'&&!_scsGuideHasEnoughPlayers();
+    var organiserHasMembership=role==='organiser'&&_scsGuideOrganiserHasMembership();
+    var organiserHasSelected=role==='organiser'&&_scsGuideOrganiserHasSelectedClub();
+    var organiserHasPlayers=role==='organiser'&&_scsGuideHasPlayers();
+    // Organiser Assist is a permanent shortcut menu, not a one-way wizard.
+    // Only Join a Club becomes unavailable after membership exists. Every
+    // other action remains enabled so the organiser can change club, create
+    // more players, edit player selection, or reopen rounds at any time.
+    var locked=(role==='organiser'&&step.id==='joinClub'&&done) ||
+      (role==='vault'&&step.id==='club'&&done);
     if(done)doneCount++;
     else if(!locked&&!current)current=step;
-    var description=locked?'Select at least 4 players first.':step.desc;
-    html+='<button type="button" class="scs-guide-step '+(done?'is-done':((current&&current.id===step.id)?'is-current':''))+(locked?' is-disabled':'')+'"'+
+    var description=step.desc;
+    if(locked){
+      if(role==='vault'&&step.id==='club')description='Club already connected.';
+      else if(role==='organiser'&&step.id==='joinClub')description='Club membership already available.';
+      else if(role==='organiser'&&step.id==='selectClub')description='Join a club first.';
+      else if(role==='organiser'&&step.id==='newPlayer')description=!organiserHasSelected?'Select a club first.':'Players already registered.';
+      else if(role==='organiser'&&step.id==='players')description=!organiserHasSelected?'Select a club first.':'Create a player first.';
+      else description='Select at least 4 players first.';
+    }
+    html+='<button type="button" class="scs-guide-step '+(done?'is-done':((current&&current.id===step.id)?'is-current':''))+(locked?' is-disabled':'')+'" data-guide-step="'+step.id+'"'+
       (locked?' disabled aria-disabled="true"':' aria-disabled="false"')+
-      ' onclick="scsGuideChooseStep(\''+step.id+'\')"><span class="scs-guide-step-num">'+(done?'✓':(i+1))+'</span><span><div class="scs-guide-step-title">'+step.title+'</div><div class="scs-guide-step-desc">'+description+'</div></span><span class="scs-guide-step-arrow">›</span></button>';
+      '><span class="scs-guide-step-num">'+(done?'✓':(i+1))+'</span><span><div class="scs-guide-step-title">'+step.title+'</div><div class="scs-guide-step-desc">'+description+'</div></span><span class="scs-guide-step-arrow">›</span></button>';
   });
-  document.getElementById('scsGuideSteps').innerHTML=html; document.getElementById('scsGuideProgressBar').style.width=Math.round(doneCount/cfg.steps.length*100)+'%';
+  var stepsHost=document.getElementById('scsGuideSteps');
+  stepsHost.innerHTML=html;
+  stepsHost.querySelectorAll('[data-guide-step]').forEach(function(button){
+    button.addEventListener('click',function(){
+      if(button.disabled)return;
+      scsGuideChooseStep(button.getAttribute('data-guide-step'));
+    });
+  });
+  document.getElementById('scsGuideProgressBar').style.width=Math.round(doneCount/cfg.steps.length*100)+'%';
   _scsGuideCurrentStep=current||cfg.steps[cfg.steps.length-1];
   if(!current){localStorage.setItem(_scsGuideKey(role),'complete');}
 }
@@ -3101,6 +3248,46 @@ function scsOpenGuideChildPage(pageId,tabId,role){
   document.body.classList.add('scs-guide-child-open');
 }
 
+function scsPlayersOpenNewPlayer(){
+  var playersPage=document.getElementById('playersPage');
+  var fromAssist=!!(playersPage&&playersPage.classList.contains('scs-assist-child-page'));
+  if(!fromAssist){
+    window._regNavSource='playersPage';
+    if(typeof homeGo==='function')homeGo('vaultRegisterPage',null);
+    return;
+  }
+
+  var registerPage=document.getElementById('vaultRegisterPage');
+  if(!registerPage)return;
+  registerPage.style.display='block';
+  registerPage.classList.add('scs-assist-nested-player-page');
+  var oldClose=registerPage.querySelector('.scs-assist-nested-player-close');
+  if(oldClose)oldClose.remove();
+  var close=document.createElement('button');
+  close.type='button';
+  close.className='scs-assist-nested-player-close scs-popup-close-btn';
+  close.setAttribute('aria-label','Close and return to Players');
+  close.textContent='✕';
+  close.onclick=scsPlayersCloseNewPlayer;
+  registerPage.appendChild(close);
+  document.body.classList.add('scs-guide-nested-player-open');
+  if(typeof vaultRenderRegister==='function')vaultRenderRegister();
+}
+
+function scsPlayersCloseNewPlayer(){
+  var registerPage=document.getElementById('vaultRegisterPage');
+  if(registerPage){
+    registerPage.classList.remove('scs-assist-nested-player-page');
+    registerPage.style.display='none';
+    var close=registerPage.querySelector('.scs-assist-nested-player-close');
+    if(close)close.remove();
+  }
+  document.body.classList.remove('scs-guide-nested-player-open');
+  var playersPage=document.getElementById('playersPage');
+  if(playersPage)playersPage.style.display='block';
+  if(typeof updatePlayerList==='function')updatePlayerList();
+}
+
 function scsGuideReturnFromChild(){
   var pageId=_scsGuideChildPageId;
   var role=_scsGuideRole||'organiser';
@@ -3119,7 +3306,86 @@ function scsGuideReturnFromChild(){
   }
   _scsGuideChildPageId='';
   document.body.classList.remove('scs-guide-child-open');
+  if(role==='organiser'){
+    // A player may have just been created. Force a fresh club roster before
+    // deciding which guided action is enabled.
+    _scsGuideOrganiserPlayersLoadedAt=0;
+    _scsGuideRefreshOrganiserPlayers(true);
+  }
   setTimeout(function(){scsOpenGuidedFunctions(role);},60);
+}
+
+function scsGuideReturnFromVaultSlotManager(){
+  var home=document.getElementById('homePageOverlay');
+  var close=home&&home.querySelector('.scs-topbar-x');
+  if(close&&close.hasAttribute('data-scs-assist-original-onclick')){
+    var original=close.getAttribute('data-scs-assist-original-onclick')||'openModeSwitcher()';
+    close.onclick=null;
+    close.setAttribute('onclick',original);
+    close.removeAttribute('data-scs-assist-original-onclick');
+    close.setAttribute('aria-label','Close');
+  }
+  if(home)home.classList.remove('scs-assist-child-page');
+  if(typeof homeHideScreen==='function')homeHideScreen();
+  else if(home)home.style.display='none';
+  _scsGuideChildPageId='';
+  document.body.classList.remove('scs-guide-child-open');
+  try{
+    sessionStorage.removeItem('scs_guide_child_page');
+    sessionStorage.removeItem('scs_guide_child_role');
+    sessionStorage.removeItem('scs_slot_from_assist');
+  }catch(e){}
+  setTimeout(function(){scsOpenGuidedFunctions('vault');},60);
+}
+
+async function scsGuideOpenVaultSlotManager(){
+  var home=document.getElementById('homePageOverlay');
+  if(!home)return;
+  // Assist may be launched from a non-selected carousel tile. Reuse an
+  // already verified Club Manager session, but never bypass its login gate.
+  if(typeof appMode!=='undefined'&&appMode!=='vault'){
+    var verified=typeof hasVerifiedWorkspaceRole==='function'&&hasVerifiedWorkspaceRole('vault');
+    if(!verified){
+      scsCloseGuidedFunctions(false);
+      if(typeof requestVaultMode==='function')requestVaultMode();
+      return;
+    }
+    appMode='vault';
+    try{sessionStorage.setItem('appMode','vault');localStorage.setItem('kbrr_app_mode','vault');}catch(e){}
+    if(typeof applyMode==='function')applyMode('vault');
+    if(typeof updateModePill==='function')updateModePill('vault');
+  }
+  _scsGuideRole='vault';
+  _scsGuideChildPageId='homePageOverlay';
+  try{
+    sessionStorage.setItem('scs_guide_child_page','homePageOverlay');
+    sessionStorage.setItem('scs_guide_child_role','vault');
+    sessionStorage.setItem('scs_slot_from_assist','1');
+  }catch(e){}
+
+  // This is the existing Club Manager home and slot calendar, not a second
+  // slot page. Keep Assist mounted underneath while the workspace is shown
+  // as a modal above it.
+  if(typeof showHomeScreen==='function')showHomeScreen();
+  home.classList.add('scs-assist-child-page');
+  document.body.classList.add('scs-guide-child-open');
+
+  var close=home.querySelector('.scs-topbar-x');
+  if(close){
+    if(!close.hasAttribute('data-scs-assist-original-onclick')){
+      close.setAttribute('data-scs-assist-original-onclick',close.getAttribute('onclick')||'openModeSwitcher()');
+    }
+    close.removeAttribute('onclick');
+    close.onclick=scsGuideReturnFromVaultSlotManager;
+    close.setAttribute('aria-label','Close and return to Assist');
+  }
+  try{
+    if(typeof renderVaultHomeSlotsUI==='function')await renderVaultHomeSlotsUI(true);
+  }catch(e){console.warn('Assist Slot Manager refresh failed',e);}
+  setTimeout(function(){
+    var slots=document.getElementById('vaultUpcomingSlots');
+    if(slots)slots.scrollIntoView({behavior:'smooth',block:'start'});
+  },80);
 }
 
 function scsGuideReturnFromJoinClub(){
@@ -3140,6 +3406,10 @@ function scsGuideReturnFromJoinClub(){
     sessionStorage.removeItem('scs_join_club_from_assist');
     sessionStorage.removeItem('scs_join_club_assist_role');
   }catch(e){}
+  if(assistRole==='organiser'){
+    _scsGuideOrganiserClubsLoadedAt=0;
+    _scsGuideLoadOrganiserClubs(true);
+  }
   setTimeout(function(){scsOpenGuidedFunctions(assistRole);},80);
 }
 
@@ -3189,6 +3459,168 @@ async function scsOpenJoinClubFromGuide(role){
   },80);
 }
 
+
+async function scsGuideOpenCreateSlot(){
+  // Reuse the established Club Manager Slot Manager. Selecting a date there
+  // reveals its existing Add Slot action and keeps a single source of truth.
+  await scsGuideOpenVaultSlotManager();
+}
+
+function _scsGuideConfirmClubChange(currentClub,newClub){
+  return new Promise(function(resolve){
+    var modal=document.createElement('div');
+    modal.className='scs-guide-club-change-modal';
+    modal.setAttribute('role','dialog');
+    modal.setAttribute('aria-modal','true');
+    modal.setAttribute('aria-labelledby','scsGuideClubChangeTitle');
+    var currentName=(currentClub&&currentClub.name)||'the current club';
+    var newName=(newClub&&newClub.name)||'the selected club';
+    modal.innerHTML='<div class="scs-guide-club-change-card">'+
+      '<div class="scs-guide-club-change-icon">⚠️</div>'+
+      '<h3 id="scsGuideClubChangeTitle">Change Club?</h3>'+
+      '<p>Change from <strong>'+organiserAccessEscape(currentName)+'</strong> to <strong>'+organiserAccessEscape(newName)+'</strong>?</p>'+
+      '<p class="scs-guide-club-change-warning">Your current player selection and round setup will be cleared.</p>'+
+      '<div class="scs-guide-club-change-actions">'+
+        '<button type="button" class="scs-guide-club-change-cancel">Cancel</button>'+
+        '<button type="button" class="scs-guide-club-change-confirm">Change Club</button>'+
+      '</div></div>';
+    document.body.appendChild(modal);
+    var finished=false;
+    function close(result){
+      if(finished)return; finished=true;
+      document.removeEventListener('keydown',onKey);
+      modal.remove(); resolve(result);
+    }
+    function onKey(e){if(e.key==='Escape')close(false);}
+    document.addEventListener('keydown',onKey);
+    modal.querySelector('.scs-guide-club-change-cancel').onclick=function(){close(false);};
+    modal.querySelector('.scs-guide-club-change-confirm').onclick=function(){close(true);};
+    modal.addEventListener('click',function(e){if(e.target===modal)close(false);});
+    setTimeout(function(){var b=modal.querySelector('.scs-guide-club-change-cancel');if(b)b.focus();},30);
+  });
+}
+
+async function _scsGuideResetOrganiserSessionForClubChange(){
+  // A club change starts a completely fresh organiser session. Club-created
+  // players/history remain in the database; only the current round setup is cleared.
+  try{
+    if(typeof dbReleaseMySession==='function') await dbReleaseMySession();
+  }catch(e){console.warn('Could not release previous organiser session',e);}
+
+  try{
+    localStorage.removeItem('schedulerPlayers');
+    localStorage.removeItem('schedulerState');
+    localStorage.removeItem('allRounds');
+    localStorage.removeItem('currentRoundIndex');
+    localStorage.removeItem('isOnPage2');
+    sessionStorage.removeItem('kbrr_session_db_id');
+  }catch(e){}
+
+  if(typeof newImportState!=='undefined'&&newImportState){
+    newImportState.selectedPlayers=[];
+    if(newImportState.unavailablePlayers&&typeof newImportState.unavailablePlayers.clear==='function'){
+      newImportState.unavailablePlayers.clear();
+    }
+    if(newImportState.slotUnavailablePlayers&&typeof newImportState.slotUnavailablePlayers.clear==='function'){
+      newImportState.slotUnavailablePlayers.clear();
+    }
+  }
+
+  if(typeof allRounds!=='undefined'&&allRounds){allRounds.length=0;}
+  if(typeof lastRound!=='undefined'&&lastRound){lastRound.length=0;}
+  if(typeof currentRoundIndex!=='undefined')currentRoundIndex=0;
+  if(typeof isOnPage2!=='undefined')isOnPage2=false;
+  if(typeof resetRest!=='undefined')resetRest=false;
+
+  if(typeof schedulerState!=='undefined'&&schedulerState){
+    schedulerState.numCourts=0;
+    schedulerState.courts=1;
+    schedulerState.allPlayers=[];
+    if(Array.isArray(schedulerState.activeplayers))schedulerState.activeplayers.splice(0,schedulerState.activeplayers.length);
+    else schedulerState.activeplayers=[];
+    schedulerState.fixedPairs=[];
+    schedulerState.roundIndex=0;
+    schedulerState.markingWinnerMode=false;
+    schedulerState.courtTypes=[];
+    schedulerState.courtFormats=[];
+    schedulerState.PlayedCount=new Map();
+    schedulerState.typePlayCount={MD:new Map(),LD:new Map(),XD:new Map()};
+    schedulerState.restCount=new Map();
+    schedulerState.restQueue=new Map();
+    schedulerState.PlayerScoreMap=new Map();
+    schedulerState.playedTogether=new Map();
+    schedulerState.fixedMap=new Map();
+    schedulerState.pairPlayedSet=new Set();
+    schedulerState.gamesMap=new Set();
+    schedulerState.winCount=new Map();
+    schedulerState.pairCooldownMap=new Map();
+    schedulerState.rankPoints=new Map();
+    schedulerState.streakMap=new Map();
+    schedulerState.pairHistory=new Map();
+    schedulerState.reachablePairs=new Set();
+    schedulerState.opponentMap=new Map();
+    schedulerState.fixedPairGameQueue=null;
+    schedulerState.fixedPairGameQueueHash=null;
+    schedulerState.mbmActive=false;
+  }
+
+  if(typeof currentState!=='undefined')currentState='idle';
+  if(typeof roundActive!=='undefined')roundActive=false;
+  if(typeof sessionFinished!=='undefined')sessionFinished=false;
+  if(typeof clearFixedPairsUI==='function')clearFixedPairsUI();
+  if(typeof updateFixedPairSelectors==='function')updateFixedPairSelectors();
+  if(typeof updatePlayerList==='function')updatePlayerList();
+  if(typeof updateRoundsPageAccess==='function')updateRoundsPageAccess();
+  if(typeof updateSummaryPageAccess==='function')updateSummaryPageAccess();
+}
+
+async function scsGuideSelectOrganiserClub(){
+  var clubs=[];
+  try{
+    clubs=typeof getOrganiserEligibleClubs==='function'?await getOrganiserEligibleClubs():[];
+  }catch(e){clubs=[];}
+  _scsGuideOrganiserClubs=Array.isArray(clubs)?clubs:[];
+  _scsGuideOrganiserClubsLoadedAt=Date.now();
+  if(!clubs.length){
+    if(typeof showToast==='function')showToast('Join a club first.');
+    scsOpenGuidedFunctions('organiser');
+    return;
+  }
+  var selected=typeof showOrganiserAccessMenu==='function'
+    ? await showOrganiserAccessMenu(clubs,{directSelect:true})
+    : clubs[0];
+  if(!selected||!selected.id){scsOpenGuidedFunctions('organiser');return;}
+  var currentClub=_scsGuideOrganiserSelectedClub();
+  var isDifferentClub=!!(currentClub&&currentClub.id&&String(currentClub.id)!==String(selected.id));
+  if(isDifferentClub){
+    var confirmed=await _scsGuideConfirmClubChange(currentClub,selected);
+    if(!confirmed){scsOpenGuidedFunctions('organiser');return;}
+    await _scsGuideResetOrganiserSessionForClubChange();
+  }
+  var club=selected;
+  try{
+    if(typeof syncOrganiserMembershipAccess==='function'){
+      club=await syncOrganiserMembershipAccess(null,selected.id)||selected;
+    }
+    if(typeof setMyClub==='function')setMyClub(club.id,club.name||selected.name||'');
+    window.__scsWelcomeOrganiserChoice=String(club.id);
+    appMode='organiser';
+    sessionStorage.setItem('appMode','organiser');
+    localStorage.setItem('kbrr_app_mode','organiser');
+    if(typeof applyMode==='function')applyMode('organiser');
+    if(typeof updateModePill==='function')updateModePill('organiser');
+    if(typeof syncToLocal==='function')await syncToLocal();
+    _scsGuideRestoreSelectedPlayers();
+    _scsGuideOrganiserPlayers=[];
+    _scsGuideOrganiserPlayersClubId='';
+    _scsGuideOrganiserPlayersLoadedAt=0;
+    _scsGuideRefreshOrganiserPlayers(true);
+  }catch(e){
+    if(typeof showToast==='function')showToast(e.message||'Could not select club.');
+  }
+  scsOpenGuidedFunctions('organiser');
+}
+
 function scsRunGuidePrimary(){
   var role=_scsGuideRole,id=_scsGuideCurrentStep&&_scsGuideCurrentStep.id;
   // Player and Organiser actions open above the checklist. Closing the child
@@ -3206,28 +3638,145 @@ function scsRunGuidePrimary(){
   }
   if(role==='vault'){
     scsCloseGuidedFunctions(false);
-    if(id==='club'){_showClubSetupSheet('vault');if(typeof _clubSetupShowTab==='function')setTimeout(function(){_clubSetupShowTab('create');},60);return;}
-    if(id==='players'&&typeof homeGo==='function'){homeGo('vaultRegisterPage',null);return;}
-    if(id==='slot'&&typeof homeGo==='function'){homeGo('vaultSlotsPage',null);return;}
+    if(id==='club'){
+      if(_scsGuideStepDone('vault','club')){scsOpenGuidedFunctions('vault');return;}
+      try{sessionStorage.setItem('scs_club_setup_from_assist','vault');}catch(e){}
+      _showClubSetupSheet('vault');
+      return;
+    }
+    if(id==='player'){
+      window._regNavSource=null;
+      scsOpenGuideChildPage('vaultRegisterPage',null,'vault');
+      if(typeof vaultRenderRegister==='function')vaultRenderRegister();
+      return;
+    }
+    if(id==='slot'){scsGuideOpenCreateSlot();return;}
   }
   if(role==='organiser'){
-    if(id==='club'){scsOpenJoinClubFromGuide('organiser');return;}
+    if(id==='joinClub'){
+      if(_scsGuideOrganiserHasMembership()){scsOpenGuidedFunctions('organiser');return;}
+      _scsGuideOrganiserClubsLoadedAt=0;
+      scsOpenJoinClubFromGuide('organiser');
+      return;
+    }
+    if(id==='selectClub'){scsGuideSelectOrganiserClub();return;}
+    if(id==='newPlayer'){
+      window._regNavSource=null;
+      scsOpenGuideChildPage('vaultRegisterPage',null,'organiser');
+      if(typeof vaultRenderRegister==='function')vaultRenderRegister();
+      return;
+    }
     if(id==='players'){
       _scsGuideRestoreSelectedPlayers();
       scsOpenGuideChildPage('playersPage','tabBtnPlayers','organiser');
-      if(typeof updatePlayerList==='function')updatePlayerList();
       return;
     }
     if(id==='round'){
-      if(!_scsGuideHasEnoughPlayers()){
-        if(typeof showToast==='function')showToast('Select at least 4 players first.');
-        scsOpenGuidedFunctions('organiser');
-        return;
-      }
-      scsOpenGuideChildPage('roundsPage','tabBtnRounds','organiser');
+      scsGuideStartRoundFromDashboardSlot();
       return;
     }
   }
+}
+
+
+/* Build 529: Round Manager Assist reuses the Dashboard slot Start Session flow.
+   Assist is closed first, then the same authoritative slot-start function opens
+   the existing normal full-page Rounds screen. */
+async function scsGuideStartRoundFromDashboardSlot(){
+  var existingSessionId=typeof getMySessionId==='function'?getMySessionId():null;
+  var hasExistingRounds=typeof allRounds!=='undefined'&&Array.isArray(allRounds)&&allRounds.length>0;
+  var liveSessionAvailable=(existingSessionId||hasExistingRounds)&&
+    (typeof sessionFinished==='undefined'||!sessionFinished);
+
+  // A started slot no longer appears in the Dashboard Start Session card.
+  // In that state Start Round means reopen the organiser's live Rounds page.
+  if(liveSessionAvailable){
+    appMode='organiser';
+    sessionStorage.setItem('appMode','organiser');
+    localStorage.setItem('kbrr_app_mode','organiser');
+    if(typeof applyMode==='function')applyMode('organiser');
+    if(typeof updateModePill==='function')updateModePill('organiser');
+    scsCloseGuidedFunctions(false);
+    var existingModeOverlay=document.getElementById('modeSelectOverlay');
+    if(existingModeOverlay)existingModeOverlay.style.display='none';
+    if(typeof homeHideScreen==='function')homeHideScreen();
+    if(typeof showPage==='function')showPage('roundsPage',document.getElementById('tabBtnRounds'));
+    else{
+      var existingRoundsPage=document.getElementById('roundsPage');
+      if(existingRoundsPage)existingRoundsPage.style.display='block';
+    }
+    if(hasExistingRounds&&typeof showRound==='function'){
+      var roundIndex=typeof currentRoundIndex==='number'?currentRoundIndex:allRounds.length-1;
+      showRound(Math.max(0,Math.min(roundIndex,allRounds.length-1)));
+    }
+    return;
+  }
+
+  if(typeof renderLauncherStartSessionCard!=='function'){
+    alert(t('roundsUnavailable')||'Rounds are not available yet.');
+    return;
+  }
+  try{
+    await renderLauncherStartSessionCard();
+  }catch(e){
+    console.warn('Assist Start Round dashboard refresh failed',e);
+    alert((t('noPlayableSlot')||'No playable slot is available now.')+'\n'+(e.message||''));
+    return;
+  }
+
+  // Invoke the real Dashboard Start Session control. This keeps its slot,
+  // player, timing and permission checks as the only source of truth.
+  var startButton=document.querySelector('#organiserNextSlotCard .mc-slot-action-btn, #launcherStartSessionCard .mc-slot-action-btn');
+  if(!startButton){
+    // No scheduled slot is due. Assist still supports the normal organiser
+    // flow built from the players selected in its Add Players step.
+    var selectedCount=typeof schedulerState!=='undefined'&&schedulerState.activeplayers
+      ? schedulerState.activeplayers.length
+      : 0;
+    if(selectedCount<4){
+      alert(t('need4Players')||'Need at least 4 selected players.');
+      return;
+    }
+    appMode='organiser';
+    sessionStorage.setItem('appMode','organiser');
+    localStorage.setItem('kbrr_app_mode','organiser');
+    if(typeof applyMode==='function')applyMode('organiser');
+    if(typeof updateModePill==='function')updateModePill('organiser');
+    scsCloseGuidedFunctions(false);
+    document.querySelectorAll('.organiser-access-overlay').forEach(function(overlay){overlay.remove();});
+    var fallbackModeOverlay=document.getElementById('modeSelectOverlay');
+    if(fallbackModeOverlay)fallbackModeOverlay.style.display='none';
+    if(typeof homeHideScreen==='function')homeHideScreen();
+    if(typeof showPage==='function')showPage('roundsPage',document.getElementById('tabBtnRounds'));
+    if(typeof goToRounds==='function')await goToRounds();
+    return;
+  }
+  if(startButton.disabled){
+    alert(startButton.textContent||t('startSessionNotReady')||'This slot is not ready to start yet.');
+    return;
+  }
+
+  var launcherSlot=(typeof _launcherDueSlot!=='undefined'&&_launcherDueSlot)||{};
+  var clubId=String(launcherSlot.clubId||localStorage.getItem('kbrr_org_club_id')||'');
+  var clubName=launcherSlot.clubName||localStorage.getItem('kbrr_org_club_name')||'';
+  if(clubId&&typeof setMyClub==='function')setMyClub(clubId,clubName);
+  if(clubId){
+    localStorage.setItem('kbrr_org_club_id',clubId);
+    localStorage.setItem('kbrr_org_club_name',clubName);
+  }
+  appMode='organiser';
+  sessionStorage.setItem('appMode','organiser');
+  localStorage.setItem('kbrr_app_mode','organiser');
+  if(typeof applyMode==='function')applyMode('organiser');
+  if(typeof updateModePill==='function')updateModePill('organiser');
+
+  // The Assist and launcher overlays otherwise remain above the Rounds page,
+  // making a successful start look like no action occurred.
+  scsCloseGuidedFunctions(false);
+  var modeOverlay=document.getElementById('modeSelectOverlay');
+  if(modeOverlay)modeOverlay.style.display='none';
+  if(typeof homeHideScreen==='function')homeHideScreen();
+  startButton.click();
 }
 
 /* Build 431: club-scoped hub photos and startup-prefetched welcome data. */
@@ -3313,9 +3862,34 @@ function welcomeOpenPhotoMenu(role) {
   document.body.classList.add('welcome-photo-menu-open');
 }
 
+function welcomeChooseRolePhoto(role) {
+  welcomePhotoRole = welcomeNormalisePhotoRole(role);
+  welcomePhotoKeyAtSelection = welcomeRolePhotoStorageKey(welcomePhotoRole);
+  if (!welcomePhotoKeyAtSelection && welcomePhotoRole !== 'viewer') {
+    if (typeof showToast === 'function') showToast('Please wait for the club data to finish loading.');
+    return;
+  }
+  var input = document.getElementById('welcomeProfileLibraryInput');
+  if (!input) return;
+  input.value = '';
+  input.click();
+}
+
 function welcomeRolePhotoElement(role) {
   role = welcomeNormalisePhotoRole(role);
   return document.getElementById(role === 'organiser' ? 'welcomeOrganiserPhoto' : (role === 'vault' ? 'welcomeVaultPhoto' : 'welcomePlayerPhoto'));
+}
+
+function welcomeApplySimpleRolePhoto(role, photoUrl) {
+  role = welcomeNormalisePhotoRole(role);
+  var id = role === 'organiser' ? 'simpleOrganiserPhoto' : (role === 'vault' ? 'simpleVaultPhoto' : 'simpleViewerPhoto');
+  var image = document.getElementById(id);
+  if (!image) return;
+  var saved = photoUrl === undefined ? welcomeGetSavedRolePhoto(role) : photoUrl;
+  image.src = saved || '';
+  image.hidden = !saved;
+  var fallback = image.parentElement && image.parentElement.querySelector('.simple-mode-icon-fallback');
+  if (fallback) fallback.hidden = !!saved;
 }
 
 function welcomeSaveRolePhoto(role, dataUrl, fixedKey) {
@@ -3355,6 +3929,7 @@ function welcomeHandleProfilePhoto(input) {
         }
         var photo = welcomeRolePhotoElement(roleAtSelection);
         if (photo) photo.src = dataUrl;
+        welcomeApplySimpleRolePhoto(roleAtSelection, dataUrl);
       } catch (e) { alert('The photo could not be saved. Please try another image.'); }
     };
     image.src = event.target.result;
@@ -3373,6 +3948,7 @@ function welcomeRemoveProfilePhoto() {
       photo.src = player && player.gender === 'Female' ? 'female.png' : 'male.png';
     } else photo.src = 'male.png';
   }
+  welcomeApplySimpleRolePhoto(role, '');
   welcomeClosePhotoMenu();
 }
 
@@ -3406,38 +3982,56 @@ function welcomeFindNextOrganiserSlot(slots) {
 function welcomeRenderOrganiserClubPills() {
   var organiser = (window.__scsWelcomeHubData && window.__scsWelcomeHubData.organiser) || {};
   var clubs = Array.isArray(organiser.clubs) ? organiser.clubs : [];
+  // On a first login the selected organiser club can be restored before the
+  // memberships/options request has finished (or when that request briefly
+  // fails).  The card still has a valid resolved clubId/clubName, so use it as
+  // a one-item display option instead of hiding the pill until another refresh.
+  if (!clubs.length && organiser.clubId) {
+    clubs = [{
+      id: String(organiser.clubId),
+      name: organiser.clubName || localStorage.getItem('kbrr_org_club_name') || 'Club',
+      source: 'resolved'
+    }];
+  }
   var selectedId = String(window.__scsWelcomeOrganiserChoice || organiser.clubId || '');
   var selectedClub = clubs.find(function(club) {
     return String(club.id) === selectedId;
   }) || clubs[0] || null;
-  var container = document.getElementById('welcomeOrganiserClubPills');
+  var containers = [
+    document.getElementById('welcomeOrganiserClubPills'),
+    document.getElementById('simpleRoundClubPills')
+  ].filter(Boolean);
   var fallbackName = document.getElementById('welcomeOrganiserName');
-  if (!container) return;
+  if (!containers.length) return;
   if (!selectedClub) {
-    container.innerHTML = '';
-    container.hidden = true;
+    containers.forEach(function(container) {
+      container.innerHTML = '';
+      container.hidden = true;
+    });
     if (fallbackName) fallbackName.hidden = false;
     return;
   }
-  container.hidden = false;
   if (fallbackName) fallbackName.hidden = true;
-  container.innerHTML =
-    '<span class="welcome-club-pill welcome-club-menu-pill selected" role="button" tabindex="0"' +
-      ' aria-haspopup="dialog" data-club-id="' + organiserAccessEscape(selectedClub.id) + '"' +
-      ' title="' + organiserAccessEscape(selectedClub.name || selectedClub.id) + '">' +
-      '<span class="welcome-club-pill-dot" aria-hidden="true"></span>' +
-      '<span class="welcome-club-pill-name">' + organiserAccessEscape(selectedClub.name || selectedClub.id) + '</span>' +
-      '<span class="welcome-club-pill-arrow" aria-hidden="true">⌄</span></span>';
-  var pill = container.querySelector('.welcome-club-menu-pill');
-  if (pill) {
-    pill.addEventListener('click', welcomeOpenOrganiserClubMenu);
-    pill.addEventListener('keydown', function(event) {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        welcomeOpenOrganiserClubMenu(event);
-      }
-    });
-  }
+  containers.forEach(function(container) {
+    container.hidden = false;
+    container.innerHTML =
+      '<span class="welcome-club-pill welcome-club-menu-pill selected" role="button" tabindex="0"' +
+        ' aria-haspopup="dialog" data-club-id="' + organiserAccessEscape(selectedClub.id) + '"' +
+        ' title="' + organiserAccessEscape(selectedClub.name || selectedClub.id) + '">' +
+        '<span class="welcome-club-pill-dot" aria-hidden="true"></span>' +
+        '<span class="welcome-club-pill-name">' + organiserAccessEscape(selectedClub.name || selectedClub.id) + '</span>' +
+        '<span class="welcome-club-pill-arrow" aria-hidden="true">⌄</span></span>';
+    var pill = container.querySelector('.welcome-club-menu-pill');
+    if (pill) {
+      pill.addEventListener('click', welcomeOpenOrganiserClubMenu);
+      pill.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          welcomeOpenOrganiserClubMenu(event);
+        }
+      });
+    }
+  });
 }
 
 async function welcomeOpenOrganiserClubMenu(event) {
@@ -3447,11 +4041,18 @@ async function welcomeOpenOrganiserClubMenu(event) {
   }
   var organiser = (window.__scsWelcomeHubData && window.__scsWelcomeHubData.organiser) || {};
   var clubs = Array.isArray(organiser.clubs) ? organiser.clubs : [];
+  if (!clubs.length && organiser.clubId) {
+    clubs = [{
+      id: String(organiser.clubId),
+      name: organiser.clubName || localStorage.getItem('kbrr_org_club_name') || 'Club',
+      source: 'resolved'
+    }];
+  }
   if (!clubs.length) {
     if (typeof showToast === 'function') showToast('No organiser clubs are available.');
     return;
   }
-  var selected = await showOrganiserAccessMenu(clubs);
+  var selected = await showOrganiserAccessMenu(clubs, { directSelect: true });
   if (selected && selected.id) {
     await welcomeSelectOrganiserClub(selected.id);
   }
@@ -3469,13 +4070,16 @@ async function welcomeSelectOrganiserClub(clubId) {
   organiser.nextSlot = null;
   localStorage.setItem('kbrr_org_club_id', String(selected.id));
   localStorage.setItem('kbrr_org_club_name', selected.name || '');
+  // Keep the active club used by the Round Manager header and session data in
+  // sync with the club selected on the Welcome page.
+  if (typeof setMyClub === 'function') setMyClub(String(selected.id), selected.name || '');
   sessionStorage.setItem('scs_organiser_verified', '1');
   localStorage.setItem('scs_organiser_verified', '1');
   welcomeRenderOrganiserClubPills();
   welcomeLoadRoleHubData('organiser');
 
-  var container = document.getElementById('welcomeOrganiserClubPills');
-  if (container) container.classList.add('is-loading');
+  var containers = [document.getElementById('welcomeOrganiserClubPills'), document.getElementById('simpleRoundClubPills')].filter(Boolean);
+  containers.forEach(function(container) { container.classList.add('is-loading'); });
   try {
     var today = typeof localDateStr === 'function' ? localDateStr(new Date()) : new Date().toISOString().slice(0,10);
     var endDate = new Date();
@@ -3487,12 +4091,22 @@ async function welcomeSelectOrganiserClub(clubId) {
     organiser.nextSlot = welcomeFindNextOrganiserSlot(slots);
     welcomeLoadRoleHubData('organiser');
   } finally {
-    if (container) container.classList.remove('is-loading');
+    containers.forEach(function(container) { container.classList.remove('is-loading'); });
   }
 }
 
-async function scsPrefetchWelcomeHubData() {
-  if (window.__scsWelcomeHubRefreshPromise) return window.__scsWelcomeHubRefreshPromise;
+async function scsPrefetchWelcomeHubData(force) {
+  if (window.__scsWelcomeHubRefreshPromise) {
+    if (!force) return window.__scsWelcomeHubRefreshPromise;
+    var currentRefresh = window.__scsWelcomeHubRefreshPromise;
+    return currentRefresh.then(function() {
+      // The current promise clears the shared reference in its finally handler
+      // before this continuation, so this performs a fresh authenticated read.
+      return scsPrefetchWelcomeHubData(false);
+    }, function() {
+      return scsPrefetchWelcomeHubData(false);
+    });
+  }
   var generation = ++window.__scsWelcomeHubRefreshGeneration;
   window.__scsWelcomeHubRefreshPromise = (async function() {
   var today = typeof localDateStr === 'function' ? localDateStr(new Date()) : new Date().toISOString().slice(0,10);
@@ -3668,10 +4282,13 @@ function welcomeApplyPlayerHubData() {
   var bookedEl = document.getElementById('welcomePlayerBookedSlots');
   if (photo) photo.src = welcomeGetSavedRolePhoto('viewer') ||
     (data.gender === 'Female' ? 'female.png' : 'male.png');
+  welcomeApplySimpleRolePhoto('viewer');
   if (nameEl) {
     nameEl.textContent = data.name || 'Player';
     nameEl.hidden = false;
   }
+  var simpleNameEl = document.getElementById('simpleMyNickname');
+  if (simpleNameEl) simpleNameEl.textContent = data.name || 'Player';
   if (ratingEl) ratingEl.textContent = Number(data.rating || 0).toFixed(1);
   if (pointsEl) pointsEl.textContent = Number(data.points || 0).toFixed(1);
   if (clubsEl) clubsEl.textContent = String(Number(data.clubs || 0));
@@ -3684,6 +4301,7 @@ async function welcomeLoadRoleHubData(mode) {
     var organiser = data.organiser || {};
     var orgPhoto = document.getElementById('welcomeOrganiserPhoto');
     if (orgPhoto) orgPhoto.src = welcomeGetSavedRolePhoto('organiser') || 'male.png';
+    welcomeApplySimpleRolePhoto('organiser');
     var orgName = document.getElementById('welcomeOrganiserName');
     if (orgName) orgName.textContent = organiser.clubName || localStorage.getItem('kbrr_org_club_name') || 'Club';
     if (!window.__scsWelcomeOrganiserChoice && organiser.clubId) {
@@ -3716,8 +4334,11 @@ async function welcomeLoadRoleHubData(mode) {
     var vault = data.vault || {};
     var vaultPhoto = document.getElementById('welcomeVaultPhoto');
     if (vaultPhoto) vaultPhoto.src = welcomeGetSavedRolePhoto('vault') || 'male.png';
+    welcomeApplySimpleRolePhoto('vault');
     var vaultName = document.getElementById('welcomeVaultName');
     if (vaultName) vaultName.textContent = vault.clubName || localStorage.getItem('kbrr_vault_club_name') || 'Club';
+    var simpleVaultName = document.getElementById('simpleSlotClubName');
+    if (simpleVaultName) simpleVaultName.textContent = vault.clubName || localStorage.getItem('kbrr_vault_club_name') || 'Club';
     var membersEl = document.getElementById('welcomeVaultMembers');
     var postedEl = document.getElementById('welcomeVaultPostedSlots');
     var draftEl = document.getElementById('welcomeVaultDraftSlots');
@@ -3751,7 +4372,7 @@ function welcomeRefreshHubIfVisible(force) {
     return;
   }
   if (typeof window.scsPrefetchWelcomeHubData === 'function') {
-    window.scsPrefetchWelcomeHubData().catch(function(error) {
+    window.scsPrefetchWelcomeHubData(!!force).catch(function(error) {
       console.warn('Visible welcome hub refresh skipped:', error);
     });
   }

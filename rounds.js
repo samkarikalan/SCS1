@@ -637,6 +637,64 @@ function validateRound(round, schedulerState) {
    ALL schedulerState variables (Maps, Sets, etc.) stay in JS
    and are updated by updSchedule exactly as before.
    ================================================================ */
+
+function buildWorkerHistorySnapshot(state) {
+  const serializeNestedMap = map => {
+    const out = [];
+    if (map instanceof Map) {
+      for (const [key, inner] of map.entries()) {
+        out.push([key, inner instanceof Map ? [...inner.entries()] : []]);
+      }
+    }
+    return out;
+  };
+
+  const typePlayCount = state.typePlayCount || {};
+  const singles = new Map((state.activeplayers || []).map(name => [name, 0]));
+  for (const round of (allRounds || [])) {
+    for (const game of (round.games || [])) {
+      if ((game.pair1 || []).length === 1 && (game.pair2 || []).length === 1) {
+        for (const name of [...game.pair1, ...game.pair2]) {
+          singles.set(name, (singles.get(name) || 0) + 1);
+        }
+      }
+    }
+  }
+
+  return {
+    playedCount: state.PlayedCount instanceof Map ? [...state.PlayedCount.entries()] : [],
+    restCount: state.restCount instanceof Map ? [...state.restCount.entries()] : [],
+    restQueue: Array.isArray(state.restQueue) ? [...state.restQueue] : [],
+    gameTypeCounts: {
+      MD: typePlayCount.MD instanceof Map ? [...typePlayCount.MD.entries()] : [],
+      LD: typePlayCount.LD instanceof Map ? [...typePlayCount.LD.entries()] : [],
+      XD: typePlayCount.XD instanceof Map ? [...typePlayCount.XD.entries()] : [],
+      singles: [...singles.entries()],
+    },
+    pairPlayedSet: state.pairPlayedSet instanceof Set ? [...state.pairPlayedSet] : [],
+    gamesMap: state.gamesMap instanceof Set ? [...state.gamesMap] : [],
+    opponentMap: serializeNestedMap(state.opponentMap),
+    previousRound: (allRounds && allRounds.length) ? allRounds[allRounds.length - 1] : null,
+  };
+}
+
+function applyWorkerHistorySnapshot(state, snapshot) {
+  if (!snapshot) return;
+  if (Array.isArray(snapshot.playedCount)) state.PlayedCount = new Map(snapshot.playedCount);
+  if (Array.isArray(snapshot.restCount)) state.restCount = new Map(snapshot.restCount);
+  if (Array.isArray(snapshot.restQueue)) state.restQueue = [...snapshot.restQueue];
+  if (Array.isArray(snapshot.pairPlayedSet)) state.pairPlayedSet = new Set(snapshot.pairPlayedSet);
+  if (Array.isArray(snapshot.gamesMap)) state.gamesMap = new Set(snapshot.gamesMap);
+  if (Array.isArray(snapshot.opponentMap)) {
+    state.opponentMap = new Map(snapshot.opponentMap.map(([p, inner]) => [p, new Map(inner || [])]));
+  }
+  if (!state.typePlayCount) state.typePlayCount = { MD: new Map(), LD: new Map(), XD: new Map() };
+  const counts = snapshot.gameTypeCounts || {};
+  for (const type of ['MD', 'LD', 'XD']) {
+    if (Array.isArray(counts[type])) state.typePlayCount[type] = new Map(counts[type]);
+  }
+}
+
 async function safeGenerateRound(state) {
   // Sync uniqueGamesMode from toggle
   if (typeof getUniqueGamesMode === 'function') {
@@ -668,6 +726,12 @@ async function safeGenerateRound(state) {
     ? [...state.restCount.entries()]
     : [];
 
+  // playedCount is sent separately so participation fairness is never mixed
+  // with pair/game freshness or game-type balancing.
+  const playedCountSerial = state.PlayedCount instanceof Map
+    ? [...state.PlayedCount.entries()]
+    : [];
+
   // restQueue: plain array of player names
   const restQueueSerial = Array.isArray(state.restQueue)
     ? [...state.restQueue]
@@ -695,48 +759,69 @@ async function safeGenerateRound(state) {
 
   const playMode = (typeof getPlayMode === 'function') ? getPlayMode() : 'random';
 
-  // ── Adjust restCount to reflect type-specific fairness ──
-  // For typed courts (MD/LD/XD), players who have played that type more
-  // should be deprioritised — we encode this as a higher "restCount penalty"
-  // so the worker's sortRested naturally picks less-played-type players first.
-  const adjustedRestCount = new Map(
-    state.restCount instanceof Map ? [...state.restCount.entries()] : []
-  );
-  const typePlayCount = state.typePlayCount || { MD: new Map(), LD: new Map(), XD: new Map() };
-  const courtTypes    = state.courtTypes || [];
-  const courtFormats  = state.courtFormats || [];
-
-  // For each typed court, find the max type play count among active players
-  // then compute a penalty = (player type count) so less-played players sort first
-  const typesInUse = new Set(courtTypes.filter(t => t === 'MD' || t === 'LD' || t === 'XD'));
-  typesInUse.forEach(function(type) {
-    const tmap = typePlayCount[type] || new Map();
-    const maxCount = Math.max(0, ...[...(state.activeplayers || [])].map(p => tmap.get(p) || 0));
-    if (maxCount === 0) return;
-    (state.activeplayers || []).forEach(function(p) {
-      const typeCount = tmap.get(p) || 0;
-      // Invert: players with MORE type plays get HIGHER restCount penalty
-      // (worker picks players with HIGHER restCount first — most rested)
-      // We want LESS played type to be picked, so give them a boost instead
-      const current = adjustedRestCount.get(p) || 0;
-      // Boost players who have played this type less
-      adjustedRestCount.set(p, current + (maxCount - typeCount));
-    });
+  // Build the explicit top-down game requirement requested by the UI.
+  const requiredGames = {
+    mensDoubles: 0,
+    womensDoubles: 0,
+    mixedDoubles: 0,
+    freeDoubles: 0,
+    mensSingles: 0,
+    womensSingles: 0,
+    freeSingles: 0,
+    singles: 0,
+    doubles: 0,
+  };
+  (state.courtFormats || []).forEach(function(fmt, i) {
+    const type = (state.courtTypes || [])[i] || (fmt === 'singles' ? 'singles-free' : 'free');
+    if (fmt === 'singles') {
+      requiredGames.singles++;
+      if (type === 'singles-men' || type === 'MD' || type === 'men') requiredGames.mensSingles++;
+      else if (type === 'singles-women' || type === 'LD' || type === 'women') requiredGames.womensSingles++;
+      else requiredGames.freeSingles++;
+    } else {
+      requiredGames.doubles++;
+      if (type === 'MD') requiredGames.mensDoubles++;
+      else if (type === 'LD') requiredGames.womensDoubles++;
+      else if (type === 'XD') requiredGames.mixedDoubles++;
+      else requiredGames.freeDoubles++;
+    }
   });
 
-  const adjustedRestCountSerial = [...adjustedRestCount.entries()];
+  const gameTypeCountSerial = { MD: [], LD: [], XD: [], singles: [] };
+  const typePlayCount = state.typePlayCount || {};
+  for (const type of ['MD', 'LD', 'XD']) {
+    const map = typePlayCount[type];
+    gameTypeCountSerial[type] = map instanceof Map ? [...map.entries()] : [];
+  }
+  // Singles counts are reconstructed from completed rounds so the worker has
+  // one explicit history contract for all requested formats.
+  const singlesMap = new Map((state.activeplayers || []).map(p => [p, 0]));
+  for (const round of (allRounds || [])) {
+    for (const game of (round.games || [])) {
+      if ((game.pair1 || []).length === 1 && (game.pair2 || []).length === 1) {
+        for (const player of [...game.pair1, ...game.pair2]) {
+          singlesMap.set(player, (singlesMap.get(player) || 0) + 1);
+        }
+      }
+    }
+  }
+  gameTypeCountSerial.singles = [...singlesMap.entries()];
+
+  const historySnapshot = buildWorkerHistorySnapshot(state);
 
   const payload = {
+    history:                historySnapshot,
     activeplayers:          [...(state.activeplayers || [])],
     numCourts:              state.numCourts,
     courts:                 state.courts || state.numCourts,
     fixedPairs:             state.fixedPairs || [],
     restQueue:              restQueueSerial,
-    restCount:              adjustedRestCountSerial, // type-adjusted for MD/LD/XD fairness
+    restCount:              restCountSerial,
+    playedCount:            playedCountSerial,
     opponentMap:            opponentMapSerial,
     pairPlayedSet:          pairPlayedSetSerial,
     gamesMap:               gamesMapSerial,
-    allRounds:              (playMode === 'competitive' || state._mbmCall || (state.courtFormats || []).some(f => f === 'singles') || (state.courtTypes || []).some(t => t && t !== 'free')) ? (allRounds || []) : [], // competitive + MBM + typed/singles courts need full history
+    allRounds:              (allRounds || []), // top-down fairness and freshness always require complete history // competitive + unique games + MBM + typed/singles courts need history
     playMode:               playMode,
     minRounds:              state.minRounds || 6,
     lastMode:               state._lastMode || null,
@@ -747,6 +832,10 @@ async function safeGenerateRound(state) {
     courtTypes:             state.courtTypes   || [],
     courtFormats:           state.courtFormats || [],
     uniqueGamesMode:        state.uniqueGamesMode || false,
+    balancedMode:           (typeof getGameGenerationMode === 'function' && getGameGenerationMode() === 'balanced'),
+    topDownStandardMode:    !state.uniqueGamesMode && playMode !== 'competitive',
+    requiredGames:          requiredGames,
+    gameTypeCounts:         gameTypeCountSerial,
     _mbmCall:               state._mbmCall      || false,
     _mbmWaitQueue:          state._mbmWaitQueue || [],
   };
@@ -790,6 +879,8 @@ async function safeGenerateRound(state) {
     games:   returnedGames,
     resting: resp.resting || [],
     playing: resp.playing || [],
+    _workerNextHistory: resp.nextHistory || null,
+    _workerValidation: resp.validation || null,
   };
 
   // Never render a stale/invalid Worker response. In particular, an older
@@ -1018,6 +1109,12 @@ if ( resetRest === true &&
   // optional: prevent repeated execution
   //schedulerState.resetRest = false;
 }
+
+// The main app owns memory. After accepting the round, replace the core
+// scheduling counters with the stateless Worker's returned next snapshot.
+// This snapshot is sent back unchanged on the next generation request.
+applyWorkerHistorySnapshot(schedulerState, data._workerNextHistory);
+schedulerState._lastWorkerValidation = data._workerValidation || null;
 }
 
 function createRestQueue() {

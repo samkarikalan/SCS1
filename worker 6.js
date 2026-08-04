@@ -1717,31 +1717,139 @@ function bestMatchup(pairA, pairB, opponentMap) {
 //   1. Opponent freshness — have A and B never faced each other? (primary)
 //   2. Least total opponent count — minimise repeat matchups (secondary)
 //   3. Pool order (rest queue position) — tiebreaker
-function bestSinglesMatch(pool, opponentMap, allRounds) {
-  // Build singles play count from allRounds (how many singles games each player played)
+function bestSinglesMatch(
+  pool,
+  opponentMap,
+  allRounds,
+  pairPlayedSet = new Set(),
+  doublesSeatsAfter = 0,
+  gamesMap = new Set()
+) {
+  // Build Singles-only history. Doubles opponents must not make a first-time
+  // Singles matchup look like a repeat.
   const singlesCount = {};
+  const singlesOpponentMap = {};
   for (const rnd of (allRounds || [])) {
     if (!rnd?.games) continue;
     for (const g of rnd.games) {
       if (g.pair1?.length === 1 && g.pair2?.length === 1) {
-        singlesCount[g.pair1[0]] = (singlesCount[g.pair1[0]] || 0) + 1;
-        singlesCount[g.pair2[0]] = (singlesCount[g.pair2[0]] || 0) + 1;
+        const a = g.pair1[0], b = g.pair2[0];
+        singlesCount[a] = (singlesCount[a] || 0) + 1;
+        singlesCount[b] = (singlesCount[b] || 0) + 1;
+        if (!singlesOpponentMap[a]) singlesOpponentMap[a] = {};
+        if (!singlesOpponentMap[b]) singlesOpponentMap[b] = {};
+        singlesOpponentMap[a][b] = (singlesOpponentMap[a][b] || 0) + 1;
+        singlesOpponentMap[b][a] = (singlesOpponentMap[b][a] || 0) + 1;
       }
     }
   }
 
+  // Count the best number of fresh Doubles partnerships that can still be
+  // formed after a candidate Singles pair is removed. This prevents a locally
+  // good Singles choice from forcing avoidable repeated Doubles partners.
+  function freshDoublesCapacity(remaining) {
+    const requiredPairs = Math.min(Math.floor(doublesSeatsAfter / 2), Math.floor(remaining.length / 2));
+    if (requiredPairs <= 0) return 0;
+    let best = 0;
+    const used = new Set();
+    let branches = 0;
+    const MAX_BRANCHES = 30000;
+
+    function dfs(start, selected, fresh) {
+      if (branches++ > MAX_BRANCHES) return;
+      if (selected === requiredPairs) {
+        if (fresh > best) best = fresh;
+        return;
+      }
+      if (remaining.length - used.size < (requiredPairs - selected) * 2) return;
+
+      let first = -1;
+      for (let i = start; i < remaining.length; i++) {
+        if (!used.has(i)) { first = i; break; }
+      }
+      if (first < 0) return;
+
+      used.add(first);
+      for (let j = first + 1; j < remaining.length; j++) {
+        if (used.has(j)) continue;
+        used.add(j);
+        const isFresh = !pairPlayedSet.has(pairKey(remaining[first], remaining[j]));
+        dfs(first + 1, selected + 1, fresh + (isFresh ? 1 : 0));
+        used.delete(j);
+      }
+      used.delete(first);
+    }
+
+    dfs(0, 0, 0);
+    return best;
+  }
+
+  const singlesGameKey = (a, b) => [String(a), String(b)].sort().join(':');
+  const usedInCurrentCycle = (a, b) => gamesMap.has(singlesGameKey(a, b));
+
+  function freshSinglesCycleCapacity(remaining) {
+    let best = 0;
+    const used = new Set();
+    let branches = 0;
+    const MAX_BRANCHES = 30000;
+
+    function dfs(selected) {
+      if (branches++ > MAX_BRANCHES) return;
+      if (selected > best) best = selected;
+      let first = -1;
+      for (let i = 0; i < remaining.length; i++) {
+        if (!used.has(i)) { first = i; break; }
+      }
+      if (first < 0) return;
+
+      used.add(first);
+      for (let j = first + 1; j < remaining.length; j++) {
+        if (used.has(j)) continue;
+        const a = remaining[first], b = remaining[j];
+        if (usedInCurrentCycle(a, b)) continue;
+        used.add(j);
+        dfs(selected + 1);
+        used.delete(j);
+      }
+      used.delete(first);
+    }
+
+    dfs(0);
+    return best;
+  }
+
+  const currentCounts = pool.map(player => singlesCount[player] || 0);
+  const currentMin = currentCounts.length ? Math.min(...currentCounts) : 0;
   let best = null;
   for (let i = 0; i < pool.length - 1; i++) {
     for (let j = i + 1; j < pool.length; j++) {
       const a = pool[i], b = pool[j];
-      const oppCount  = ((opponentMap[a] || {})[b] || 0) + ((opponentMap[b] || {})[a] || 0);
       const aCount    = singlesCount[a] || 0;
       const bCount    = singlesCount[b] || 0;
-      const fresh     = (aCount === 0 ? 1 : 0) + (bCount === 0 ? 1 : 0);
-      // Both new = top tier only. One new does NOT beat two lightly-played players.
-      const score = (fresh === 2 ? 200000 : 0)
-                  - (aCount + bCount) * 1000
-                  - oppCount * 100
+      const singlesOppCount = (singlesOpponentMap[a] || {})[b] || 0;
+      const repeatedInCycle = usedInCurrentCycle(a, b) ? 1 : 0;
+      const remaining = pool.filter((_, index) => index !== i && index !== j);
+      const freshPartners = freshDoublesCapacity(remaining);
+      const remainingAtCycleMinimum = remaining.filter(
+        player => (singlesCount[player] || 0) === currentMin
+      );
+      const freshSinglesAhead = freshSinglesCycleCapacity(remainingAtCycleMinimum);
+
+      const nextCounts = currentCounts.map((count, index) =>
+        index === i || index === j ? count + 1 : count
+      );
+      const nextSpread = Math.max(...nextCounts) - Math.min(...nextCounts);
+      const aboveMinimum = (aCount - currentMin) + (bCount - currentMin);
+
+      // Priority: format balance, then leave the strongest fresh Doubles pool,
+      // then avoid repeated Singles opponents.
+      const score = -repeatedInCycle * 1000000000000
+                  - nextSpread * 1000000000
+                  - aboveMinimum * 100000000
+                  - singlesOppCount * 50000000
+                  + freshSinglesAhead * 5000000
+                  + freshPartners * 1000000
+                  - (aCount + bCount) * 100
                   - i - j;
       if (!best || score > best.score) {
         best = { score, a, b };
@@ -1758,6 +1866,20 @@ function typedRound(state) {
   } = state;
   const courtTypes   = state.courtTypes   || [];
   const courtFormats = state.courtFormats || [];
+  const doublesOpponentMap = {};
+  for (const round of allRounds) {
+    for (const game of (round?.games || [])) {
+      if (game.pair1?.length !== 2 || game.pair2?.length !== 2) continue;
+      for (const a of game.pair1) {
+        for (const b of game.pair2) {
+          if (!doublesOpponentMap[a]) doublesOpponentMap[a] = {};
+          if (!doublesOpponentMap[b]) doublesOpponentMap[b] = {};
+          doublesOpponentMap[a][b] = (doublesOpponentMap[a][b] || 0) + 1;
+          doublesOpponentMap[b][a] = (doublesOpponentMap[b][a] || 0) + 1;
+        }
+      }
+    }
+  }
 
   // ── 1. Select who rests and who plays ──
   let { resting, playing } = selectRestingAndPlaying(state);
@@ -1854,7 +1976,7 @@ function typedRound(state) {
   function pickPairs(pool, needed) {
     if (pool.length < needed * 2) return [];
     // Try DFS-based disjoint pair selection
-    const pairs = findDisjointPairs(pool, pairPlayedSet, needed, opponentMap) || [];
+    const pairs = findDisjointPairs(pool, pairPlayedSet, needed, doublesOpponentMap) || [];
     // Greedy fallback for any missing pairs
     if (pairs.length < needed) {
       const used = new Set(pairs.flat());
@@ -1874,7 +1996,7 @@ function typedRound(state) {
 
   // ── 6. Best matchup between two pairs ──
   function bestGame(p1, p2) {
-    const scores = getMatchupScores([p1, p2], opponentMap);
+    const scores = getMatchupScores([p1, p2], doublesOpponentMap);
     return scores[0] || { pair1: p1, pair2: p2 };
   }
 
@@ -1921,7 +2043,17 @@ function typedRound(state) {
                    type === 'singles-women' ? availWomen() :
                    availAll(); // singles-free
       if (pool.length >= 2) {
-        const sm = bestSinglesMatch(pool, opponentMap, allRounds);
+        const doublesSeatsAfter = courtOrder
+          .filter(index => index !== c && (courtFormats[index] || 'doubles') !== 'singles')
+          .reduce(total => total + 4, 0);
+        const sm = bestSinglesMatch(
+          pool,
+          opponentMap,
+          allRounds,
+          pairPlayedSet,
+          doublesSeatsAfter,
+          state.gamesMap || new Set()
+        );
         if (sm) {
           game = { court: c + 1, pair1: [sm[0]], pair2: [sm[1]], isSingles: true };
           consume([sm[0], sm[1]]);
@@ -1952,7 +2084,7 @@ function typedRound(state) {
       // ── Mixed Doubles: 1 man + 1 woman per pair ──
       const menPool   = availMen();
       const womenPool = availWomen();
-      const xdPairs   = buildXDPairs(menPool, womenPool, pairPlayedSet, 2, opponentMap);
+      const xdPairs   = buildXDPairs(menPool, womenPool, pairPlayedSet, 2, doublesOpponentMap);
       if (xdPairs.length >= 2) {
         const m = bestGame(xdPairs[0], xdPairs[1]);
         game = { court: c + 1, pair1: [...m.pair1], pair2: [...m.pair2] };
@@ -1964,7 +2096,17 @@ function typedRound(state) {
       const pool  = availAll();
       if (fmt === 'singles') {
         if (pool.length >= 2) {
-          const sm = bestSinglesMatch(pool, opponentMap, allRounds);
+          const doublesSeatsAfter = courtOrder
+            .filter(index => index !== c && (courtFormats[index] || 'doubles') !== 'singles')
+            .reduce(total => total + 4, 0);
+          const sm = bestSinglesMatch(
+            pool,
+            opponentMap,
+            allRounds,
+            pairPlayedSet,
+            doublesSeatsAfter,
+            state.gamesMap || new Set()
+          );
           if (sm) {
             game = { court: c + 1, pair1: [sm[0]], pair2: [sm[1]], isSingles: true };
             consume([sm[0], sm[1]]);
@@ -1985,7 +2127,17 @@ function typedRound(state) {
       const pool = availAll();
       if (fmt === 'singles') {
         if (pool.length >= 2) {
-          const sm = bestSinglesMatch(pool, opponentMap, allRounds);
+          const doublesSeatsAfter = courtOrder
+            .filter(index => index !== c && (courtFormats[index] || 'doubles') !== 'singles')
+            .reduce(total => total + 4, 0);
+          const sm = bestSinglesMatch(
+            pool,
+            opponentMap,
+            allRounds,
+            pairPlayedSet,
+            doublesSeatsAfter,
+            state.gamesMap || new Set()
+          );
           if (sm) {
             game = { court: c + 1, pair1: [sm[0]], pair2: [sm[1]], isSingles: true, isFallback: true };
             consume([sm[0], sm[1]]);
@@ -2433,17 +2585,18 @@ async function handleGenerateRound(request, env) {
   }
 
   // Route to correct round generator
-  const hasDoubleTypedCourts = (state.courtTypes || []).some(t => t && t !== 'free');
+  const hasDoubleTypedCourts = (state.courtTypes || []).some(
+    type => type === 'MD' || type === 'LD' || type === 'XD'
+  );
   const hasSinglesCourts     = (state.courtFormats || []).some(f => f === 'singles');
-  const hasTypedCourts       = hasDoubleTypedCourts || hasSinglesCourts;
 
   const useComp = state.playMode === 'competitive';
   if (useComp && state.lastMode !== 'competitive') resetForCompetitive(state);
   let result = null;
   for (let attempt = 0; attempt < 3; attempt++) {
     let roundFn;
-    if (hasDoubleTypedCourts) roundFn = typedBestRound;      // MD/LD/XD → new typed best round
-    else if (hasSinglesCourts) roundFn = typedRound;          // singles only → existing typedRound
+    if (hasSinglesCourts) roundFn = typedRound;               // mixed Singles/Doubles → format-aware generator
+    else if (hasDoubleTypedCourts) roundFn = typedBestRound;  // MD/LD/XD Doubles → typed best round
     else if (useComp) roundFn = competitiveRound;             // competitive → existing
     else roundFn = randomRound;                               // free doubles → existing
     result = roundFn(state);
@@ -2740,7 +2893,7 @@ async function handleLineCallback(request, env) {
     try {
       accounts = await sbGet(env, 'user_accounts',
         'line_user_id=eq.' + encodeURIComponent(lineUserId) +
-        '&select=id,nickname,email,auth_provider,line_picture_url,line_nickname_confirmed');
+        '&select=id,nickname,email,gender,auth_provider,line_picture_url,line_nickname_confirmed');
     } catch (error) {
       if (String(error.message || '').includes('line_user_id')) throw new Error('database_not_ready');
       throw error;
@@ -2752,25 +2905,46 @@ async function handleLineCallback(request, env) {
       const updates = {
         line_display_name: nickname,
         line_picture_url: profile.picture || null,
-        auth_provider: account.auth_provider === 'email' ? 'email_line' : 'line'
+        auth_provider: mergeAuthProvider(account.auth_provider, 'line')
       };
       if (!account.email && profile.email) updates.email = String(profile.email).toLowerCase();
       await sbPatch(env, 'user_accounts', 'id=eq.' + encodeURIComponent(account.id), updates);
       account = { ...account, ...updates };
     } else {
-      const created = await sbPost(env, 'user_accounts', {
-        user_id: 'line:' + lineUserId,
-        nickname: 'LINE Player',
-        email: profile.email ? String(profile.email).toLowerCase() : null,
-        password_hash: null,
-        recovery_word: null,
-        auth_provider: 'line',
-        line_user_id: lineUserId,
-        line_display_name: nickname,
-        line_picture_url: profile.picture || null,
-        line_nickname_confirmed: false
-      });
-      account = created[0];
+      const lineEmail = profile.email ? String(profile.email).trim().toLowerCase() : null;
+      let emailAccounts = [];
+      if (lineEmail) {
+        emailAccounts = await sbGet(env, 'user_accounts',
+          'email=ilike.' + encodeURIComponent(lineEmail) +
+          '&select=id,nickname,email,gender,auth_provider,line_picture_url,line_nickname_confirmed&limit=1');
+      }
+      if (emailAccounts && emailAccounts.length) {
+        account = emailAccounts[0];
+        const updates = {
+          line_user_id: lineUserId,
+          line_display_name: nickname,
+          line_picture_url: profile.picture || null,
+          line_nickname_confirmed: true,
+          auth_provider: mergeAuthProvider(account.auth_provider, 'line')
+        };
+        await sbPatch(env, 'user_accounts', 'id=eq.' + encodeURIComponent(account.id), updates);
+        account = { ...account, ...updates };
+      } else {
+        const created = await sbPost(env, 'user_accounts', {
+          user_id: 'line:' + lineUserId,
+          nickname,
+          email: lineEmail,
+          gender: null,
+          password_hash: null,
+          recovery_word: null,
+          auth_provider: 'line',
+          line_user_id: lineUserId,
+          line_display_name: nickname,
+          line_picture_url: profile.picture || null,
+          line_nickname_confirmed: false
+        });
+        account = created[0];
+      }
     }
 
     const ticket = await signToken({
@@ -2880,17 +3054,19 @@ async function handleLineComplete(request, env) {
 
   const rows = await sbGet(env, 'user_accounts',
     'id=eq.' + encodeURIComponent(payload.accountId) +
-    '&select=id,nickname,email,auth_provider,line_picture_url,line_nickname_confirmed');
+    '&select=id,nickname,email,gender,auth_provider,line_picture_url,line_nickname_confirmed');
   if (!rows || !rows.length) return json({ error: 'LINE account was not found.' }, 404);
 
   const account = rows[0];
   return json({
+    needsProfile: account.line_nickname_confirmed === false,
     needsNickname: account.line_nickname_confirmed === false,
     user: {
       id: account.id,
       nickname: account.nickname,
       displayName: account.nickname,
       email: account.email || null,
+      gender: account.gender || null,
       authProvider: account.auth_provider || 'line',
       picture: account.line_picture_url || null
     }
@@ -2912,10 +3088,14 @@ async function handleLineNickname(request, env) {
     .trim()
     .slice(0, 40);
   if (!nickname) return json({ error: 'Please enter your player nickname.' }, 400);
+  const gender = String(body.gender || '');
+  if (!['Male', 'Female'].includes(gender)) {
+    return json({ error: 'Please select your gender.' }, 400);
+  }
 
   const rows = await sbPatch(env, 'user_accounts',
     'id=eq.' + encodeURIComponent(payload.accountId),
-    { nickname, line_nickname_confirmed: true },
+    { nickname, gender, line_nickname_confirmed: true },
     'return=representation');
   const account = rows && rows[0];
   if (!account) return json({ error: 'LINE account was not found.' }, 404);
@@ -2926,6 +3106,7 @@ async function handleLineNickname(request, env) {
       nickname: account.nickname,
       displayName: account.nickname,
       email: account.email || null,
+      gender: account.gender || gender,
       authProvider: account.auth_provider || 'line',
       picture: account.line_picture_url || null
     }
@@ -3132,7 +3313,7 @@ async function handleGoogleCallback(request, env) {
     try {
       accounts = await sbGet(env, 'user_accounts',
         'google_user_id=eq.' + encodeURIComponent(googleUserId) +
-        '&select=id,nickname,email,auth_provider,google_picture_url,google_nickname_confirmed');
+        '&select=id,nickname,email,gender,auth_provider,google_picture_url,google_nickname_confirmed');
     } catch (error) {
       if (String(error.message || '').includes('google_user_id')) throw new Error('database_not_ready');
       throw error;
@@ -3154,7 +3335,7 @@ async function handleGoogleCallback(request, env) {
       if (email) {
         emailAccounts = await sbGet(env, 'user_accounts',
           'email=ilike.' + encodeURIComponent(email) +
-          '&select=id,nickname,email,auth_provider,google_picture_url,google_nickname_confirmed&limit=1');
+          '&select=id,nickname,email,gender,auth_provider,google_picture_url,google_nickname_confirmed&limit=1');
       }
       if (emailAccounts && emailAccounts.length) {
         account = emailAccounts[0];
@@ -3170,8 +3351,9 @@ async function handleGoogleCallback(request, env) {
       } else {
         const created = await sbPost(env, 'user_accounts', {
           user_id: 'google:' + googleUserId,
-          nickname: 'Google Player',
+          nickname: displayName,
           email,
+          gender: null,
           password_hash: null,
           recovery_word: null,
           auth_provider: 'google',
@@ -3245,16 +3427,18 @@ async function handleGoogleComplete(request, env) {
   }
   const rows = await sbGet(env, 'user_accounts',
     'id=eq.' + encodeURIComponent(payload.accountId) +
-    '&select=id,nickname,email,auth_provider,google_picture_url,google_nickname_confirmed');
+    '&select=id,nickname,email,gender,auth_provider,google_picture_url,google_nickname_confirmed');
   if (!rows || !rows.length) return json({ error: 'Google account was not found.' }, 404);
   const account = rows[0];
   return json({
+    needsProfile: account.google_nickname_confirmed === false,
     needsNickname: account.google_nickname_confirmed === false,
     user: {
       id: account.id,
       nickname: account.nickname,
       displayName: account.nickname,
       email: account.email || null,
+      gender: account.gender || null,
       authProvider: account.auth_provider || 'google',
       picture: account.google_picture_url || null
     }
@@ -3271,9 +3455,13 @@ async function handleGoogleNickname(request, env) {
   }
   const nickname = String(body.nickname || '').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, 40);
   if (!nickname) return json({ error: 'Please enter your player nickname.' }, 400);
+  const gender = String(body.gender || '');
+  if (!['Male', 'Female'].includes(gender)) {
+    return json({ error: 'Please select your gender.' }, 400);
+  }
   const rows = await sbPatch(env, 'user_accounts',
     'id=eq.' + encodeURIComponent(payload.accountId),
-    { nickname, google_nickname_confirmed: true }, 'return=representation');
+    { nickname, gender, google_nickname_confirmed: true }, 'return=representation');
   const account = rows && rows[0];
   if (!account) return json({ error: 'Google account was not found.' }, 404);
   return json({
@@ -3282,6 +3470,7 @@ async function handleGoogleNickname(request, env) {
       nickname: account.nickname,
       displayName: account.nickname,
       email: account.email || null,
+      gender: account.gender || gender,
       authProvider: account.auth_provider || 'google',
       picture: account.google_picture_url || null
     }

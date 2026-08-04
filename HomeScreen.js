@@ -1,17 +1,12 @@
 /* =============================================
 HomeScreen.js
-Standalone home screen & session stepper.
+Standalone home screen.
 Depends on: schedulerState, allRounds (rounds.js)
 getMyClub, getMyPlayer (supabase.js)
 ============================================= */
 
 /* ── State ── */
-var _stepCourtsSet = false;
 var _navSource = 'home'; // 'home' | 'rounds' -- tracks where Players/Summary was opened from
-var _stepPairsSeen = sessionStorage.getItem('scs_org_guide_pairs_seen') === '1';
-var _stepNewPlayerSeen = sessionStorage.getItem('scs_org_guide_new_player_seen') === '1';
-var _stepCourtGuided = sessionStorage.getItem('scs_org_guide_courts_done') === '1';
-var _homeCurrentStep = 0;
 
 function _homeT(key, fallback, values) {
   var value = (typeof t === 'function') ? t(key) : key;
@@ -20,44 +15,6 @@ function _homeT(key, fallback, values) {
     return values && values[name] != null ? String(values[name]) : '';
   });
 }
-
-var STEP_DEFS = [
-{
-icon: '➕',
-get title()     { return 'New Player'; },
-get activeSub() { return 'Register a player for this club'; },
-doneSub: function() {
-var n = schedulerState.allPlayers.length;
-return n + (n === 1 ? ' player registered' : ' players registered');
-},
-isDone: function() { return _stepNewPlayerSeen; },
-go: function() { window._regNavSource = 'organiserHome'; homeGo('vaultRegisterPage', null); }
-},
-{
-icon: '👥',
-get title()     { return t('selectPlayersStep'); },
-get activeSub() { return t('addAtLeast4Step'); },
-doneSub: function() {
-var n = schedulerState.activeplayers.length;
-return n + ' ' + t('playerSingular') + ' ' + t('playersSelected');
-},
-isDone: function() { return schedulerState.activeplayers.length >= 4; },
-go: function() { homeGo('playersPage', 'tabBtnPlayers'); }
-},
-{
-icon: '🤝',
-get title()     { return t('fixedPairsStep'); },
-get activeSub() { return t('fixedPairsOptional'); },
-doneSub: function() {
-var n = schedulerState.fixedPairs.length;
-return n ? n + ' ' + (n !== 1 ? t('pairsSet') : t('pairSet')) : t('skippedOptional');
-},
-isDone: function() { return _stepPairsSeen; },
-go: function() { homeGo('fixedPairsPage', 'tabBtnFixedPairs'); }
-},
-
-];
-
 
 /* ── More / Help on workspace selection screen ── */
 function toggleModeMore(forceOpen) {
@@ -241,9 +198,8 @@ if (isViewer) {
   setMyCardDetailsOpen(false);
   setTimeout(function() { setMyCardDetailsOpen(false); }, 0);
 }
-if (typeof scsMaybeShowGuidedFunctions === 'function') {
-  scsMaybeShowGuidedFunctions(isViewer ? 'viewer' : (isOrganiser ? 'organiser' : 'vault'));
-}
+// Assist is user-invoked only. Workspace rendering must never open guided
+// functions automatically, including for a new or incomplete account.
 
 window.homeModeManualRefresh = async function() {
   var btn = document.getElementById('homeModeRefreshBtn');
@@ -694,7 +650,6 @@ if (dashSubV) dashSubV.textContent = t('liveSessions');
 
 /* ── Hide home screen (go to inner page) ── */
 function homeHideScreen() {
-homeHideNavCoach();
 var homeEl = document.getElementById('homePageOverlay');
 if (homeEl) homeEl.style.display = 'none';
 document.body.classList.remove('home-open');
@@ -710,46 +665,8 @@ showPage(pageId, tabEl);
 _updateDynamicBackBtns(pageId);
 }
 
-/* ── Guided organiser step navigation ── */
-function homeHideNavCoach() {
-  var coach = document.getElementById('organiserNavCoach');
-  var bar = document.querySelector('#homeMoreSectionOrg .organiser-action-bar');
-  if (coach) {
-    coach.hidden = true;
-    coach.classList.remove('is-first', 'is-second');
-  }
-  if (bar) bar.classList.remove('organiser-guide-active');
-  document.querySelectorAll('#homeMoreSectionOrg .organiser-action-btn').forEach(function(button) {
-    button.classList.remove('organiser-guide-target');
-  });
-}
-
-function homeShowNavCoach(targetId, positionClass, messageKey, fallbackMessage, progressText) {
-  var coach = document.getElementById('organiserNavCoach');
-  var title = document.getElementById('organiserNavCoachTitle');
-  var text = document.getElementById('organiserNavCoachText');
-  var progress = document.getElementById('organiserNavCoachProgress');
-  var target = document.getElementById(targetId);
-  var bar = document.querySelector('#homeMoreSectionOrg .organiser-action-bar');
-  if (!coach || !target || !bar || !document.body.classList.contains('home-open')) {
-    homeHideNavCoach();
-    return;
-  }
-
-  homeHideNavCoach();
-  if (title) title.textContent = _homeT('organiserGuideStartHere', 'Start here');
-  if (text) text.textContent = _homeT(messageKey, fallbackMessage);
-  if (progress) progress.textContent = progressText;
-  coach.classList.add(positionClass);
-  coach.hidden = false;
-  bar.classList.add('organiser-guide-active');
-  target.classList.add('organiser-guide-target');
-}
-
+/* ── Organiser navigation ── */
 function homeGuideOpenPlayersFromNav() {
-  _stepNewPlayerSeen = true;
-  sessionStorage.setItem('scs_org_guide_new_player_seen', '1');
-  homeHideNavCoach();
   homeGo('playersPage', 'tabBtnPlayers');
 }
 
@@ -758,27 +675,7 @@ function homeGuideOpenPairsFromNav() {
     if (typeof showToast === 'function') showToast(_homeT('addAtLeast4Step', 'Add at least 4 players first.'));
     return;
   }
-  _stepPairsSeen = true;
-  sessionStorage.setItem('scs_org_guide_pairs_seen', '1');
-  homeHideNavCoach();
   homeGo('fixedPairsPage', 'tabBtnFixedPairs');
-}
-
-function homeGuideOpenStep(index) {
-  if (index >= 1) { _stepNewPlayerSeen = true; sessionStorage.setItem('scs_org_guide_new_player_seen','1'); } // New Player is optional.
-  if (index === 2 && schedulerState.activeplayers.length < 4) {
-    homeGo('playersPage', 'tabBtnPlayers');
-    return;
-  }
-  if (index === 0) {
-    window._regNavSource = 'organiserHome';
-    homeGo('vaultRegisterPage', null);
-  } else if (index === 1) {
-    homeGo('playersPage', 'tabBtnPlayers');
-  } else {
-    _stepPairsSeen = true; sessionStorage.setItem('scs_org_guide_pairs_seen','1'); // Fixed Pairs is optional and may be skipped.
-    homeGo('fixedPairsPage', 'tabBtnFixedPairs');
-  }
 }
 
 function homeApplyPlayerSetupGates(enoughPlayers) {
@@ -799,131 +696,14 @@ function homeApplyPlayerSetupGates(enoughPlayers) {
   }
 }
 
-function homeUpdateGuideHighlights() {
-  var courtsCard = document.getElementById('organiserCourtsCard');
-  var roundsBtn = document.getElementById('gotoRoundsBtn');
-  var rollingBtn = document.getElementById('gotoMbmBtn');
-  var activeCount = schedulerState.activeplayers.length;
-  var sessionStarted = (Array.isArray(allRounds) && allRounds.length > 0) || schedulerState.mbmActive;
-  var enoughPlayers = activeCount >= 4;
-  var setupDone = enoughPlayers;
-
-  homeApplyPlayerSetupGates(enoughPlayers);
-
-  if (courtsCard) courtsCard.classList.toggle('guide-blink-card', setupDone && !_stepCourtGuided);
-  var modeBlink = setupDone && _stepCourtGuided && !(Array.isArray(allRounds) && allRounds.length > 0) && !schedulerState.mbmActive;
-  if (roundsBtn) roundsBtn.classList.toggle('guide-blink-mode', modeBlink && !roundsBtn.disabled);
-  if (rollingBtn) rollingBtn.classList.toggle('guide-blink-mode', modeBlink && !rollingBtn.disabled);
-
-  if (sessionStarted) {
-    homeHideNavCoach();
-  } else if (activeCount < 4) {
-    homeShowNavCoach(
-      'orgNavAddPlayers',
-      'is-first',
-      'organiserGuideAddPlayers',
-      'Tap Add Players to create or select players.',
-      '1 of 4'
-    );
-  } else {
-    homeHideNavCoach();
-  }
-}
-
-function homeGuideCourtsConfigured() {
-  if (schedulerState.activeplayers.length < 4) return;
-  _stepCourtGuided = true;
-  sessionStorage.setItem('scs_org_guide_courts_done','1');
-  homeUpdateGuideHighlights();
-}
-
-/* ── Return from an inner page (Players/Rounds update stepper) ── */
+/* ── Return from an inner page ── */
 function homeBack() {
-// Keep Step 3 blinking until the user opens/skips Fixed Pairs.
 showHomeScreen();
 }
 
-/* ── Update stepper UI ── */
+/* Keep functional player-count gates synchronized. */
 function homeUpdateStepper() {
-homeUpdateGoRoundsBtn();
-// stepCard is a hidden stub; courts controls live directly in homeOrgGrid
-var card = document.getElementById('stepCard');
-if (card) card.style.display = 'none'; // always hidden; grid has the real UI
-
-// Determine done state for each step
-var done = STEP_DEFS.map(function(s) { return s.isDone(); });
-
-// Current step = first not done; if all done = last
-var current = done.indexOf(false);
-if (current === -1) current = STEP_DEFS.length - 1;
-_homeCurrentStep = current;
-
-// Update each dot
-for (var i = 0; i < STEP_DEFS.length; i++) {
-var dot = document.getElementById('stepDot' + i);
-if (!dot) continue;
-dot.classList.remove('s-active', 's-done', 's-locked', 'guide-blink-step');
-var sn = dot.querySelector('.sn');
-
-if (i < current && done[i]) {
-  dot.classList.add('s-done');
-  if (sn) sn.textContent = '✓';
-} else if (i === current) {
-  dot.classList.add('s-active');
-  if (sn) sn.textContent = i + 1;
-} else {
-  dot.classList.add(done[i] ? 's-done' : '');
-  if (sn) sn.textContent = done[i] ? '✓' : (i + 1);
-}
-
-// Line after this step
-var line = document.getElementById('stepLine' + i);
-if (line) line.classList.toggle('s-done', i < current && done[i]);
-
-}
-
-// Update step card
-var step = STEP_DEFS[current];
-var isDoneCurrent = done[current];
-
-var icon  = document.getElementById('stepCardIcon');
-var title = document.getElementById('stepCardTitle');
-var sub   = document.getElementById('stepCardSub');
-var btn   = document.getElementById('stepCardBtn');
-
-// Map step index to tile color (matches home tile colors)
-var stepTileColors = [1, 2, 3, 4, 5];
-if (card) card.setAttribute('data-tile-color', stepTileColors[current] || 2);
-
-if (icon)  icon.textContent  = step.icon;
-if (title) title.textContent = isDoneCurrent && current === STEP_DEFS.length - 1
-? t('sessionActive') : step.title;
-if (sub)   sub.textContent   = isDoneCurrent ? step.doneSub() : step.activeSub;
-
-if (btn) {
-btn.classList.toggle('btn-done', isDoneCurrent && current === STEP_DEFS.length - 1);
-if (current === 2 && isDoneCurrent) {
-btn.textContent = t('doneBtn');
-} else if (current === STEP_DEFS.length - 1 && Array.isArray(allRounds) && allRounds.length > 0) {
-btn.textContent = t('continueBtn');
-} else {
-btn.textContent = t('goBtn');
-}
-}
-
-// Show Skip only on step 2 (Fixed Pairs) when not yet done
-var skipBtn = document.getElementById('stepSkipBtn');
-if (skipBtn) skipBtn.style.display = (current === 2 && !isDoneCurrent) ? '' : 'none';
-homeUpdateGuideHighlights();
-}
-
-/* ── Step card button tapped ── */
-function stepAction() {
-var step = STEP_DEFS[_homeCurrentStep];
-if (_homeCurrentStep === 2) _stepPairsSeen = true;
-// Reset sessionFinished so Go works after a previous session ended
-if (typeof sessionFinished !== 'undefined') sessionFinished = false;
-step.go();
+  homeUpdateGoRoundsBtn();
 }
 
 /* ── Enable/disable mode buttons — mutual exclusion between Rounds and MBM ── */
@@ -963,9 +743,6 @@ function homeUpdateGoRoundsBtn() {
 }
 
 async function mbmGo() {
-  _stepCourtGuided = true;
-  _stepCourtsSet = true;
-
   // Rolling Mode owns its court count on the Rolling Matches page.
   var numCourts = Math.max(1, schedulerState.numCourts || 1);
   schedulerState.numCourts = numCourts;
@@ -1017,62 +794,39 @@ async function mbmGo() {
   if (typeof mbmShowRound === 'function') mbmShowRound();
 }
 
-/* ── Skip Fixed Pairs ── */
-function stepSkip() {
-_stepPairsSeen = true;
-sessionStorage.setItem('scs_org_guide_pairs_seen','1');
-homeUpdateStepper();
-}
-
 /* ── Round preferences panel ── */
 function homeShowCourtsPanel() {
-// Default competitive to ON
-var mainToggle = document.getElementById('modeToggle');
-var stepToggle = document.getElementById('stepModeToggle');
-if (mainToggle && stepToggle) {
-  stepToggle.checked = true;
-  mainToggle.checked = true;
-  localStorage.setItem('playMode', 'competitive');
-  mainToggle.dispatchEvent(new Event('change'));
-}
-// Restore unique-games state. Default is ON unless the user turned it off.
-if (typeof setUniqueGamesMode === 'function') {
-  setUniqueGamesMode(localStorage.getItem('uniqueGamesMode') !== 'false', false);
-} else {
-  document.querySelectorAll('#uniqueGamesToggle').forEach(function(ugToggle) {
-    ugToggle.checked = localStorage.getItem('uniqueGamesMode') !== 'false';
-  });
-}
+  var mainToggle = document.getElementById('modeToggle');
+  var stepToggle = document.getElementById('stepModeToggle');
+  if (mainToggle && stepToggle) stepToggle.checked = mainToggle.checked;
+
+  if (typeof setGameGenerationMode === 'function' && typeof getGameGenerationMode === 'function') {
+    setGameGenerationMode(getGameGenerationMode(), false);
+  }
 }
 
 function stepSyncMode() {
-homeGuideCourtsConfigured();
-var stepToggle = document.getElementById('stepModeToggle');
-var mainToggle = document.getElementById('modeToggle');
-if (stepToggle && mainToggle) {
-  mainToggle.checked = stepToggle.checked;
-  localStorage.setItem('playMode', stepToggle.checked ? 'competitive' : 'random');
-  mainToggle.dispatchEvent(new Event('change'));
-}
+  var stepToggle = document.getElementById('stepModeToggle');
+  var mainToggle = document.getElementById('modeToggle');
+  if (stepToggle && mainToggle) {
+    mainToggle.checked = stepToggle.checked;
+    localStorage.setItem('playMode', stepToggle.checked ? 'competitive' : 'random');
+    mainToggle.dispatchEvent(new Event('change'));
+  }
 }
 
-function stepSyncUniqueGames() {
-homeGuideCourtsConfigured();
-var stepToggle = document.getElementById('uniqueGamesToggle');
-if (typeof setUniqueGamesMode === 'function') {
-  setUniqueGamesMode(stepToggle ? stepToggle.checked : true, true);
-} else if (stepToggle) {
-  localStorage.setItem('uniqueGamesMode', stepToggle.checked ? 'true' : 'false');
-  document.querySelectorAll('#uniqueGamesToggle').forEach(function(toggle) {
-    toggle.checked = stepToggle.checked;
-  });
+function stepSyncGameGeneration(mode) {
+  if (typeof setGameGenerationMode === 'function') {
+    setGameGenerationMode(mode, true);
+  }
 }
+
+// Backward-compatible entry point for any older markup still calling it.
+function stepSyncUniqueGames() {
+  stepSyncGameGeneration('unique');
 }
 
 function stepCourtsDone() {
-_stepCourtGuided = true;
-sessionStorage.setItem('scs_org_guide_courts_done','1');
-_stepCourtsSet = true;
 homeGo('roundsPage', 'tabBtnRounds');
 }
 
@@ -1351,6 +1105,45 @@ async function jcLeaveClub(button) {
   }
 }
 
+async function jcCancelJoinRequest(button) {
+  var row = button && button.closest ? button.closest('.jc-club-row') : null;
+  var clubId = row && row.getAttribute('data-cid');
+  var clubName = row && row.getAttribute('data-cname');
+  var user = (typeof authGetUser === 'function') ? authGetUser() : null;
+  if (!clubId || !user || !user.id) return;
+  if (!confirm((t('cancelJoinRequestConfirm') || 'Cancel your request to join this club?') + '\n\n' + (clubName || ''))) return;
+
+  var originalText = button.textContent;
+  button.disabled = true;
+  button.textContent = t('pleaseWait') || 'Please wait...';
+
+  try {
+    await sbDelete('club_join_requests',
+      'club_id=eq.' + encodeURIComponent(clubId) +
+      '&user_account_id=eq.' + encodeURIComponent(user.id) +
+      '&status=eq.pending'
+    );
+
+    if (String(localStorage.getItem('kbrr_pending_club_id') || '') === String(clubId)) {
+      localStorage.removeItem('kbrr_pending_club_id');
+      localStorage.removeItem('kbrr_pending_club_name');
+    }
+
+    await _renderMyClubsList();
+    if (typeof homeRefreshJoinClubTile === 'function') await homeRefreshJoinClubTile();
+    if (typeof updateWelcomeWorkspaceClubNames === 'function') updateWelcomeWorkspaceClubNames();
+    if (typeof _scsGuideOrganiserClubsLoadedAt !== 'undefined') _scsGuideOrganiserClubsLoadedAt = 0;
+    if (typeof _scsGuideLoadOrganiserClubs === 'function') {
+      _scsGuideLoadOrganiserClubs(true).catch(function(){});
+    }
+    if (typeof showToast === 'function') showToast(t('joinRequestCancelled') || 'Join request cancelled');
+  } catch (e) {
+    button.disabled = false;
+    button.textContent = originalText;
+    alert((e && e.message) || (t('somethingWentWrong') || 'Something went wrong'));
+  }
+}
+
 async function _renderMyClubsList() {
 var inner = document.getElementById('myClubsListInner');
 if (!inner) return;
@@ -1417,13 +1210,16 @@ var html = '';
 pendingIds.forEach(function(cid) {
   if ((memberships||[]).find(function(m){ return m.club_id === cid; })) return; // already shown
   var cname = clubMap[cid] || cid;
-  html += '<div class="jc-club-row">' +
+  html += '<div class="jc-club-row jc-club-pending-row" data-cid="' + jcEscapeHtml(cid) + '" data-cname="' + jcEscapeHtml(cname) + '">' +
     '<div class="jc-club-icon">⏳</div>' +
     '<div class="jc-club-info">' +
-      '<div class="jc-club-name">' + cname + '</div>' +
-      '<div class="jc-club-nick">' + t('requestPendingText') + '</div>' +
+      '<div class="jc-club-name">' + jcEscapeHtml(cname) + '</div>' +
+      '<div class="jc-club-nick">' + jcEscapeHtml(t('requestPendingText')) + '</div>' +
     '</div>' +
-    '<span class="jc-club-pending">' + t('badgePending') + '</span>' +
+    '<div class="jc-club-actions">' +
+      '<span class="jc-club-pending">' + jcEscapeHtml(t('badgePending')) + '</span>' +
+      '<button type="button" class="jc-club-cancel-request-btn" onclick="event.stopPropagation();jcCancelJoinRequest(this)">' + jcEscapeHtml(t('cancel') || 'Cancel') + '</button>' +
+    '</div>' +
   '</div>';
 });
 

@@ -321,7 +321,7 @@ cursor: pointer; transition: transform 0.1s, opacity 0.15s;
   object-fit: cover !important;
   opacity: 0.95 !important;
 }
-.gender-btn { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; pointer-events: none; flex-shrink: 0; }
+.gender-btn { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; pointer-events: none; flex-shrink: 0; }
 .gender-btn.male   { background: rgba(96,165,250,0.2); color: #60a5fa; }
 .gender-btn.female { background: rgba(255,101,132,0.2); color: var(--accent2); }
 
@@ -2375,3 +2375,158 @@ body.tile-style-color .courtcard.court-6 .courtname { background: #64748b !impor
 }
 .ctp-court-dice:active { opacity: 1; transform: scale(0.92); }
 #roundsPage.active-mode .ctp-court-dice { pointer-events: none; opacity: 0.3; }
+
+/* Build 526: game-generation radio group */
+.round-settings-game-generation { margin: .25rem 0 .7rem; padding: .7rem 0 .2rem; border-top: 1px solid rgba(148,163,184,.24); }
+.round-settings-game-generation .game-generation-title { margin:0 0 .35rem; font-size:.78rem; font-weight:700; color:var(--text-muted,#94a3b8); }
+.round-settings-game-generation .game-mode-radio-row { display:flex; align-items:center; gap:.65rem; min-height:2.5rem; cursor:pointer; font-weight:600; }
+.round-settings-game-generation input[type="radio"] { width:1.15rem; height:1.15rem; margin:0; accent-color:#7c3aed; }
+
+
+/* Build 527: game generation options — one full-width tappable row each */
+.game-generation-block {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  width: 100% !important;
+}
+.game-generation-block .game-generation-title {
+  display: block !important;
+  width: 100% !important;
+}
+.game-generation-block .game-mode-radio-row {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent;
+}
+.game-generation-block .game-mode-radio-row input[type="radio"] {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  flex: 0 0 auto !important;
+}
+.game-generation-block .game-mode-radio-row span {
+  display: block !important;
+  flex: 1 1 auto !important;
+  pointer-events: none !important;
+}
+
+
+/* Build 528: iOS-style Game Generation selector */
+.game-generation-block {
+  margin-top: .75rem !important;
+  padding-top: .85rem !important;
+  border-top: 1px solid rgba(148, 163, 184, .20) !important;
+  gap: .5rem !important;
+}
+
+.game-generation-block .game-generation-title {
+  margin: 0 0 .15rem !important;
+  font-size: 1rem !important;
+  line-height: 1.25 !important;
+  font-weight: 650 !important;
+  letter-spacing: -.01em !important;
+  color: var(--text, #f8fafc) !important;
+}
+
+.game-generation-block .game-mode-radio-row {
+  min-height: 3.15rem !important;
+  padding: .55rem .75rem !important;
+  gap: .75rem !important;
+  border: 1px solid rgba(148, 163, 184, .18) !important;
+  border-radius: .85rem !important;
+  background: rgba(148, 163, 184, .07) !important;
+  transition: background-color .18s ease, border-color .18s ease,
+              box-shadow .18s ease, transform .12s ease !important;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.game-generation-block .game-mode-radio-row:active {
+  transform: scale(.985);
+  background: rgba(148, 163, 184, .12) !important;
+}
+
+.game-generation-block .game-mode-radio-row:has(input:checked) {
+  border-color: rgba(124, 92, 255, .72) !important;
+  background: linear-gradient(135deg,
+    rgba(124, 92, 255, .20),
+    rgba(91, 71, 214, .10)) !important;
+  box-shadow: 0 0 0 1px rgba(124, 92, 255, .12),
+              inset 0 1px 0 rgba(255, 255, 255, .06) !important;
+}
+
+.game-generation-block .game-mode-radio-row input[type="radio"] {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  width: 1.35rem !important;
+  height: 1.35rem !important;
+  margin: 0 !important;
+  border: .13rem solid rgba(148, 163, 184, .68) !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  display: grid !important;
+  place-content: center !important;
+}
+
+.game-generation-block .game-mode-radio-row input[type="radio"]::before {
+  content: "";
+  width: .65rem;
+  height: .65rem;
+  border-radius: 50%;
+  background: #fff;
+  transform: scale(0);
+  transition: transform .15s ease;
+}
+
+.game-generation-block .game-mode-radio-row input[type="radio"]:checked {
+  border-color: #7657ff !important;
+  background: #7657ff !important;
+  box-shadow: 0 0 0 .2rem rgba(118, 87, 255, .16) !important;
+}
+
+.game-generation-block .game-mode-radio-row input[type="radio"]:checked::before {
+  transform: scale(1);
+}
+
+.game-generation-block .game-mode-radio-row span {
+  font-size: 1rem !important;
+  line-height: 1.25 !important;
+  font-weight: 560 !important;
+  letter-spacing: -.01em !important;
+  color: var(--text, #f8fafc) !important;
+}
+
+html.app-light .game-generation-block .game-generation-title,
+html.app-light .game-generation-block .game-mode-radio-row span {
+  color: #111827 !important;
+}
+
+html.app-light .game-generation-block .game-mode-radio-row {
+  border-color: rgba(15, 23, 42, .10) !important;
+  background: rgba(255, 255, 255, .76) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9) !important;
+}
+
+html.app-light .game-generation-block .game-mode-radio-row:has(input:checked) {
+  border-color: rgba(103, 80, 230, .55) !important;
+  background: linear-gradient(135deg,
+    rgba(118, 87, 255, .15),
+    rgba(118, 87, 255, .07)) !important;
+}
+
+@supports not selector(:has(*)) {
+  .game-generation-block .game-mode-radio-row {
+    background: rgba(148, 163, 184, .08) !important;
+  }
+}

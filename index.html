@@ -2,7 +2,7 @@
 <!-- CLUBS v1.7.4 -->
 <html lang="en">
 <head>
-  <script>window.SCS_APP_VERSION = "1.12.61"; window.SCS_BUILD = "470";</script>
+  <script>window.SCS_APP_VERSION = "1.13.19"; window.SCS_BUILD = "548";</script>
   <script>
     // Build 416: mode selection and authentication screens remain scrollable in landscape.
     (function () {
@@ -82,26 +82,26 @@ html,body{overscroll-behavior:none;}
 
   <script src="auth.js?v=409" defer></script>
 
-  <script src="authUI.js?v=434" defer></script>
+  <script src="authUI.js?v=511" defer></script>
 
-  <script src="subscription.js?v=308" defer></script>
+  <script src="subscription.js?v=509" defer></script>
 
-  <script src="HomeScreen.js?v=405" defer></script>
+  <script src="HomeScreen.js?v=528" defer></script>
 
-  <script src="engjap.js?v=459" defer></script>
+  <script src="engjap.js?v=508" defer></script>
 
-  <script src="main.js?v=469" defer></script>
+  <script src="main.js?v=537" defer></script>
 
-  <script src="games.js?v=408" defer></script>
+  <script src="games.js?v=528" defer></script>
 
   <script src="rounds.js?v=408" defer></script>
   <script src="mbm.js?v=259" defer></script>
 
   <script src="players.js?v=259" defer></script>
 
-  <script src="importPlayers.js?v=259" defer></script>
+  <script src="importPlayers.js?v=512" defer></script>
 
-  <script src="settings.js?v=329" defer></script>
+  <script src="settings.js?v=489" defer></script>
 
   <script src="summary.js?v=259" defer></script>
 
@@ -110,15 +110,15 @@ html,body{overscroll-behavior:none;}
   <script src="profile.js?v=301" defer></script>
 
   <script src="dashboard.js?v=259" defer></script>
-  <script src="slots.js?v=342" defer></script>
+  <script src="slots.js?v=508" defer></script>
   <script src="notifications.js?v=261" defer></script>
 
   <script src="viewer.js?v=259" defer></script>
 
   <script src="report.js?v=259" defer></script>
 
-  <link rel="stylesheet" href="ui.css?v=469">
-  <link rel="stylesheet" href="rounds.css?v=259">
+  <link rel="stylesheet" href="ui.css?v=546">
+  <link rel="stylesheet" href="rounds.css?v=528">
 </head>
 <body>
 
@@ -139,6 +139,75 @@ html,body{overscroll-behavior:none;}
 
   <div id="modeSelectOverlay" class="mode-launcher-fullscreen welcome-launcher scs-launch-first-paint" style="display:flex;">
     <div class="welcome-shell">
+      <div class="simple-welcome" aria-label="Choose SCS mode">
+        <div class="simple-welcome-header">
+          <div class="simple-welcome-brand" aria-label="SCS, scs-app.com">
+            <img class="simple-welcome-logo" src="clubs-brand.png?v=481" alt="SCS Clubs">
+            <div class="simple-welcome-brand-copy">
+              <strong>SCS</strong>
+              <span>scs-app.com</span>
+            </div>
+          </div>
+          <div class="simple-welcome-tools">
+            <button class="simple-tool-btn" type="button" aria-label="Settings" title="Settings" onclick="closeModeSheet();homeGo('settingsPage','tabBtnSettings')">⚙</button>
+            <button class="simple-tool-btn scs-topbar-theme" id="simpleThemeToggle" type="button" aria-label="Toggle light and dark mode" title="Toggle theme" onclick="scsToggleTheme()">🌙</button>
+            <div class="simple-lang-wrap">
+              <button class="simple-tool-btn" type="button" aria-label="Language" title="Language" onclick="mlToggleLang()">🌐</button>
+              <div class="ml-lang-picker simple-lang-picker" id="mlLangPicker" style="display:none;" onclick="event.stopPropagation()">
+                <button type="button" class="ml-lang-opt" onclick="mlSelectLang('en','🇺🇸','English')"><span>🇺🇸</span><b>English</b></button>
+                <button type="button" class="ml-lang-opt" onclick="mlSelectLang('jp','🇯🇵','日本語')"><span>🇯🇵</span><b>日本語</b></button>
+                <button type="button" class="ml-lang-opt" onclick="mlSelectLang('kr','🇰🇷','한국어')"><span>🇰🇷</span><b>한국어</b></button>
+                <button type="button" class="ml-lang-opt" onclick="mlSelectLang('vi','🇻🇳','Tiếng Việt')"><span>🇻🇳</span><b>Tiếng Việt</b></button>
+                <button type="button" class="ml-lang-opt" onclick="mlSelectLang('zh','🇨🇳','中文')"><span>🇨🇳</span><b>中文</b></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="simple-mode-list">
+          <button class="simple-mode-card simple-mode-my" type="button" onclick="welcomeSelectWorkspace('viewer');welcomeContinueWorkspace()">
+            <span class="simple-mode-assist" role="button" tabindex="0" aria-label="Open My Hub Assist" onclick="event.stopPropagation(); scsOpenGuidedFunctions('viewer')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();scsOpenGuidedFunctions('viewer')}"><span class="assist-headphone-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><path d="M4 13h2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a1 1 0 0 1-1-1z"/><path d="M20 13h-2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1a1 1 0 0 0 1-1z"/></svg></span><span data-i18n="assist">Assist</span></span>
+            <span class="simple-mode-icon simple-mode-photo-picker" role="button" tabindex="0" aria-label="Set My Hub picture" title="Set My Hub picture" onclick="event.stopPropagation(); welcomeChooseRolePhoto('viewer')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();welcomeChooseRolePhoto('viewer')}"><img id="simpleViewerPhoto" class="simple-mode-photo" alt=""><span class="simple-mode-icon-fallback" aria-hidden="true">♙</span></span>
+            <span class="simple-mode-copy">
+              <span class="simple-mode-label">My Hub</span>
+              <span class="simple-mode-detail-row">
+                <span class="simple-mode-subtitle" id="simpleMyNickname">Player</span>
+                <span class="simple-inline-logout" id="simplePlayerLogout" role="button" tabindex="0" title="Logout Player" aria-label="Logout Player" hidden onclick="event.stopPropagation(); welcomeLogoutWorkspace('viewer')">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M14 8l4 4-4 4M18 12H9"/></svg>
+                </span>
+              </span>
+            </span>
+            <span class="simple-mode-arrow" aria-hidden="true">›</span>
+          </button>
+          <button class="simple-mode-card simple-mode-round" type="button" onclick="welcomeSelectWorkspace('organiser');welcomeContinueWorkspace()">
+            <span class="simple-mode-assist" role="button" tabindex="0" aria-label="Open Round Manager Assist" onclick="event.stopPropagation(); scsOpenGuidedFunctions('organiser')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();scsOpenGuidedFunctions('organiser')}"><span class="assist-headphone-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><path d="M4 13h2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a1 1 0 0 1-1-1z"/><path d="M20 13h-2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1a1 1 0 0 0 1-1z"/></svg></span><span data-i18n="assist">Assist</span></span>
+            <span class="simple-mode-icon simple-mode-photo-picker" role="button" tabindex="0" aria-label="Set Round Manager picture" title="Set Round Manager picture" onclick="event.stopPropagation(); welcomeChooseRolePhoto('organiser')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();welcomeChooseRolePhoto('organiser')}"><img id="simpleOrganiserPhoto" class="simple-mode-photo" alt=""><span class="simple-mode-icon-fallback" aria-hidden="true">▣</span></span>
+            <span class="simple-mode-copy">
+              <span class="simple-mode-label">Round Manager</span>
+              <span class="welcome-organiser-club-pills simple-round-club-pills" id="simpleRoundClubPills" aria-label="Select club" onclick="event.stopPropagation()"></span>
+            </span>
+            <span class="simple-mode-arrow" aria-hidden="true">›</span>
+          </button>
+          <button class="simple-mode-card simple-mode-slot" type="button" onclick="welcomeSelectWorkspace('vault');welcomeContinueWorkspace()">
+            <span class="simple-mode-assist" role="button" tabindex="0" aria-label="Open Slot Manager Assist" onclick="event.stopPropagation(); scsOpenGuidedFunctions('vault')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();scsOpenGuidedFunctions('vault')}"><span class="assist-headphone-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><path d="M4 13h2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a1 1 0 0 1-1-1z"/><path d="M20 13h-2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1a1 1 0 0 0 1-1z"/></svg></span><span data-i18n="assist">Assist</span></span>
+            <span class="simple-mode-icon simple-mode-photo-picker" role="button" tabindex="0" aria-label="Set Club Manager picture" title="Set Club Manager picture" onclick="event.stopPropagation(); welcomeChooseRolePhoto('vault')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();welcomeChooseRolePhoto('vault')}"><img id="simpleVaultPhoto" class="simple-mode-photo" alt=""><span class="simple-mode-icon-fallback" aria-hidden="true">▦</span></span>
+            <span class="simple-mode-copy">
+              <span class="simple-mode-label">Slot Manager</span>
+              <span class="simple-mode-detail-row">
+                <span class="simple-mode-subtitle" id="simpleSlotClubName">Club</span>
+                <span class="simple-inline-logout" id="simpleVaultLogout" role="button" tabindex="0" title="Logout Club Manager" aria-label="Logout Club Manager" hidden onclick="event.stopPropagation(); welcomeLogoutWorkspace('vault')">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M14 8l4 4-4 4M18 12H9"/></svg>
+                </span>
+              </span>
+            </span>
+            <span class="simple-mode-arrow" aria-hidden="true">›</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Existing welcome elements are retained only as compatibility hooks for unchanged functions. -->
+      <div class="welcome-legacy-hooks" aria-hidden="true">
+
       <button class="welcome-refresh-btn" onclick="welcomeManualRefresh()" type="button" title="Refresh" aria-label="Refresh welcome screen">↻</button>
       <button class="scs-topbar-btn scs-topbar-theme welcome-theme-toggle" onclick="scsToggleTheme()" id="scsThemeBtnWelcome" type="button" title="Toggle theme" aria-label="Toggle light and dark mode">🌙</button>
       <div class="welcome-badminton-mark" aria-hidden="true">🏸</div>
@@ -152,7 +221,7 @@ html,body{overscroll-behavior:none;}
       <div class="welcome-workspaces" id="welcomeWorkspaceCarousel" role="radiogroup" aria-label="Choose your workspace">
         <button class="welcome-carousel-arrow welcome-carousel-prev" type="button" aria-label="Previous workspace" onclick="event.stopPropagation(); welcomeCycleWorkspace(-1)">‹</button>
         <button class="welcome-workspace viewer" id="experienceModeViewer" type="button" role="radio" aria-checked="true" onclick="welcomeSelectWorkspace('viewer')">
-          <span class="welcome-tile-assist" role="button" tabindex="0" onclick="event.stopPropagation(); scsOpenGuidedFunctions('viewer')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();scsOpenGuidedFunctions('viewer')}"><span aria-hidden="true">✓</span> <span data-i18n="assist">Assist</span></span>
+          <span class="welcome-tile-assist" role="button" tabindex="0" onclick="event.stopPropagation(); scsOpenGuidedFunctions('viewer')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();scsOpenGuidedFunctions('viewer')}"><span class="assist-headphone-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><path d="M4 13h2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a1 1 0 0 1-1-1z"/><path d="M20 13h-2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1a1 1 0 0 0 1-1z"/></svg></span> <span data-i18n="assist">Assist</span></span>
           <span class="welcome-tile-logout" id="welcomePlayerLogout" role="button" tabindex="0" title="Logout Player" aria-label="Logout Player" hidden onclick="event.stopPropagation(); welcomeLogoutWorkspace('viewer')">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 3v9"/><path d="M18.36 5.64a9 9 0 1 1-12.72 0"/></svg>
           </span>
@@ -194,7 +263,7 @@ html,body{overscroll-behavior:none;}
           </span>
         </button>
         <button class="welcome-workspace organiser" id="experienceModeOrganiser" type="button" role="radio" aria-checked="false" onclick="welcomeSelectWorkspace('organiser')">
-          <span class="welcome-tile-assist" role="button" tabindex="0" onclick="event.stopPropagation(); scsOpenGuidedFunctions('organiser')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();scsOpenGuidedFunctions('organiser')}"><span aria-hidden="true">✓</span> <span data-i18n="assist">Assist</span></span>
+          <span class="welcome-tile-assist" role="button" tabindex="0" onclick="event.stopPropagation(); scsOpenGuidedFunctions('organiser')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();scsOpenGuidedFunctions('organiser')}"><span class="assist-headphone-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><path d="M4 13h2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a1 1 0 0 1-1-1z"/><path d="M20 13h-2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1a1 1 0 0 0 1-1z"/></svg></span> <span data-i18n="assist">Assist</span></span>
           <span class="welcome-tile-logout" id="welcomeOrganiserLogout" role="button" tabindex="0" title="Logout Organiser" aria-label="Logout Organiser" hidden onclick="event.stopPropagation(); welcomeLogoutWorkspace('organiser')">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 3v9"/><path d="M18.36 5.64a9 9 0 1 1-12.72 0"/></svg>
           </span>
@@ -216,7 +285,7 @@ html,body{overscroll-behavior:none;}
           </span>
         </button>
         <button class="welcome-workspace vault" id="experienceModeVault" type="button" role="radio" aria-checked="false" onclick="welcomeSelectWorkspace('vault')">
-          <span class="welcome-tile-assist" role="button" tabindex="0" onclick="event.stopPropagation(); scsOpenGuidedFunctions('vault')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();scsOpenGuidedFunctions('vault')}"><span aria-hidden="true">✓</span> <span data-i18n="assist">Assist</span></span>
+          <span class="welcome-tile-assist" role="button" tabindex="0" onclick="event.stopPropagation(); scsOpenGuidedFunctions('vault')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();scsOpenGuidedFunctions('vault')}"><span class="assist-headphone-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><path d="M4 13h2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a1 1 0 0 1-1-1z"/><path d="M20 13h-2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1a1 1 0 0 0 1-1z"/></svg></span> <span data-i18n="assist">Assist</span></span>
           <span class="welcome-tile-logout" id="welcomeVaultLogout" role="button" tabindex="0" title="Logout Club Manager" aria-label="Logout Club Manager" hidden onclick="event.stopPropagation(); welcomeLogoutWorkspace('vault')">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 3v9"/><path d="M18.36 5.64a9 9 0 1 1-12.72 0"/></svg>
           </span>
@@ -280,9 +349,9 @@ html,body{overscroll-behavior:none;}
       <div id="welcomePhotoSheet" class="welcome-photo-sheet" hidden onclick="if(event.target===this) welcomeClosePhotoMenu()">
         <div class="welcome-photo-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="welcomePhotoSheetTitle">
           <div class="welcome-photo-sheet-title" id="welcomePhotoSheetTitle">Profile Photo</div>
-          <button type="button" onclick="welcomeChooseProfilePhoto('camera')">📷 <span>Take Photo</span></button>
-          <button type="button" onclick="welcomeChooseProfilePhoto('library')">🖼️ <span>Choose from Photos</span></button>
-          <button type="button" class="welcome-photo-remove" onclick="welcomeRemoveProfilePhoto()">🗑️ <span>Remove Photo</span></button>
+          <button type="button" onclick="welcomeChooseProfilePhoto('camera')">📷 <span data-i18n="takePhoto">Take Photo</span></button>
+          <button type="button" onclick="welcomeChooseProfilePhoto('library')">🖼️ <span data-i18n="chooseFromPhotos">Choose from Photos</span></button>
+          <button type="button" class="welcome-photo-remove" onclick="welcomeRemoveProfilePhoto()">🗑️ <span data-i18n="removePhoto">Remove Photo</span></button>
           <button type="button" class="welcome-photo-cancel" onclick="welcomeClosePhotoMenu()">Cancel</button>
         </div>
       </div>
@@ -296,7 +365,7 @@ html,body{overscroll-behavior:none;}
         <div class="welcome-utility welcome-language ml-lang-row" id="mlLangRow">
           <span class="welcome-utility-icon">◎</span>
           <span class="ml-lang-current" id="mlLangCurrent" onclick="event.stopPropagation();mlToggleLang()">English ▾</span>
-          <div class="ml-lang-picker" id="mlLangPicker" style="display:none;" onclick="event.stopPropagation()">
+          <div class="ml-lang-picker" id="mlLangPickerLegacy" style="display:none;" onclick="event.stopPropagation()">
             <div class="ml-lang-opt" onclick="mlSelectLang('en','🇺🇸','English')">🇺🇸 English</div>
             <div class="ml-lang-opt" onclick="mlSelectLang('jp','🇯🇵','日本語')">🇯🇵 日本語</div>
           </div>
@@ -311,7 +380,8 @@ html,body{overscroll-behavior:none;}
         <button id="mlExperienceIntermediate" type="button"></button>
         <button id="mlExperienceAdvanced" type="button"></button>
       </div>
-    </div>
+
+      </div>    </div>
   </div>
 
   <!-- ============================= -->
@@ -572,44 +642,6 @@ html,body{overscroll-behavior:none;}
 
 <div id="trialBanner" style="display:none;"></div>
 
-<!-- SESSION STEPPER (organiser) -->
-
-<div id="homeOrganizerFlow" style="display:none;">
-
-  <div class="session-stepper">
-    <div class="stepper-step" id="stepDot0" aria-label="Step 1: New Player">
-      <div class="stepper-dot"><span class="sn">1</span></div>
-      <div class="stepper-label">New Player</div>
-    </div>
-    <div class="stepper-line" id="stepLine0"></div>
-    <div class="stepper-step" id="stepDot1" aria-label="Step 2: Players">
-      <div class="stepper-dot"><span class="sn">2</span></div>
-      <div class="stepper-label" data-i18n="players">Players</div>
-    </div>
-    <div class="stepper-line" id="stepLine1"></div>
-    <div class="stepper-step" id="stepDot2" aria-label="Step 3: Fixed Pairs">
-      <div class="stepper-dot"><span class="sn">3</span></div>
-      <div class="stepper-label">Fixed Pairs</div>
-    </div>
-  </div>
-
-  <!-- Step card kept hidden: JS references these IDs but card is no longer shown -->
-  <div class="step-card" id="stepCard" style="display:none;">
-    <div class="step-card-icon" id="stepCardIcon">👥</div>
-    <div class="step-card-body">
-      <div class="step-card-title" id="stepCardTitle">Select Players</div>
-      <div class="step-card-sub"   id="stepCardSub">Add at least 4 players</div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
-      <button class="step-card-btn" id="stepCardBtn" onclick="stepAction()">Go ›</button>
-      <button class="step-card-skip" id="stepSkipBtn" onclick="stepSkip()" style="display:none;" data-i18n="skipBtn">Skip</button>
-    </div>
-  </div>
-
-  <!-- Round preferences remain here; each scheduling page owns its court count. -->
-
-</div>
-
 <!-- VIEWER FLOW - removed (dashboard tile covers this) -->
 
 <div id="homeViewerFlow" style="display:none;"></div>
@@ -626,21 +658,42 @@ html,body{overscroll-behavior:none;}
   </div>
 
   <!-- ── Row 2: Round Scheduler + Match Flow cards ── -->
-  <div class="home-tile org-rounds-tile" id="organiserCourtsCard" data-tile-color="1" style="cursor:default;">
-    <!-- Round preferences. Court count belongs to each scheduling page. -->
-    <div class="org-rounds-row">
-      <span class="org-rounds-label" data-i18n="competitive">🏆 Competitive</span>
-      <label class="switch">
-        <input type="checkbox" id="stepModeToggle" onchange="stepSyncMode()">
-        <span class="slider"></span>
-      </label>
-    </div>
-    <div class="org-rounds-row">
-      <span class="org-rounds-label" data-i18n="uniqueGames">✨ Unique Games</span>
-      <label class="switch">
-        <input type="checkbox" id="uniqueGamesToggle" onchange="stepSyncUniqueGames()">
-        <span class="slider"></span>
-      </label>
+  <div class="home-tile org-rounds-tile org-round-settings-card is-collapsed" id="organiserCourtsCard" data-tile-color="1" style="cursor:default;">
+    <!-- Build 530: compact expandable Round Settings card. -->
+    <button class="org-round-settings-header" id="orgRoundSettingsHeader" type="button"
+            aria-expanded="false" aria-controls="orgRoundSettingsBody"
+            onclick="toggleOrgRoundSettings()">
+      <span class="org-round-settings-title" data-i18n="roundSettings">Round Settings</span>
+      <span class="org-round-settings-chevron" aria-hidden="true">⌄</span>
+    </button>
+    <div class="org-round-settings-body" id="orgRoundSettingsBody" aria-hidden="true">
+      <div class="org-rounds-row org-mark-winner-row">
+        <span class="org-rounds-label" data-i18n="markWinner">Mark Winner</span>
+        <label class="switch">
+          <input type="checkbox" id="stepModeToggle" onchange="stepSyncMode()">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="game-generation-block">
+        <div class="game-generation-title">Games Generate</div>
+        <div class="game-generation-row" role="radiogroup" aria-label="Games Generate">
+          <label class="game-mode-radio-row game-mode-standard" for="homeGameModeStandard">
+            <input id="homeGameModeStandard" type="radio" name="homeGameGenerationMode" value="standard" onchange="stepSyncGameGeneration(this.value)">
+            <span class="game-mode-name">Standard</span>
+            <span class="game-mode-indicator" aria-hidden="true"></span>
+          </label>
+          <label class="game-mode-radio-row game-mode-unique" for="homeGameModeUnique">
+            <input id="homeGameModeUnique" type="radio" name="homeGameGenerationMode" value="unique" onchange="stepSyncGameGeneration(this.value)">
+            <span class="game-mode-name">Unique</span>
+            <span class="game-mode-indicator" aria-hidden="true"></span>
+          </label>
+          <label class="game-mode-radio-row game-mode-balanced" for="homeGameModeBalanced">
+            <input id="homeGameModeBalanced" type="radio" name="homeGameGenerationMode" value="balanced" onchange="stepSyncGameGeneration(this.value)">
+            <span class="game-mode-name">Balanced</span>
+            <span class="game-mode-indicator" aria-hidden="true"></span>
+          </label>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -694,6 +747,9 @@ html,body{overscroll-behavior:none;}
     </div>
   </div>
 
+  <!-- Existing organiser next-slot card, restored in the original empty area. -->
+  <span id="organiserNextSlotCard" class="launcher-start-session-card organiser-next-slot-card" style="display:none;"></span>
+
   <!-- Extra tools moved to the workspace selection screen. -->
 
 
@@ -702,11 +758,6 @@ html,body{overscroll-behavior:none;}
 
 <!-- ── Fixed Organiser navigation bar ── -->
 <div id="homeMoreSectionOrg" class="organiser-fixed-action-section" style="display:none;">
-  <div id="organiserNavCoach" class="organiser-nav-coach" hidden aria-live="polite">
-    <strong id="organiserNavCoachTitle">Start here</strong>
-    <span id="organiserNavCoachText">Tap Add Players to create or select players.</span>
-    <small id="organiserNavCoachProgress">1 of 4</small>
-  </div>
   <nav class="organiser-action-bar" aria-label="Organiser shortcuts">
     <button class="organiser-action-btn" id="orgNavAddPlayers" data-action-color="1" type="button" onclick="homeGuideOpenPlayersFromNav()">
       <span class="organiser-action-icon" aria-hidden="true">👥
@@ -1219,7 +1270,10 @@ html,body{overscroll-behavior:none;}
     <div class="sheet-header">
       <div class="sheet-header-spacer"></div>
       <div class="settings-heading"><span class="sheet-title" data-i18n="settings">Settings</span><span class="settings-subtitle">Personalise your SCS experience</span></div>
-      <button class="sheet-close-btn" onclick="document.getElementById('settingsPage').style.display='none';document.getElementById('homePageOverlay').classList.remove('settings-open');openModeSwitcher()">✕</button>
+      <div class="settings-header-actions">
+        <button class="settings-sync-btn" id="settingsHeaderSyncBtn" type="button" onclick="scsRunManualSync('header')" aria-label="Sync now" title="Sync now"><span class="settings-sync-glyph">↻</span><small id="settingsHeaderSyncStatus">Sync</small></button>
+        <button class="sheet-close-btn" onclick="document.getElementById('settingsPage').style.display='none';document.getElementById('homePageOverlay').classList.remove('settings-open');openModeSwitcher()">✕</button>
+      </div>
     </div>
     <div class="pref-wrap">
 
@@ -1275,13 +1329,21 @@ html,body{overscroll-behavior:none;}
 
 <!-- Font Size -->
 
-<div class="pref-row">
-  <span class="pref-row-label" data-i18n="fontSize">Font Size</span>
-  <div class="pref-pill-group appear-pill-group" id="fontPillGroup">
-    <button class="pref-pill" id="font_small"  onclick="appearSelect('font','small',this)">S</button>
-    <button class="pref-pill" id="font_medium" onclick="appearSelect('font','medium',this)">M</button>
-    <button class="pref-pill" id="font_large"  onclick="appearSelect('font','large',this)">L</button>
-    <button class="pref-pill" id="font_xlarge" onclick="appearSelect('font','xlarge',this)">XL</button>
+<div class="pref-row font-scale-row">
+  <div class="font-scale-heading">
+    <span class="pref-row-label" data-i18n="fontSize">Font Size</span>
+    <span class="font-scale-value" id="fontScaleValue">100%</span>
+  </div>
+  <div class="ios-font-scale" id="fontScaleControl">
+    <span class="font-scale-a font-scale-a-small" aria-hidden="true">A</span>
+    <div class="font-scale-track-wrap">
+      <input id="fontScaleSlider" class="font-scale-slider" type="range" min="88" max="200" step="3" value="112"
+        aria-label="Font size" oninput="appearFontSliderInput(this.value)">
+      <div class="font-scale-dots" aria-hidden="true">
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      </div>
+    </div>
+    <span class="font-scale-a font-scale-a-large" aria-hidden="true">A</span>
   </div>
 </div>
 <div class="pref-divider"></div>
@@ -1319,6 +1381,30 @@ html,body{overscroll-behavior:none;}
   <div id="appearFontPreview" style="display:none;margin-top:8px;padding:8px 10px;background:var(--surface2);border-radius:10px;color:var(--text);transition:font-size 0.3s ease;">Aa — <span data-i18n="fontPreview">Font Preview</span></div>
 </div>
 
+  </div>
+
+  <!-- DATA & SYNC -->
+
+  <div class="pref-section-label"><span class="pref-section-icon">↻</span><span data-i18n="dataSync">Data &amp; Sync</span></div>
+  <div class="pref-card sync-settings-card">
+    <div class="pref-row sync-interval-row">
+      <span class="pref-row-label" data-i18n="syncInterval">Sync Interval</span>
+      <select id="settingsSyncInterval" class="settings-sync-select" onchange="scsSetSyncInterval(this.value)">
+        <option value="0" data-i18n="manualOnly">Manual only</option>
+        <option value="1" data-i18n="every1Minute">Every 1 minute</option>
+        <option value="5" data-i18n="every5Minutes">Every 5 minutes</option>
+        <option value="15" data-i18n="every15Minutes">Every 15 minutes</option>
+        <option value="30" data-i18n="every30Minutes">Every 30 minutes</option>
+        <option value="60" data-i18n="every60Minutes">Every 60 minutes</option>
+      </select>
+    </div>
+    <div class="pref-divider"></div>
+    <div class="pref-row">
+      <span class="pref-row-label" data-i18n="lastSync">Last Sync</span>
+      <span class="pref-row-value settings-last-sync"><span id="settingsLastSync">Never</span><span class="sync-ok-dot" id="settingsSyncOkDot">✓</span></span>
+    </div>
+    <button class="settings-sync-now-btn" id="settingsSyncNowBtn" type="button" onclick="scsRunManualSync('card')"><span class="settings-sync-glyph">↻</span><span data-i18n="syncNow">Sync Now</span></button>
+    <div class="settings-sync-message" id="settingsSyncMessage" aria-live="polite"></div>
   </div>
 
   <!-- RESET -->
@@ -1999,7 +2085,7 @@ html,body{overscroll-behavior:none;}
       <span class="players-action-label" data-i18n="selectPlayers">Select Players</span>
     </button>
 
-    <button class="players-action-btn players-action-new" type="button" onclick="window._regNavSource='playersPage';homeGo('vaultRegisterPage',null);">
+    <button class="players-action-btn players-action-new" type="button" onclick="scsPlayersOpenNewPlayer()">
       <span class="players-action-icon" aria-hidden="true">✨</span>
       <span class="players-action-label" data-i18n="newPlayer">New Player</span>
     </button>
@@ -2110,8 +2196,7 @@ html,body{overscroll-behavior:none;}
 
 <div class="setting-row">
   <label class="setting-label">
-    <span id="modeLabel"></span>
-    <span data-i18n="competitive">Competitive</span>
+    <span data-i18n="markWinner">Mark Winner</span>
   </label>
   <label class="switch">
     <input type="checkbox" id="modeToggle">
@@ -2119,14 +2204,19 @@ html,body{overscroll-behavior:none;}
   </label>
 </div>
 
-<div class="setting-row">
-  <label class="setting-label">
-    <span id="uniqueGamesLabel">✨</span>
-    <span data-i18n="uniqueGames">Unique Games</span>
+<div class="game-generation-block round-settings-game-generation">
+  <div class="game-generation-title" data-i18n="gameGeneration">Game Generation</div>
+  <label class="game-mode-radio-row" for="roundGameModeStandard">
+    <input id="roundGameModeStandard" type="radio" name="roundGameGenerationMode" value="standard" onchange="setGameGenerationMode(this.value, true)">
+    <span data-i18n="standardGames">Standard Games</span>
   </label>
-  <label class="switch">
-    <input type="checkbox" id="uniqueGamesToggle">
-    <span class="slider"></span>
+  <label class="game-mode-radio-row" for="roundGameModeUnique">
+    <input id="roundGameModeUnique" type="radio" name="roundGameGenerationMode" value="unique" onchange="setGameGenerationMode(this.value, true)">
+    <span data-i18n="uniqueGamesPlain">Unique Games</span>
+  </label>
+  <label class="game-mode-radio-row" for="roundGameModeBalanced">
+    <input id="roundGameModeBalanced" type="radio" name="roundGameGenerationMode" value="balanced" onchange="setGameGenerationMode(this.value, true)">
+    <span data-i18n="balancedGames">Balanced Games</span>
   </label>
 </div>
 
@@ -2530,17 +2620,6 @@ html,body{overscroll-behavior:none;}
 
   </div>
 
-  <!-- ONBOARDING OVERLAY -->
-
-  <div id="onboardingOverlay" class="onboarding-overlay" style="display:none;">
-    <div class="onboarding-card">
-      <div class="onboarding-icon">🏸</div>
-      <div class="onboarding-title" id="onboardingTitle" data-i18n="welcomeTitle">Welcome</div>
-      <div class="onboarding-msg" id="onboardingMsg"></div>
-      <button class="onboarding-btn" id="onboardingBtn" data-i18n="getStarted">Get Started</button>
-    </div>
-  </div>
-
   <!-- PAYWALL OVERLAY -->
 
   <div id="paywallOverlay" class="paywall-overlay" style="display:none;">
@@ -2570,7 +2649,7 @@ html,body{overscroll-behavior:none;}
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
-        navigator.serviceWorker.register('./sw.js?v=469', { updateViaCache: 'none' })
+        navigator.serviceWorker.register('./sw.js?v=546', { updateViaCache: 'none' })
           .then(function(reg) {
             console.log('SW registered - CLUBS v' + (window.SCS_APP_VERSION || '1.6.4'));
             // Check for updates occasionally without interrupting the current screen

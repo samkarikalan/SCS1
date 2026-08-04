@@ -12,7 +12,7 @@ BRRStyle1.css (Global / Layout / Players)
 
 
 :root {
---base-font-size: 18px;
+--base-font-size: 1.125rem;
 --player-font-size:1.1rem;
 
 --bg:         #0f0f13;
@@ -126,7 +126,7 @@ body.app-dark .lock-icon {
   html.lang-jp {
   /* Japanese glyphs render visually larger than Latin at the same rem size.
      Keep every app screen at a comparable visual height. */
-  font-size: calc(var(--base-font-size) - 2px);
+  font-size: calc(var(--base-font-size) - .125rem);
   }
   body {
   margin: 0; padding: 0;
@@ -153,13 +153,13 @@ body.app-dark .lock-icon {
 .app-logo-premium {
   position: absolute; left: 50%; transform: translateX(-50%);
   font-family: var(--font-display);
-  font-size: 18px; font-weight: 700; letter-spacing: 0.3px;
+  font-size: 1.125rem; font-weight: 700; letter-spacing: 0.3px;
   color: var(--text); white-space: nowrap; pointer-events: none;
   display: flex; align-items: center; gap: 6px;
 }
 .app-logo-premium::before {
   content: '🏸';
-  font-size: 16px;
+  font-size: 1rem;
 }
 .menu-btn { font-size: 1.3rem; cursor: pointer; user-select: none; color: var(--text-dim); padding: 4px; border-radius: 8px; }
 
@@ -169,7 +169,7 @@ body.app-dark .lock-icon {
   border: 1px solid var(--border2);
   background: var(--surface2);
   display: flex; align-items: center; justify-content: center;
-  font-size: 20px; cursor: pointer;
+  font-size: 1.25rem; cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
 }
 .lang-btn:hover { background: var(--surface3); border-color: var(--accent); }
@@ -225,7 +225,7 @@ body.organiser-tabs .tabs-container::-webkit-scrollbar { display: none; }
   border-bottom: 3px solid transparent;
   font-family: var(--font-body);
   font-weight: 600;
-  font-size: 16px;
+  font-size: 1rem;
   padding: 6px 8px;
   border-radius: 0;
   cursor: pointer;
@@ -240,7 +240,7 @@ body.organiser-tabs .tabs-container::-webkit-scrollbar { display: none; }
 }
 
 .tab-icon {
-  font-size: 20px;
+  font-size: 1.25rem;
   line-height: 1;
 }
 
@@ -352,7 +352,7 @@ height: 44px; min-height: 44px; box-sizing: border-box;
   min-width: 36px;
 }
 .pec-delete { text-align: right; }
-.pec-delete .delete { all: unset; font-size: 22px; cursor: pointer; color: var(--muted); transition: color 0.2s; }
+.pec-delete .delete { all: unset; font-size: 1.375rem; cursor: pointer; color: var(--muted); transition: color 0.2s; }
 .pec-delete .delete:hover { color: var(--red); }
 .pec-delete-btn { all: unset; cursor: pointer; color: var(--muted); display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 6px; transition: color 0.2s, background 0.2s; }
 .pec-delete-btn:hover, .pec-delete-btn:active { color: var(--red, #e63757); background: rgba(230,55,87,0.1); }
@@ -361,7 +361,7 @@ height: 44px; min-height: 44px; box-sizing: border-box;
 .fixed-card { display: grid; grid-template-columns: 1fr 55px; align-items: center; gap: 8px; font-size: 1rem; padding: 10px 14px; border-radius: var(--r-xl); border: 1px solid var(--border2); background: var(--surface2); margin: 5px 0; }
 .fixed-name { white-space: normal; word-break: break-word; color: var(--text); }
 .fixed-delete { text-align: right; }
-.fixed-delete .delete { all: unset; font-size: 22px; cursor: pointer; color: var(--muted); transition: color 0.2s; }
+.fixed-delete .delete { all: unset; font-size: 1.375rem; cursor: pointer; color: var(--muted); transition: color 0.2s; }
 .fixed-delete .delete:hover { color: var(--red); }
 .row-addplayer { display: flex; gap: 10px; flex-wrap: nowrap; align-items: center; }
 
@@ -484,14 +484,14 @@ min-width: 160px;
 .globe {
 position: absolute;
 left: 12px;
-font-size: 16px;
+font-size: 1rem;
 opacity: 0.8;
 }
 /* Dropdown arrow */
 .arrow {
 position: absolute;
 right: 12px;
-font-size: 14px;
+font-size: .875rem;
 pointer-events: none;
 opacity: 0.6;
 }
@@ -518,8 +518,8 @@ display: block;
 }
 .lang-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 5px; }
 .select-wrapper { position: relative; display: flex; align-items: center; background: var(--surface2); border-radius: var(--r-sm); padding: 0 36px 0 38px; height: 44px; min-width: 160px; border: 1px solid var(--border2); }
-.globe { position: absolute; left: 12px; font-size: 16px; opacity: 0.7; }
-.arrow { position: absolute; right: 12px; font-size: 14px; pointer-events: none; opacity: 0.5; color: var(--muted); }
+.globe { position: absolute; left: 12px; font-size: 1rem; opacity: 0.7; }
+.arrow { position: absolute; right: 12px; font-size: .875rem; pointer-events: none; opacity: 0.5; color: var(--muted); }
 .lang-select { background: transparent; border: none; color: var(--text); font-size: 1rem; width: 100%; outline: none; }
 .fixed-sl { text-align: center; font-weight: 600; color: var(--muted); }
 .player-help section { display: none; }
@@ -2091,6 +2091,19 @@ body.app-light .vcl-row-name { color: #1a1a2e; }
 }
 .jc-club-leave-btn:active { transform: scale(.96); }
 .jc-club-leave-btn:disabled { opacity: .55; cursor: wait; }
+.jc-club-cancel-request-btn {
+  min-height: 28px;
+  padding: 4px 9px;
+  border: 1px solid rgba(239,68,68,.48);
+  border-radius: 999px;
+  background: rgba(239,68,68,.10);
+  color: #fb7185;
+  font-size: .61rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.jc-club-cancel-request-btn:active { transform: scale(.96); }
+.jc-club-cancel-request-btn:disabled { opacity: .55; cursor: wait; }
 .jc-nickname-choices {
   display: flex;
   flex-wrap: wrap;
@@ -2143,10 +2156,16 @@ body.app-light .jc-club-leave-btn {
   border-color: #fda4af;
   color: #be123c;
 }
+body.app-light .jc-club-cancel-request-btn {
+  background: #fff1f2;
+  border-color: #fda4af;
+  color: #be123c;
+}
 @media (max-width: 430px) {
   .jc-club-actions { gap: 5px; }
   .jc-club-badge { padding-inline: 6px; }
-  .jc-club-leave-btn { padding-inline: 7px; }
+  .jc-club-leave-btn,
+  .jc-club-cancel-request-btn { padding-inline: 7px; }
 }
 
 
@@ -2598,7 +2617,7 @@ body.app-light .jc-club-pending {
 /* ── Home Top Bar ── */
 .home-logo {
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: 700;
   color: var(--text);
 }
@@ -3569,7 +3588,7 @@ body.app-light .tile-pairs { background: rgba(245,158,11,0.12); }
   left: 50%;
   transform: translateX(-50%);
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: 700;
   color: var(--text);
   pointer-events: none;
@@ -4214,61 +4233,6 @@ body.app-light .tile-pairs { background: rgba(245,158,11,0.12); }
   color: var(--muted);
 }
 
-/* ── Onboarding overlay ── */
-.onboarding-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 800;
-  background: var(--bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 32px 24px;
-}
-
-.onboarding-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  max-width: 360px;
-  width: 100%;
-  text-align: center;
-}
-
-.onboarding-icon {
-  font-size: 4rem;
-  margin-bottom: 8px;
-}
-
-.onboarding-title {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.onboarding-msg {
-  font-size: 0.95rem;
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-.onboarding-btn {
-  width: 100%;
-  padding: 16px;
-  background: linear-gradient(135deg, var(--accent) 0%, #9b60ff 100%);
-  border: none;
-  border-radius: 14px;
-  color: #fff;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  margin-top: 8px;
-  transition: filter 0.15s;
-}
-.onboarding-btn:hover { filter: brightness(1.08); }
-
 /* =============================================
    AUTH SCREENS
    ============================================= */
@@ -4648,6 +4612,7 @@ body.app-light .tile-pairs { background: rgba(45,206,137,0.12); }
 
 /* ── Club Setup Sheet ── */
 .club-setup-sheet {
+  position: relative;
   background: var(--surface);
   border: 1px solid var(--border2);
   border-radius: 22px 22px 0 0;
@@ -4657,6 +4622,29 @@ body.app-light .tile-pairs { background: rgba(45,206,137,0.12); }
   animation: slideUp 0.22s cubic-bezier(.4,0,.2,1);
   max-height: 90vh;
   overflow-y: auto;
+}
+.club-setup-assist-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1.5px solid #d92f50;
+  border-radius: 14px;
+  background: rgba(89,22,36,.92);
+  color: #fff;
+  font-size: 20px;
+  font-weight: 850;
+  line-height: 1;
+  cursor: pointer;
+}
+body.app-light .club-setup-assist-close {
+  background: #fff;
+  color: #d92f50;
 }
 .club-setup-tabs {
   display: flex;
@@ -5970,7 +5958,7 @@ body.app-light .tile-settings { background: var(--surface3); }
 }
 
 .export-round-title {
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: 600;
   margin-bottom: 16px;
   border-bottom: 1px solid #000;
@@ -6029,7 +6017,7 @@ body.app-light .tile-settings { background: var(--surface3); }
 
 .export-rest-box {
   margin: 5px;
-  font-size: 13px;
+  font-size: .8125rem;
 }
 
 /* ===== PLAYER BUTTON OVERRIDES (FINAL) ===== */
@@ -6059,7 +6047,7 @@ body.app-light .tile-settings { background: var(--surface3); }
   object-fit: cover;
   border: 2px solid var(--accent);
 }
-.profile-btn-icon { font-size: 18px; }
+.profile-btn-icon { font-size: 1.125rem; }
 
 /* ─────────────────────────────────────────────
    PROFILE OVERLAY + DRAWER
@@ -6812,7 +6800,7 @@ body.app-dark .newImport-player-card.player-added {
 }
 .fc-delete-btn {
   all: unset !important;
-  font-size: 18px !important;
+  font-size: 1.125rem !important;
   cursor: pointer !important;
   color: var(--muted) !important;
   transition: color 0.2s, opacity 0.2s !important;
@@ -7399,7 +7387,7 @@ body.viewer-mode #clubMgmtCard {
   border: 1px solid rgba(245,166,35,0.2);
   border-radius: 10px;
   margin-bottom: 10px;
-  font-size: 12px;
+  font-size: .75rem;
   color: var(--text-dim);
 }
 .viewer-info-dot {
@@ -7413,7 +7401,7 @@ body.viewer-mode #clubMgmtCard {
   0%,100% { opacity: 1; transform: scale(1); }
   50%      { opacity: 0.4; transform: scale(0.7); }
 }
-.viewer-info-text { font-size: 12px; color: var(--text-dim); }
+.viewer-info-text { font-size: .75rem; color: var(--text-dim); }
 .viewer-info-text strong { color: var(--text); font-weight: 600; }
 
 /* Leaderboard */
@@ -7789,16 +7777,16 @@ body.app-dark .viewer-rounds .round-wrapper:nth-child(even) {
 
 /* ── Tab label -- fixed size, never changes with font setting ── */
 .tab-label {
-  font-size: 10px !important;
+  font-size: .625rem !important;
   font-weight: 600;
   line-height: 1.2;
   white-space: nowrap;
 }
 .tab-icon {
-  font-size: 20px !important;
+  font-size: 1.25rem !important;
 }
 .tab-btn {
-  font-size: 10px !important;
+  font-size: .625rem !important;
 }
 
 /* Tab bar container */
@@ -15037,7 +15025,7 @@ body.home-open.experience-intermediate #homeViewerGrid .home-show-more-btn {
 .ml-control-card .ml-settings-btn span,
 .ml-control-card .ml-lang-current,
 .ml-control-card .ml-lang-opt {
-  font-size:14px !important;
+  font-size:.875rem !important;
 }
 
 /* Mode launcher density follows the selected experience. */
@@ -16528,24 +16516,24 @@ body.app-light #modeSelectOverlay .welcome-workspace.active .welcome-workspace-f
   padding-top: 4px;
   overflow: visible;
 }
-#modeSelectOverlay .welcome-badminton-mark { margin-bottom: 4px; font-size: 38px; }
+#modeSelectOverlay .welcome-badminton-mark { margin-bottom: 4px; font-size: 2.375rem; }
 #modeSelectOverlay .welcome-refresh-btn,
-#modeSelectOverlay .welcome-theme-toggle { font-size: 18px; }
-#modeSelectOverlay .welcome-domain { font-size: 13px; line-height: 18px; }
+#modeSelectOverlay .welcome-theme-toggle { font-size: 1.125rem; }
+#modeSelectOverlay .welcome-domain { font-size: .8125rem; line-height: 18px; }
 #modeSelectOverlay .welcome-title {
   margin-top: 14px;
-  font-size: 44px;
+  font-size: 2.75rem;
   line-height: 48px;
 }
 #modeSelectOverlay .welcome-subtitle {
   max-width: 620px;
   margin-top: 10px;
-  font-size: 16px;
+  font-size: 1rem;
   line-height: 24px;
 }
 #modeSelectOverlay .welcome-section-title {
   margin: 28px 0 12px;
-  font-size: 12px;
+  font-size: .75rem;
   line-height: 16px;
 }
 #modeSelectOverlay .welcome-workspace,
@@ -16561,12 +16549,12 @@ body.app-light #modeSelectOverlay .welcome-workspace.active .welcome-workspace-f
   width: 76px;
   height: 72px;
 }
-#modeSelectOverlay .welcome-workspace-label { font-size: 21px; line-height: 25px; }
-#modeSelectOverlay .welcome-workspace-club { font-size: 15px; line-height: 18px; }
+#modeSelectOverlay .welcome-workspace-label { font-size: 1.3125rem; line-height: 25px; }
+#modeSelectOverlay .welcome-workspace-club { font-size: .9375rem; line-height: 18px; }
 #modeSelectOverlay .welcome-workspace-features {
   margin-top: 3px;
   gap: 3px;
-  font-size: 13px;
+  font-size: .8125rem;
   line-height: 17px;
 }
 #modeSelectOverlay .welcome-next-steps {
@@ -16575,7 +16563,7 @@ body.app-light #modeSelectOverlay .welcome-workspace.active .welcome-workspace-f
   align-items: baseline;
   justify-content: flex-start;
   gap: 22px;
-  font-size: 15px;
+  font-size: .9375rem;
   line-height: 20px;
 }
 #modeSelectOverlay .welcome-next-actions {
@@ -16585,7 +16573,7 @@ body.app-light #modeSelectOverlay .welcome-workspace.active .welcome-workspace-f
   justify-content: flex-start;
   gap: 7px;
   color: #c1bfd0;
-  font-size: 14px;
+  font-size: .875rem;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -16595,7 +16583,7 @@ body.app-light #modeSelectOverlay .welcome-next-actions { color: #666a7e; }
   height: 62px;
   margin-top: 10px;
   border-radius: 20px;
-  font-size: 22px;
+  font-size: 1.375rem;
   line-height: 26px;
 }
 #modeSelectOverlay .welcome-footer { gap: 12px; margin-top: 18px; }
@@ -16605,21 +16593,21 @@ body.app-light #modeSelectOverlay .welcome-next-actions { color: #666a7e; }
   padding: 10px 5px;
   border-radius: 22px;
   gap: 8px;
-  font-size: 17px;
+  font-size: 1.0625rem;
   line-height: 21px;
 }
-#modeSelectOverlay .welcome-utility-icon { width: 36px; height: 36px; font-size: 27px; }
-#modeSelectOverlay .welcome-language .ml-lang-current { font-size: 17px !important; line-height: 21px; }
+#modeSelectOverlay .welcome-utility-icon { width: 36px; height: 36px; font-size: 1.6875rem; }
+#modeSelectOverlay .welcome-language .ml-lang-current { font-size: 1.0625rem !important; line-height: 21px; }
 
 @media (max-width: 430px) {
   #modeSelectOverlay.welcome-launcher { padding-left: 10px; padding-right: 10px; }
   #modeSelectOverlay .welcome-refresh-btn { right: 48px; width: 38px; height: 38px; }
   #modeSelectOverlay .welcome-theme-toggle { width: 38px; height: 38px; }
-  #modeSelectOverlay .welcome-badminton-mark { font-size: 34px; }
-  #modeSelectOverlay .welcome-domain { font-size: 11px; line-height: 15px; }
-  #modeSelectOverlay .welcome-title { margin-top: 10px; font-size: 34px; line-height: 38px; }
-  #modeSelectOverlay .welcome-subtitle { max-width: 350px; margin-top: 8px; font-size: 14px; line-height: 20px; }
-  #modeSelectOverlay .welcome-section-title { margin: 22px 0 10px; gap: 8px; font-size: 10px; line-height: 14px; }
+  #modeSelectOverlay .welcome-badminton-mark { font-size: 2.125rem; }
+  #modeSelectOverlay .welcome-domain { font-size: .6875rem; line-height: 15px; }
+  #modeSelectOverlay .welcome-title { margin-top: 10px; font-size: 2.125rem; line-height: 38px; }
+  #modeSelectOverlay .welcome-subtitle { max-width: 350px; margin-top: 8px; font-size: .875rem; line-height: 20px; }
+  #modeSelectOverlay .welcome-section-title { margin: 22px 0 10px; gap: 8px; font-size: .625rem; line-height: 14px; }
   #modeSelectOverlay .welcome-workspaces { gap: 6px; }
   #modeSelectOverlay .welcome-workspace,
   #modeSelectOverlay .welcome-workspace.active,
@@ -16631,24 +16619,24 @@ body.app-light #modeSelectOverlay .welcome-next-actions { color: #666a7e; }
   }
   #modeSelectOverlay .welcome-workspace-icon,
   #modeSelectOverlay .welcome-workspace.active .welcome-workspace-icon { width: 58px; height: 56px; }
-  #modeSelectOverlay .welcome-workspace-label { font-size: 17px; line-height: 20px; }
-  #modeSelectOverlay .welcome-workspace-club { font-size: 13px; line-height: 15px; }
-  #modeSelectOverlay .welcome-workspace-features { gap: 2px; font-size: 10px; line-height: 13px; }
+  #modeSelectOverlay .welcome-workspace-label { font-size: 1.0625rem; line-height: 20px; }
+  #modeSelectOverlay .welcome-workspace-club { font-size: .8125rem; line-height: 15px; }
+  #modeSelectOverlay .welcome-workspace-features { gap: 2px; font-size: .625rem; line-height: 13px; }
   #modeSelectOverlay .welcome-tile-logout { top: 7px; right: 7px; width: 27px; height: 27px; }
-  #modeSelectOverlay .welcome-next-steps { margin: 16px 8px 0; gap: 12px; font-size: 13px; line-height: 17px; }
-  #modeSelectOverlay .welcome-next-actions { gap: 5px; font-size: 11px; line-height: 14px; }
-  #modeSelectOverlay .welcome-continue { height: 56px; margin-top: 8px; border-radius: 18px; font-size: 20px; }
+  #modeSelectOverlay .welcome-next-steps { margin: 16px 8px 0; gap: 12px; font-size: .8125rem; line-height: 17px; }
+  #modeSelectOverlay .welcome-next-actions { gap: 5px; font-size: .6875rem; line-height: 14px; }
+  #modeSelectOverlay .welcome-continue { height: 56px; margin-top: 8px; border-radius: 18px; font-size: 1.25rem; }
   #modeSelectOverlay .welcome-footer { gap: 6px; margin-top: 14px; }
-  #modeSelectOverlay .welcome-utility { height: 92px; border-radius: 18px; gap: 5px; font-size: 15px; line-height: 18px; }
-  #modeSelectOverlay .welcome-utility-icon { width: 31px; height: 31px; font-size: 23px; }
-  #modeSelectOverlay .welcome-language .ml-lang-current { font-size: 15px !important; line-height: 18px; }
+  #modeSelectOverlay .welcome-utility { height: 92px; border-radius: 18px; gap: 5px; font-size: .9375rem; line-height: 18px; }
+  #modeSelectOverlay .welcome-utility-icon { width: 31px; height: 31px; font-size: 1.4375rem; }
+  #modeSelectOverlay .welcome-language .ml-lang-current { font-size: .9375rem !important; line-height: 18px; }
 }
 
 @media (max-height: 720px) {
-  #modeSelectOverlay .welcome-badminton-mark { font-size: 29px; }
+  #modeSelectOverlay .welcome-badminton-mark { font-size: 1.8125rem; }
   #modeSelectOverlay .welcome-domain { line-height: 13px; }
-  #modeSelectOverlay .welcome-title { margin-top: 7px; font-size: 31px; line-height: 34px; }
-  #modeSelectOverlay .welcome-subtitle { margin-top: 5px; font-size: 13px; line-height: 18px; }
+  #modeSelectOverlay .welcome-title { margin-top: 7px; font-size: 1.9375rem; line-height: 34px; }
+  #modeSelectOverlay .welcome-subtitle { margin-top: 5px; font-size: .8125rem; line-height: 18px; }
   #modeSelectOverlay .welcome-section-title { margin: 15px 0 7px; }
   #modeSelectOverlay .welcome-workspace,
   #modeSelectOverlay .welcome-workspace.active,
@@ -16698,7 +16686,7 @@ body.app-light #modeSelectOverlay .welcome-next-actions { color: #666a7e; }
   border-radius: 50%;
   background: rgba(255, 255, 255, .04);
   color: #b8b6ca;
-  font-size: 24px;
+  font-size: 1.5rem;
   line-height: 30px;
   cursor: pointer;
 }
@@ -16712,24 +16700,24 @@ body.app-light #modeSelectOverlay .welcome-next-actions { color: #666a7e; }
   border-radius: 18px;
   background: rgba(116, 75, 255, .12);
   color: #a184ff;
-  font-size: 30px;
+  font-size: 1.875rem;
 }
 .organiser-access-sheet h2 {
   margin: 0;
-  font-size: 24px;
+  font-size: 1.5rem;
   line-height: 30px;
 }
 .organiser-access-account {
   margin: 8px 0 24px;
   color: #a8a6bb;
-  font-size: 14px;
+  font-size: .875rem;
   line-height: 20px;
 }
 .organiser-access-account strong { color: #d9d6eb; }
 .organiser-access-label {
   margin-bottom: 9px;
   color: #9e82ff;
-  font-size: 12px;
+  font-size: .75rem;
   font-weight: 800;
   letter-spacing: .06em;
   text-align: left;
@@ -16768,17 +16756,17 @@ body.app-light #modeSelectOverlay .welcome-next-actions { color: #666a7e; }
   place-items: center;
   border-radius: 13px;
   background: rgba(121, 91, 255, .12);
-  font-size: 22px;
+  font-size: 1.375rem;
 }
 .organiser-access-club-copy { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .organiser-access-club-copy strong {
   overflow: hidden;
-  font-size: 15px;
+  font-size: .9375rem;
   line-height: 19px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.organiser-access-club-copy small { color: #9694aa; font-size: 12px; line-height: 16px; }
+.organiser-access-club-copy small { color: #9694aa; font-size: .75rem; line-height: 16px; }
 .organiser-access-radio {
   width: 20px;
   height: 20px;
@@ -16798,7 +16786,7 @@ body.app-light #modeSelectOverlay .welcome-next-actions { color: #666a7e; }
   background: linear-gradient(105deg, #5f38f4, #754eff);
   color: #fff;
   font: inherit;
-  font-size: 14px;
+  font-size: .875rem;
   font-weight: 750;
   box-shadow: 0 10px 24px rgba(87, 51, 232, .25);
   cursor: pointer;
@@ -17824,7 +17812,7 @@ display:inline-block;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 21px !important;
+  font-size: 1.3125rem !important;
   line-height: 1 !important;
 }
 .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-gender-img,
@@ -17841,7 +17829,7 @@ display:inline-block;
   justify-content: center !important;
   padding: 0 3px !important;
   border-radius: 10px !important;
-  font-size: 12px !important;
+  font-size: .75rem !important;
   line-height: 1 !important;
 }
 .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-player-content {
@@ -17856,7 +17844,7 @@ display:inline-block;
   width: 100% !important;
   min-width: 0 !important;
   margin: 0 !important;
-  font-size: 17px !important;
+  font-size: 1.0625rem !important;
   line-height: 1.12 !important;
   font-weight: 800 !important;
   letter-spacing: 0 !important;
@@ -17875,7 +17863,7 @@ display:inline-block;
   gap: 8px !important;
   padding: 0 !important;
   margin: 0 !important;
-  font-size: 14px !important;
+  font-size: .875rem !important;
   line-height: 1 !important;
   text-align: left !important;
 }
@@ -17884,7 +17872,7 @@ display:inline-block;
   height: 25px !important;
   padding: 0 8px !important;
   border-radius: 7px !important;
-  font-size: 14px !important;
+  font-size: .875rem !important;
   line-height: 1 !important;
   font-weight: 800 !important;
 }
@@ -17894,7 +17882,7 @@ display:inline-block;
   min-height: 25px !important;
   padding: 0 10px !important;
   border-radius: 8px !important;
-  font-size: 14px !important;
+  font-size: .875rem !important;
   line-height: 1 !important;
   font-weight: 600 !important;
 }
@@ -17902,16 +17890,16 @@ display:inline-block;
   height: 25px !important;
   min-height: 25px !important;
   gap: 4px !important;
-  font-size: 14px !important;
+  font-size: .875rem !important;
   line-height: 1 !important;
   font-weight: 700 !important;
 }
 .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-rating-star {
-  font-size: 20px !important;
+  font-size: 1.25rem !important;
   line-height: 1 !important;
 }
 .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-meta-separator {
-  font-size: 10px !important;
+  font-size: .625rem !important;
   line-height: 1 !important;
   opacity: .8 !important;
 }
@@ -17945,17 +17933,17 @@ display:inline-block;
     max-height: 23px !important;
   }
   .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-player-name {
-    font-size: 16px !important;
+    font-size: 1rem !important;
   }
   .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-player-meta {
     gap: 6px !important;
-    font-size: 13px !important;
+    font-size: .8125rem !important;
   }
   .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-probability-badge,
   .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-paid-badge,
   .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-unpaid-badge,
   .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-rating-badge {
-    font-size: 13px !important;
+    font-size: .8125rem !important;
   }
 }
 
@@ -17993,7 +17981,7 @@ display:inline-block;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 17px !important;
+  font-size: 1.0625rem !important;
   line-height: 1 !important;
 }
 .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-wait-num {
@@ -18002,7 +17990,7 @@ display:inline-block;
   justify-content: center !important;
   border-radius: 9px !important;
   padding: 0 2px !important;
-  font-size: 10px !important;
+  font-size: .625rem !important;
   line-height: 1 !important;
 }
 .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-avatar,
@@ -18034,7 +18022,7 @@ display:inline-block;
   width: 100% !important;
   min-width: 0 !important;
   margin: 0 !important;
-  font-size: 16px !important;
+  font-size: 1rem !important;
   line-height: 1.12 !important;
   font-weight: 750 !important;
   letter-spacing: 0 !important;
@@ -18064,7 +18052,7 @@ display:inline-block;
   min-height: 20px !important;
   padding: 0 6px !important;
   border-radius: 6px !important;
-  font-size: 11px !important;
+  font-size: .6875rem !important;
   line-height: 20px !important;
   font-weight: 800 !important;
   text-align: center !important;
@@ -18076,7 +18064,7 @@ display:inline-block;
   min-height: 21px !important;
   padding: 0 8px !important;
   border-radius: 7px !important;
-  font-size: 11px !important;
+  font-size: .6875rem !important;
   line-height: 21px !important;
   font-weight: 600 !important;
   white-space: nowrap !important;
@@ -18089,18 +18077,18 @@ display:inline-block;
   min-height: 21px !important;
   gap: 3px !important;
   padding: 0 !important;
-  font-size: 11px !important;
+  font-size: .6875rem !important;
   line-height: 21px !important;
   font-weight: 650 !important;
   white-space: nowrap !important;
 }
 .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-rating-star {
-  font-size: 15px !important;
+  font-size: .9375rem !important;
   line-height: 1 !important;
 }
 .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-meta-separator {
   flex: 0 0 auto !important;
-  font-size: 7px !important;
+  font-size: .4375rem !important;
   line-height: 1 !important;
   opacity: .62 !important;
 }
@@ -18139,7 +18127,7 @@ display:inline-block;
     max-height: 18px !important;
   }
   .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-player-name {
-    font-size: 15px !important;
+    font-size: .9375rem !important;
   }
   .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-player-meta {
     gap: 5px !important;
@@ -18149,7 +18137,7 @@ display:inline-block;
     height: 19px !important;
     min-height: 19px !important;
     padding: 0 5px !important;
-    font-size: 10px !important;
+    font-size: .625rem !important;
     line-height: 19px !important;
   }
   .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-paid-badge,
@@ -18157,11 +18145,11 @@ display:inline-block;
   .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-rating-badge {
     height: 20px !important;
     min-height: 20px !important;
-    font-size: 10px !important;
+    font-size: .625rem !important;
     line-height: 20px !important;
   }
   .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-rating-star {
-    font-size: 14px !important;
+    font-size: .875rem !important;
   }
 }
 
@@ -20264,32 +20252,32 @@ body.light-theme .org-rounds-tile .org-launch-mbm {
 
 /* Build 338 — enlarge welcome badminton mark and scs-app.com only. */
 #modeSelectOverlay .welcome-badminton-mark {
-  font-size: 58px;
+  font-size: 3.625rem;
   line-height: 1;
   margin-bottom: 7px;
 }
 #modeSelectOverlay .welcome-domain {
-  font-size: 20px;
+  font-size: 1.25rem;
   line-height: 24px;
   font-weight: 800;
   letter-spacing: .015em;
 }
 @media (max-width: 430px) {
   #modeSelectOverlay .welcome-badminton-mark {
-    font-size: 54px;
+    font-size: 3.375rem;
     margin-bottom: 6px;
   }
   #modeSelectOverlay .welcome-domain {
-    font-size: 18px;
+    font-size: 1.125rem;
     line-height: 22px;
   }
 }
 @media (max-height: 720px) {
   #modeSelectOverlay .welcome-badminton-mark {
-    font-size: 46px;
+    font-size: 2.875rem;
   }
   #modeSelectOverlay .welcome-domain {
-    font-size: 16px;
+    font-size: 1rem;
     line-height: 19px;
   }
 }
@@ -20725,25 +20713,27 @@ body.app-dark .auth-btn-google {
   border-color: #fff;
   color: #202124;
 }
-\n\n/* ==========================================================================\n   Build 356 — Welcome workspace rotational carousel\n   The selected workspace is always larger and physically centred.\n   ========================================================================== */\n#modeSelectOverlay .welcome-workspaces {\n  position: relative !important;\n  display: flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  gap: 8px !important;\n  width: calc(100% + 10px) !important;\n  min-height: 286px !important;\n  margin: 2px -5px 0 !important;\n  padding: 10px 0 12px !important;\n  overflow: hidden !important;\n  touch-action: pan-y !important;\n}\n#modeSelectOverlay .welcome-workspace,\n#modeSelectOverlay .welcome-workspace.active,\n#modeSelectOverlay .welcome-workspace[aria-checked="true"] {\n  flex: 0 0 24% !important;\n  width: 24% !important;\n  min-width: 0 !important;\n  min-height: 214px !important;\n  height: 214px !important;\n  padding: 23px 3px 15px !important;\n  border-radius: 21px !important;\n  transform: scale(.92) !important;\n  opacity: .82 !important;\n  z-index: 1 !important;\n  transition: width .28s ease, flex-basis .28s ease, height .28s ease, transform .28s ease, opacity .22s ease, box-shadow .28s ease, background .28s ease !important;\n}\n#modeSelectOverlay .welcome-workspace.carousel-centre,\n#modeSelectOverlay .welcome-workspace.active,\n#modeSelectOverlay .welcome-workspace[aria-checked="true"] {\n  flex-basis: 44% !important;\n  width: 44% !important;\n  min-height: 264px !important;\n  height: 264px !important;\n  padding: 30px 7px 20px !important;\n  transform: scale(1) !important;\n  opacity: 1 !important;\n  z-index: 3 !important;\n  box-shadow: 0 16px 32px rgba(89,52,190,.22), inset 0 1px 0 rgba(255,255,255,.40) !important;\n}\n#modeSelectOverlay .welcome-workspace.carousel-left { transform-origin: right center !important; }\n#modeSelectOverlay .welcome-workspace.carousel-right { transform-origin: left center !important; }\n#modeSelectOverlay .welcome-workspace:not(.active) .welcome-tile-logout { transform: scale(.88); }\n#modeSelectOverlay .welcome-workspace .welcome-workspace-icon {\n  width: 58px !important; height: 58px !important;\n  transition: width .28s ease, height .28s ease, color .28s ease !important;\n}\n#modeSelectOverlay .welcome-workspace.active .welcome-workspace-icon { width: 78px !important; height: 78px !important; }\n#modeSelectOverlay .welcome-workspace .welcome-workspace-label {\n  font-size: 15px !important; line-height: 18px !important; white-space: normal !important;\n}\n#modeSelectOverlay .welcome-workspace.active .welcome-workspace-label { font-size: 21px !important; line-height: 25px !important; }\n#modeSelectOverlay .welcome-workspace .welcome-workspace-club { font-size: 12px !important; line-height: 15px !important; }\n#modeSelectOverlay .welcome-workspace.active .welcome-workspace-club { font-size: 15px !important; line-height: 18px !important; }\n#modeSelectOverlay \nbody.app-dark #modeSelectOverlay .welcome-carousel-dot { background: rgba(255,255,255,.25); }\nbody.app-dark #modeSelectOverlay .welcome-carousel-dot.active { background: #a888ff; }\n@media (max-width: 390px) {\n  #modeSelectOverlay .welcome-workspaces { min-height: 258px !important; gap: 5px !important; }\n  #modeSelectOverlay .welcome-workspace,\n  #modeSelectOverlay .welcome-workspace.active,\n  #modeSelectOverlay .welcome-workspace[aria-checked="true"] {\n    flex-basis: 23.5% !important; width: 23.5% !important; min-height: 190px !important; height: 190px !important;\n  }\n  #modeSelectOverlay .welcome-workspace.carousel-centre,\n  #modeSelectOverlay .welcome-workspace.active,\n  #modeSelectOverlay .welcome-workspace[aria-checked="true"] {\n    flex-basis: 46% !important; width: 46% !important; min-height: 240px !important; height: 240px !important;\n  }\n  #modeSelectOverlay .welcome-workspace .welcome-workspace-icon { width: 50px !important; height: 50px !important; }\n  #modeSelectOverlay .welcome-workspace.active .welcome-workspace-icon { width: 70px !important; height: 70px !important; }\n  #modeSelectOverlay .welcome-workspace .welcome-workspace-label { font-size: 13px !important; line-height: 16px !important; }\n  #modeSelectOverlay .welcome-workspace.active .welcome-workspace-label { font-size: 19px !important; line-height: 22px !important; }\n}\n@media (prefers-reduced-motion: reduce) {\n  #modeSelectOverlay .welcome-workspace, #modeSelectOverlay .welcome-carousel-dot { transition: none !important; }\n}\n
+\n\n/* ==========================================================================\n   Build 356 — Welcome workspace rotational carousel\n   The selected workspace is always larger and physically centred.\n   ========================================================================== */\n#modeSelectOverlay .welcome-workspaces {\n  position: relative !important;\n  display: flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  gap: 8px !important;\n  width: calc(100% + 10px) !important;\n  min-height: 286px !important;\n  margin: 2px -5px 0 !important;\n  padding: 10px 0 12px !important;\n  overflow: hidden !important;\n  touch-action: pan-y !important;\n}\n#modeSelectOverlay .welcome-workspace,\n#modeSelectOverlay .welcome-workspace.active,\n#modeSelectOverlay .welcome-workspace[aria-checked="true"] {\n  flex: 0 0 24% !important;\n  width: 24% !important;\n  min-width: 0 !important;\n  min-height: 214px !important;\n  height: 214px !important;\n  padding: 23px 3px 15px !important;\n  border-radius: 21px !important;\n  transform: scale(.92) !important;\n  opacity: .82 !important;\n  z-index: 1 !important;\n  transition: width .28s ease, flex-basis .28s ease, height .28s ease, transform .28s ease, opacity .22s ease, box-shadow .28s ease, background .28s ease !important;\n}\n#modeSelectOverlay .welcome-workspace.carousel-centre,\n#modeSelectOverlay .welcome-workspace.active,\n#modeSelectOverlay .welcome-workspace[aria-checked="true"] {\n  flex-basis: 44% !important;\n  width: 44% !important;\n  min-height: 264px !important;\n  height: 264px !important;\n  padding: 30px 7px 20px !important;\n  transform: scale(1) !important;\n  opacity: 1 !important;\n  z-index: 3 !important;\n  box-shadow: 0 16px 32px rgba(89,52,190,.22), inset 0 1px 0 rgba(255,255,255,.40) !important;\n}\n#modeSelectOverlay .welcome-workspace.carousel-left { transform-origin: right center !important; }\n#modeSelectOverlay .welcome-workspace.carousel-right { transform-origin: left center !important; }\n#modeSelectOverlay .welcome-workspace:not(.active) .welcome-tile-logout { transform: scale(.88); }\n#modeSelectOverlay .welcome-workspace .welcome-workspace-icon {\n  width: 58px !important; height: 58px !important;\n  transition: width .28s ease, height .28s ease, color .28s ease !important;\n}\n#modeSelectOverlay .welcome-workspace.active .welcome-workspace-icon { width: 78px !important; height: 78px !important; }\n#modeSelectOverlay .welcome-workspace .welcome-workspace-label {\n  font-size: .9375rem !important; line-height: 18px !important; white-space: normal !important;\n}\n#modeSelectOverlay .welcome-workspace.active .welcome-workspace-label { font-size: 1.3125rem !important; line-height: 25px !important; }\n#modeSelectOverlay .welcome-workspace .welcome-workspace-club { font-size: .75rem !important; line-height: 15px !important; }\n#modeSelectOverlay .welcome-workspace.active .welcome-workspace-club { font-size: .9375rem !important; line-height: 18px !important; }\n#modeSelectOverlay \nbody.app-dark #modeSelectOverlay .welcome-carousel-dot { background: rgba(255,255,255,.25); }\nbody.app-dark #modeSelectOverlay .welcome-carousel-dot.active { background: #a888ff; }\n@media (max-width: 390px) {\n  #modeSelectOverlay .welcome-workspaces { min-height: 258px !important; gap: 5px !important; }\n  #modeSelectOverlay .welcome-workspace,\n  #modeSelectOverlay .welcome-workspace.active,\n  #modeSelectOverlay .welcome-workspace[aria-checked="true"] {\n    flex-basis: 23.5% !important; width: 23.5% !important; min-height: 190px !important; height: 190px !important;\n  }\n  #modeSelectOverlay .welcome-workspace.carousel-centre,\n  #modeSelectOverlay .welcome-workspace.active,\n  #modeSelectOverlay .welcome-workspace[aria-checked="true"] {\n    flex-basis: 46% !important; width: 46% !important; min-height: 240px !important; height: 240px !important;\n  }\n  #modeSelectOverlay .welcome-workspace .welcome-workspace-icon { width: 50px !important; height: 50px !important; }\n  #modeSelectOverlay .welcome-workspace.active .welcome-workspace-icon { width: 70px !important; height: 70px !important; }\n  #modeSelectOverlay .welcome-workspace .welcome-workspace-label { font-size: .8125rem !important; line-height: 16px !important; }\n  #modeSelectOverlay .welcome-workspace.active .welcome-workspace-label { font-size: 1.1875rem !important; line-height: 22px !important; }\n}\n@media (prefers-reduced-motion: reduce) {\n  #modeSelectOverlay .welcome-workspace, #modeSelectOverlay .welcome-carousel-dot { transition: none !important; }\n}\n
 /* Build 358 — independent Guided Functions helper. */
 .scs-guide-overlay{position:fixed;inset:0;z-index:12050;background:var(--bg,#f5f6fb);display:flex;align-items:stretch;justify-content:center;color:var(--text,#171827)}
 .scs-guide-overlay[hidden]{display:none!important}
 .scs-guide-page{width:min(100%,520px);min-height:100%;padding:calc(env(safe-area-inset-top,0px) + 10px) 20px calc(env(safe-area-inset-bottom,0px) + 22px);display:flex;flex-direction:column;background:linear-gradient(180deg,rgba(139,110,255,.10),transparent 33%),var(--bg,#f5f6fb);overflow:auto}
 .scs-guide-header{display:flex;align-items:center;justify-content:space-between;min-height:44px}
-.scs-guide-back,.scs-guide-skip{border:0;background:transparent;color:var(--text,#171827);font-weight:750}.scs-guide-back{font-size:35px;line-height:1}.scs-guide-skip{font-size:14px;color:var(--guide-accent,#6c55ed)}
-.scs-guide-hero{text-align:center;padding:8px 8px 18px}.scs-guide-role-icon{width:66px;height:66px;border-radius:22px;margin:0 auto 12px;display:grid;place-items:center;font-size:31px;background:color-mix(in srgb,var(--guide-accent,#6c55ed) 14%,var(--surface,#fff));box-shadow:0 10px 28px color-mix(in srgb,var(--guide-accent,#6c55ed) 20%,transparent)}
-.scs-guide-kicker{font-size:11px;letter-spacing:.12em;font-weight:900;color:var(--guide-accent,#6c55ed)}.scs-guide-hero h2{margin:7px 0 7px;font-size:28px;line-height:1.12}.scs-guide-hero p{margin:0;color:var(--muted,#74778b);font-size:14px;line-height:1.5}
+.scs-guide-back,.scs-guide-skip{border:0;background:transparent;color:var(--text,#171827);font-weight:750}.scs-guide-back{font-size:2.1875rem;line-height:1}.scs-guide-skip{font-size:.875rem;color:var(--guide-accent,#6c55ed)}
+.scs-guide-hero{text-align:center;padding:8px 8px 18px}.scs-guide-role-icon{width:66px;height:66px;border-radius:22px;margin:0 auto 12px;display:grid;place-items:center;font-size:1.9375rem;background:color-mix(in srgb,var(--guide-accent,#6c55ed) 14%,var(--surface,#fff));box-shadow:0 10px 28px color-mix(in srgb,var(--guide-accent,#6c55ed) 20%,transparent)}
+.scs-guide-kicker{font-size:.6875rem;letter-spacing:.12em;font-weight:900;color:var(--guide-accent,#6c55ed)}.scs-guide-hero h2{margin:7px 0 7px;font-size:1.75rem;line-height:1.12}.scs-guide-hero p{margin:0;color:var(--muted,#74778b);font-size:.875rem;line-height:1.5}
 .scs-guide-progress{height:5px;border-radius:99px;background:color-mix(in srgb,var(--guide-accent,#6c55ed) 12%,var(--surface2,#e9eaf1));overflow:hidden;margin:0 4px 18px}.scs-guide-progress span{display:block;height:100%;width:0;background:var(--guide-accent,#6c55ed);border-radius:inherit;transition:width .25s ease}
-.scs-guide-steps{display:grid;gap:11px}.scs-guide-step{display:grid;grid-template-columns:42px 1fr 28px;align-items:center;gap:11px;padding:15px 14px;border-radius:18px;background:var(--surface,#fff);border:1px solid var(--border,#dedfea);box-shadow:0 5px 15px rgba(25,25,45,.055);text-align:left}.scs-guide-step.is-current{border-color:color-mix(in srgb,var(--guide-accent,#6c55ed) 55%,var(--border,#ddd));box-shadow:0 8px 22px color-mix(in srgb,var(--guide-accent,#6c55ed) 13%,transparent)}.scs-guide-step.is-done{opacity:.72}.scs-guide-step-num{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:900;color:#fff;background:var(--guide-accent,#6c55ed)}.scs-guide-step.is-done .scs-guide-step-num{background:#25a75b}.scs-guide-step-title{font-size:16px;font-weight:850;margin-bottom:3px}.scs-guide-step-desc{font-size:12px;line-height:1.38;color:var(--muted,#74778b)}.scs-guide-step-arrow{font-size:25px;color:var(--muted,#989aab)}
-.scs-guide-note{margin:17px 2px;padding:14px 15px;border-radius:16px;background:color-mix(in srgb,var(--guide-accent,#6c55ed) 9%,var(--surface,#fff));color:var(--text-dim,#5f6171);font-size:12.5px;line-height:1.5}.scs-guide-primary{margin-top:auto;min-height:58px;border:0;border-radius:18px;color:#fff;background:linear-gradient(135deg,var(--guide-accent,#6c55ed),color-mix(in srgb,var(--guide-accent,#6c55ed) 68%,#3217b6));font-size:17px;font-weight:900;box-shadow:0 12px 26px color-mix(in srgb,var(--guide-accent,#6c55ed) 28%,transparent)}.scs-guide-primary span{margin-left:10px;font-size:22px}
+.scs-guide-steps{display:grid;gap:11px}.scs-guide-step{display:grid;grid-template-columns:42px 1fr 28px;align-items:center;gap:11px;padding:15px 14px;border-radius:18px;background:var(--surface,#fff);border:1px solid var(--border,#dedfea);box-shadow:0 5px 15px rgba(25,25,45,.055);text-align:left}.scs-guide-step.is-current{border-color:color-mix(in srgb,var(--guide-accent,#6c55ed) 55%,var(--border,#ddd));box-shadow:0 8px 22px color-mix(in srgb,var(--guide-accent,#6c55ed) 13%,transparent)}.scs-guide-step.is-done{opacity:.72}.scs-guide-step-num{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:900;color:#fff;background:var(--guide-accent,#6c55ed)}.scs-guide-step.is-done .scs-guide-step-num{background:#25a75b}.scs-guide-step-title{font-size:1rem;font-weight:850;margin-bottom:3px}.scs-guide-step-desc{font-size:.75rem;line-height:1.38;color:var(--muted,#74778b)}.scs-guide-step-arrow{font-size:1.5625rem;color:var(--muted,#989aab)}
+.scs-guide-note{margin:17px 2px;padding:14px 15px;border-radius:16px;background:color-mix(in srgb,var(--guide-accent,#6c55ed) 9%,var(--surface,#fff));color:var(--text-dim,#5f6171);font-size:.78125rem;line-height:1.5}.scs-guide-primary{margin-top:auto;min-height:58px;border:0;border-radius:18px;color:#fff;background:linear-gradient(135deg,var(--guide-accent,#6c55ed),color-mix(in srgb,var(--guide-accent,#6c55ed) 68%,#3217b6));font-size:1.0625rem;font-weight:900;box-shadow:0 12px 26px color-mix(in srgb,var(--guide-accent,#6c55ed) 28%,transparent)}.scs-guide-primary span{margin-left:10px;font-size:1.375rem}
 body.app-light .scs-guide-page{--surface:#fff;--text:#171827;--muted:#75788b;--border:#e0e1e9}body:not(.app-light) .scs-guide-page{background:linear-gradient(180deg,rgba(115,80,255,.16),transparent 34%),var(--bg,#11121a)}
 /* Build 358 — guided Player gender prompt */
 .scs-guide-gender-modal{position:fixed;inset:0;z-index:2147483647;background:rgba(10,12,22,.64);display:flex;align-items:center;justify-content:center;padding:22px;backdrop-filter:blur(7px)}
 .scs-guide-gender-card{position:relative;width:min(360px,100%);box-sizing:border-box;padding:25px 20px 20px;border-radius:24px;background:var(--surface,#fff);color:var(--text,#141522);border:1px solid var(--border,#e4e6ef);box-shadow:0 24px 70px rgba(0,0,0,.25);text-align:center}
-.scs-guide-gender-close{position:absolute;right:13px;top:11px;border:0;background:transparent;color:var(--muted,#777);font-size:28px;line-height:1;cursor:pointer}
-.scs-guide-gender-icon{font-size:38px;margin-bottom:7px}.scs-guide-gender-card h3{margin:0 0 7px;font-size:1.25rem}.scs-guide-gender-card p{margin:0 0 18px;color:var(--muted,#707384);font-size:.88rem}
+.scs-guide-gender-close{position:absolute;right:13px;top:11px;border:0;background:transparent;color:var(--muted,#777);font-size:1.75rem;line-height:1;cursor:pointer}
+.scs-guide-gender-icon{font-size:2.375rem;margin-bottom:7px}.scs-guide-gender-card h3{margin:0 0 7px;font-size:1.25rem}.scs-guide-gender-card p{margin:0 0 18px;color:var(--muted,#707384);font-size:.88rem}
 .scs-guide-gender-actions{display:grid;grid-template-columns:1fr 1fr;gap:11px}.scs-guide-gender-actions button{border:1px solid color-mix(in srgb,var(--accent,#7766ff) 38%,var(--border,#ddd));border-radius:15px;padding:15px 8px;background:color-mix(in srgb,var(--accent,#7766ff) 8%,var(--surface,#fff));color:var(--text,#151624);font:inherit;font-weight:800;cursor:pointer}
+.scs-guide-gender-actions button.is-selected{border-color:var(--accent,#7766ff);background:color-mix(in srgb,var(--accent,#7766ff) 28%,var(--surface,#fff));box-shadow:0 0 0 2px color-mix(in srgb,var(--accent,#7766ff) 38%,transparent),0 8px 20px color-mix(in srgb,var(--accent,#7766ff) 20%,transparent)}
+.scs-guide-gender-actions button.is-selected::after{content:' \2713';font-weight:900}
 
 /* ==========================================================================
    Build 381 — Welcome page restored from the latest stable appearance
@@ -20931,12 +20921,12 @@ body.app-light #homeMoreSectionV .viewer-action-count-badge { border-color: #fff
 }
 #modeSelectOverlay .welcome-workspace .welcome-workspace-label,
 #modeSelectOverlay .welcome-workspace.active .welcome-workspace-label {
-  font-size: 15px !important;
+  font-size: .9375rem !important;
   line-height: 18px !important;
 }
 #modeSelectOverlay .welcome-workspace .welcome-workspace-club,
 #modeSelectOverlay .welcome-workspace.active .welcome-workspace-club {
-  font-size: 12px !important;
+  font-size: .75rem !important;
   line-height: 15px !important;
 }
 @media (max-width: 390px) {
@@ -21006,101 +20996,6 @@ body.light-mode .scs-startup-splash {
   .scs-startup-splash { transition-duration: 120ms; }
 }
 
-/* Build 396 — organiser guided flow: strong visible blinking on iOS/PWA. */
-@keyframes scsGuidePulse {
-  0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(124,92,255,0); }
-  50% { transform: scale(1.10); opacity: .55; box-shadow: 0 0 0 9px rgba(124,92,255,.30), 0 0 30px rgba(124,92,255,.85); }
-}
-@keyframes scsGuideCardPulse {
-  0%, 100% { transform: scale(1); opacity: 1; border-color: var(--border2); box-shadow: 0 2px 14px rgba(0,0,0,.18); }
-  50% { transform: scale(.985); opacity: .58; border-color: var(--accent); box-shadow: 0 0 0 4px rgba(124,92,255,.34), 0 0 34px rgba(124,92,255,.72); }
-}
-.stepper-step.guide-blink-step .stepper-dot {
-  animation: scsGuidePulse .9s ease-in-out infinite !important;
-  will-change: transform, opacity, box-shadow;
-}
-#organiserCourtsCard.guide-blink-card,
-.org-launch-card.guide-blink-mode {
-  animation: scsGuideCardPulse 1s ease-in-out infinite !important;
-  will-change: transform, opacity, box-shadow;
-}
-}
-
-/* Build 397 — teach the organiser flow through the permanent bottom bar. */
-@keyframes scsOrganiserNavGuidePulse {
-  0%, 100% {
-    transform: translateY(0) scale(1);
-    box-shadow: 0 0 0 2px rgba(124,92,255,.82), 0 0 0 7px rgba(124,92,255,.16);
-  }
-  50% {
-    transform: translateY(-3px) scale(1.035);
-    box-shadow: 0 0 0 3px #8b6cff, 0 0 0 12px rgba(124,92,255,.22), 0 0 28px rgba(124,92,255,.72);
-  }
-}
-
-#homeMoreSectionOrg .organiser-nav-coach {
-  position: absolute;
-  bottom: calc(100% + 8px);
-  width: min(292px, calc(100vw - 48px));
-  box-sizing: border-box;
-  padding: 16px 17px 15px;
-  border: 1px solid rgba(124,92,255,.40);
-  border-radius: 18px;
-  background: #fff;
-  color: #171a2b;
-  box-shadow: 0 18px 48px rgba(8,10,22,.30), 0 0 0 1px rgba(255,255,255,.45) inset;
-  pointer-events: none;
-  z-index: 5;
-}
-#homeMoreSectionOrg .organiser-nav-coach[hidden] { display: none !important; }
-#homeMoreSectionOrg .organiser-nav-coach.is-first { left: 0; }
-#homeMoreSectionOrg .organiser-nav-coach.is-second { left: min(25%, 170px); }
-#homeMoreSectionOrg .organiser-nav-coach::after {
-  content: "";
-  position: absolute;
-  bottom: -10px;
-  width: 18px;
-  height: 18px;
-  background: inherit;
-  border-right: 1px solid rgba(124,92,255,.40);
-  border-bottom: 1px solid rgba(124,92,255,.40);
-  transform: rotate(45deg);
-}
-#homeMoreSectionOrg .organiser-nav-coach.is-first::after { left: calc(12.5% - 9px); }
-#homeMoreSectionOrg .organiser-nav-coach.is-second::after { left: calc(37.5% - 9px); }
-#homeMoreSectionOrg .organiser-nav-coach strong,
-#homeMoreSectionOrg .organiser-nav-coach span,
-#homeMoreSectionOrg .organiser-nav-coach small {
-  display: block;
-}
-#homeMoreSectionOrg .organiser-nav-coach strong {
-  margin-bottom: 6px;
-  font-size: .98rem;
-  line-height: 1.2;
-  font-weight: 900;
-}
-#homeMoreSectionOrg .organiser-nav-coach span {
-  color: #555a70;
-  font-size: .80rem;
-  line-height: 1.42;
-  font-weight: 650;
-}
-#homeMoreSectionOrg .organiser-nav-coach small {
-  margin-top: 9px;
-  color: #7657f5;
-  font-size: .73rem;
-  font-weight: 900;
-}
-#homeMoreSectionOrg .organiser-action-bar.organiser-guide-active .organiser-action-btn:not(.organiser-guide-target) {
-  opacity: .40;
-  filter: saturate(.55);
-}
-#homeMoreSectionOrg .organiser-action-btn.organiser-guide-target {
-  z-index: 3;
-  overflow: visible;
-  background: color-mix(in srgb, var(--accent,#7c5cff) 9%, transparent);
-  animation: scsOrganiserNavGuidePulse 1.15s ease-in-out infinite;
-}
 #homeMoreSectionOrg .organiser-action-btn.organiser-step-disabled {
   opacity: .34;
   filter: grayscale(.45) saturate(.45);
@@ -21132,29 +21027,6 @@ body.light-mode .scs-startup-splash {
   opacity: .38;
   cursor: not-allowed;
 }
-body:not(.app-light) #homeMoreSectionOrg .organiser-nav-coach {
-  background: #202331;
-  color: #f7f7ff;
-  border-color: rgba(155,128,255,.55);
-  box-shadow: 0 20px 52px rgba(0,0,0,.55);
-}
-body:not(.app-light) #homeMoreSectionOrg .organiser-nav-coach span { color: #c7c7d6; }
-body:not(.app-light) #homeMoreSectionOrg .organiser-nav-coach small { color: #a88fff; }
-
-@media (max-width: 420px) {
-  #homeMoreSectionOrg .organiser-nav-coach {
-    width: min(270px, calc(100vw - 40px));
-    padding: 14px 15px;
-  }
-  #homeMoreSectionOrg .organiser-nav-coach.is-second { left: 8%; }
-}
-@media (prefers-reduced-motion: reduce) {
-  #homeMoreSectionOrg .organiser-action-btn.organiser-guide-target {
-    animation: none;
-    box-shadow: 0 0 0 3px #8b6cff, 0 0 0 9px rgba(124,92,255,.22);
-  }
-}
-
 /* =========================================================
    BUILD 415 — LANDSCAPE USABILITY
    Keep the portrait layout unchanged, but allow every entry
@@ -21321,7 +21193,7 @@ body.scs-guide-open {
   background: rgba(126, 77, 240, .16) !important;
   color: #c5a8ff !important;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.08) !important;
-  font-size: 14px !important;
+  font-size: .875rem !important;
   line-height: 1 !important;
   font-weight: 800 !important;
   white-space: nowrap !important;
@@ -21349,7 +21221,7 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
     min-width: 82px !important;
     height: 39px !important;
     padding: 0 11px !important;
-    font-size: 13px !important;
+    font-size: .8125rem !important;
   }
 }
 
@@ -21360,7 +21232,7 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
     min-width: 76px !important;
     height: 34px !important;
     padding: 0 10px !important;
-    font-size: 12px !important;
+    font-size: .75rem !important;
   }
 }
 
@@ -21489,12 +21361,12 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
 }
 #modeSelectOverlay .welcome-workspace.active .welcome-workspace-label,
 #modeSelectOverlay .welcome-workspace[aria-checked="true"] .welcome-workspace-label {
-  font-size: 25px !important;
+  font-size: 1.5625rem !important;
   line-height: 30px !important;
 }
 #modeSelectOverlay .welcome-workspace.active .welcome-workspace-club,
 #modeSelectOverlay .welcome-workspace[aria-checked="true"] .welcome-workspace-club {
-  font-size: 16px !important;
+  font-size: 1rem !important;
   line-height: 20px !important;
 }
 #modeSelectOverlay .welcome-carousel-arrow {
@@ -21571,7 +21443,7 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
     width: 40px;
     height: 40px;
     margin-top: -20px;
-    font-size: 32px;
+    font-size: 2rem;
     line-height: 35px;
   }
 }
@@ -21596,7 +21468,7 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
   }
   #modeSelectOverlay .welcome-workspace.active .welcome-workspace-label,
   #modeSelectOverlay .welcome-workspace[aria-checked="true"] .welcome-workspace-label {
-    font-size: 20px !important;
+    font-size: 1.25rem !important;
     line-height: 23px !important;
   }
   #modeSelectOverlay .welcome-carousel-dots { margin-top: 0; }
@@ -21649,13 +21521,13 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
   border:1px solid #9c62ff;
   color:#b28cff;
   background:#17152b;
-  font-size:21px;
+  font-size:1.3125rem;
 }
 #modeSelectOverlay .welcome-player-copy { display:flex; flex-direction:column; align-items:flex-start; text-align:left; gap:7px; }
-#modeSelectOverlay .welcome-player-kicker { color:#b67cff; font-size:21px; font-weight:750; line-height:1.1; }
+#modeSelectOverlay .welcome-player-kicker { color:#b67cff; font-size:1.3125rem; font-weight:750; line-height:1.1; }
 #modeSelectOverlay .welcome-workspace.viewer .welcome-workspace-label {
   color:#fff !important;
-  font-size:33px !important;
+  font-size:2.0625rem !important;
   line-height:1.1 !important;
   font-weight:800 !important;
 }
@@ -21666,13 +21538,13 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
   border-radius:18px;
   color:#b98bff;
   background:rgba(143,91,255,.15);
-  font-size:17px;
+  font-size:1.0625rem;
   font-weight:750;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
-#modeSelectOverlay .welcome-player-description { color:#c2bdd5; font-size:17px; line-height:1.45; }
+#modeSelectOverlay .welcome-player-description { color:#c2bdd5; font-size:1.0625rem; line-height:1.45; }
 #modeSelectOverlay .welcome-player-stats {
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -21694,9 +21566,9 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
   min-width:0;
 }
 #modeSelectOverlay .welcome-player-stat + .welcome-player-stat { border-left:1px solid rgba(180,170,220,.16); }
-#modeSelectOverlay .welcome-player-stat-icon { color:#9d6bff; font-size:22px; line-height:1; }
-#modeSelectOverlay .welcome-player-stat strong { color:#7758ff; font-size:43px; line-height:1; font-weight:800; }
-#modeSelectOverlay .welcome-player-stat small { color:#aaa5c5; font-size:14px; line-height:1.2; text-transform:uppercase; letter-spacing:.02em; }
+#modeSelectOverlay .welcome-player-stat-icon { color:#9d6bff; font-size:1.375rem; line-height:1; }
+#modeSelectOverlay .welcome-player-stat strong { color:#7758ff; font-size:2.6875rem; line-height:1; font-weight:800; }
+#modeSelectOverlay .welcome-player-stat small { color:#aaa5c5; font-size:.875rem; line-height:1.2; text-transform:uppercase; letter-spacing:.02em; }
 #modeSelectOverlay .welcome-workspace.viewer .welcome-tile-logout { top:18px !important; right:18px !important; }
 
 @media (max-width: 430px) {
@@ -21708,13 +21580,13 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
   }
   #modeSelectOverlay .welcome-player-profile { grid-template-columns:132px minmax(0,1fr); gap:18px; min-height:202px; }
   #modeSelectOverlay .welcome-player-photo-wrap { width:132px; height:132px; }
-  #modeSelectOverlay .welcome-player-kicker { font-size:18px; }
-  #modeSelectOverlay .welcome-workspace.viewer .welcome-workspace-label { font-size:28px !important; }
-  #modeSelectOverlay .welcome-player-name { font-size:15px; padding:5px 12px; }
-  #modeSelectOverlay .welcome-player-description { font-size:15px; }
+  #modeSelectOverlay .welcome-player-kicker { font-size:1.125rem; }
+  #modeSelectOverlay .welcome-workspace.viewer .welcome-workspace-label { font-size:1.75rem !important; }
+  #modeSelectOverlay .welcome-player-name { font-size:.9375rem; padding:5px 12px; }
+  #modeSelectOverlay .welcome-player-description { font-size:.9375rem; }
   #modeSelectOverlay .welcome-player-stats { min-height:128px; margin-top:8px; }
-  #modeSelectOverlay .welcome-player-stat strong { font-size:37px; }
-  #modeSelectOverlay .welcome-player-stat small { font-size:12px; }
+  #modeSelectOverlay .welcome-player-stat strong { font-size:2.3125rem; }
+  #modeSelectOverlay .welcome-player-stat small { font-size:.75rem; }
 }
 
 @media (orientation: landscape) and (max-height: 600px) {
@@ -21727,15 +21599,15 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
   }
   #modeSelectOverlay .welcome-player-profile { grid-template-columns:104px minmax(0,1fr); gap:16px; min-height:122px; }
   #modeSelectOverlay .welcome-player-photo-wrap { width:104px; height:104px; }
-  #modeSelectOverlay .welcome-player-edit { width:30px; height:30px; font-size:15px; }
-  #modeSelectOverlay .welcome-player-kicker { font-size:14px; }
-  #modeSelectOverlay .welcome-workspace.viewer .welcome-workspace-label { font-size:22px !important; }
-  #modeSelectOverlay .welcome-player-name { font-size:12px; padding:3px 9px; }
-  #modeSelectOverlay .welcome-player-description { font-size:12px; line-height:1.25; }
+  #modeSelectOverlay .welcome-player-edit { width:30px; height:30px; font-size:.9375rem; }
+  #modeSelectOverlay .welcome-player-kicker { font-size:.875rem; }
+  #modeSelectOverlay .welcome-workspace.viewer .welcome-workspace-label { font-size:1.375rem !important; }
+  #modeSelectOverlay .welcome-player-name { font-size:.75rem; padding:3px 9px; }
+  #modeSelectOverlay .welcome-player-description { font-size:.75rem; line-height:1.25; }
   #modeSelectOverlay .welcome-player-stats { min-height:92px; margin-top:6px; }
-  #modeSelectOverlay .welcome-player-stat-icon { font-size:15px; }
-  #modeSelectOverlay .welcome-player-stat strong { font-size:28px; }
-  #modeSelectOverlay .welcome-player-stat small { font-size:10px; }
+  #modeSelectOverlay .welcome-player-stat-icon { font-size:.9375rem; }
+  #modeSelectOverlay .welcome-player-stat strong { font-size:1.75rem; }
+  #modeSelectOverlay .welcome-player-stat small { font-size:.625rem; }
 }
 
 /* =========================================================
@@ -21748,7 +21620,7 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
   display:block !important;
   margin:18px auto 0 !important;
   color:#b8b4ce !important;
-  font-size:15px !important;
+  font-size:.9375rem !important;
   line-height:1.35 !important;
   text-align:center !important;
 }
@@ -21757,7 +21629,7 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
 }
 #modeSelectOverlay .welcome-next-actions span:nth-child(1) {
   display:inline !important;
-  font-size:15px !important;
+  font-size:.9375rem !important;
 }
 #modeSelectOverlay .welcome-next-actions span:nth-child(1)::after { content:none !important; }
 #modeSelectOverlay .welcome-next-actions span:nth-child(2),
@@ -21775,20 +21647,20 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
   #modeSelectOverlay .welcome-domain { margin-top:2px !important; }
   #modeSelectOverlay .welcome-title {
     margin-top:12px !important;
-    font-size:35px !important;
+    font-size:2.1875rem !important;
     line-height:1.08 !important;
   }
   #modeSelectOverlay .welcome-subtitle {
     display:block !important;
     max-width:360px !important;
     margin:10px auto 0 !important;
-    font-size:14px !important;
+    font-size:.875rem !important;
     line-height:1.45 !important;
     opacity:1 !important;
   }
   #modeSelectOverlay .welcome-section-title {
     margin:24px 0 12px !important;
-    font-size:12px !important;
+    font-size:.75rem !important;
     line-height:1 !important;
   }
   #modeSelectOverlay .welcome-workspaces {
@@ -21828,7 +21700,7 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
     height:40px !important;
     right:-2px !important;
     bottom:3px !important;
-    font-size:19px !important;
+    font-size:1.1875rem !important;
   }
   #modeSelectOverlay .welcome-player-copy { gap:9px !important; }
   #modeSelectOverlay .welcome-player-kicker {
@@ -21839,12 +21711,12 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
     content:'♙';
     display:block;
     color:#a86cff;
-    font-size:29px;
+    font-size:1.8125rem;
     line-height:24px;
   }
   #modeSelectOverlay .welcome-workspace.viewer .welcome-workspace-label {
     order:2;
-    font-size:30px !important;
+    font-size:1.875rem !important;
     line-height:1.05 !important;
     font-weight:800 !important;
   }
@@ -21858,7 +21730,7 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
     border-radius:0 !important;
     background:transparent !important;
     color:#fff !important;
-    font-size:18px !important;
+    font-size:1.125rem !important;
     font-weight:750 !important;
   }
   #modeSelectOverlay .welcome-workspace.viewer .welcome-workspace-label {
@@ -21880,7 +21752,7 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
     border-radius:20px;
     color:#b98bff;
     background:rgba(143,91,255,.20);
-    font-size:16px;
+    font-size:1rem;
     line-height:38px;
     font-weight:750;
     white-space:nowrap;
@@ -21890,13 +21762,13 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
     margin-top:10px !important;
     border-radius:18px !important;
   }
-  #modeSelectOverlay .welcome-player-stat-icon { font-size:22px !important; }
+  #modeSelectOverlay .welcome-player-stat-icon { font-size:1.375rem !important; }
   #modeSelectOverlay .welcome-player-stat strong {
-    font-size:39px !important;
+    font-size:2.4375rem !important;
     color:#8e5bff !important;
   }
   #modeSelectOverlay .welcome-player-stat small {
-    font-size:11px !important;
+    font-size:.6875rem !important;
     white-space:nowrap !important;
   }
   #modeSelectOverlay .welcome-workspace.viewer .welcome-tile-logout {
@@ -21910,7 +21782,7 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
   #modeSelectOverlay .welcome-carousel-arrow {
     width:48px !important;
     height:48px !important;
-    font-size:38px !important;
+    font-size:2.375rem !important;
   }
   #modeSelectOverlay .welcome-carousel-dots { margin-top:10px !important; }
   #modeSelectOverlay .welcome-next-steps { margin-top:14px !important; }
@@ -21920,7 +21792,7 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
     min-height:58px !important;
     margin:16px auto 0 !important;
     border-radius:17px !important;
-    font-size:21px !important;
+    font-size:1.3125rem !important;
   }
   #modeSelectOverlay .welcome-footer {
     display:grid !important;
@@ -21942,12 +21814,12 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
     border:0 !important;
     border-radius:0 !important;
     background:transparent !important;
-    font-size:16px !important;
+    font-size:1rem !important;
   }
   #modeSelectOverlay .welcome-utility + .welcome-utility {
     border-left:1px solid rgba(180,170,220,.20) !important;
   }
-  #modeSelectOverlay .welcome-utility-icon { font-size:25px !important; }
+  #modeSelectOverlay .welcome-utility-icon { font-size:1.5625rem !important; }
   #modeSelectOverlay .welcome-language { justify-content:center !important; }
 }
 
@@ -21997,16 +21869,16 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
     height: 34px !important;
     right: -1px !important;
     bottom: 2px !important;
-    font-size: 16px !important;
+    font-size: 1rem !important;
   }
   #modeSelectOverlay .welcome-player-copy { gap: 6px !important; }
   #modeSelectOverlay .welcome-player-kicker { height: 20px !important; }
   #modeSelectOverlay .welcome-player-kicker::before {
-    font-size: 24px !important;
+    font-size: 1.5rem !important;
     line-height: 20px !important;
   }
   #modeSelectOverlay .welcome-workspace.viewer .welcome-workspace-label {
-    font-size: 27px !important;
+    font-size: 1.6875rem !important;
     margin-bottom: 34px !important;
   }
   #modeSelectOverlay .welcome-workspace.viewer .welcome-workspace-label::before {
@@ -22014,10 +21886,10 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
     min-height: 32px !important;
     height: 32px !important;
     padding: 0 12px !important;
-    font-size: 14px !important;
+    font-size: .875rem !important;
     line-height: 32px !important;
   }
-  #modeSelectOverlay .welcome-player-name { font-size: 16px !important; }
+  #modeSelectOverlay .welcome-player-name { font-size: 1rem !important; }
   #modeSelectOverlay .welcome-player-stats {
     min-height: 104px !important;
     height: 104px !important;
@@ -22025,9 +21897,9 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
     border-radius: 17px !important;
   }
   #modeSelectOverlay .welcome-player-stat { gap: 2px !important; }
-  #modeSelectOverlay .welcome-player-stat-icon { font-size: 19px !important; }
-  #modeSelectOverlay .welcome-player-stat strong { font-size: 34px !important; }
-  #modeSelectOverlay .welcome-player-stat small { font-size: 10px !important; }
+  #modeSelectOverlay .welcome-player-stat-icon { font-size: 1.1875rem !important; }
+  #modeSelectOverlay .welcome-player-stat strong { font-size: 2.125rem !important; }
+  #modeSelectOverlay .welcome-player-stat small { font-size: .625rem !important; }
   #modeSelectOverlay .welcome-workspace.viewer .welcome-tile-logout {
     top: 13px !important;
     right: 13px !important;
@@ -22116,7 +21988,7 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
   padding: 9px 12px 13px;
   text-align: center;
   color: #d8cbff;
-  font-size: 14px;
+  font-size: .875rem;
   font-weight: 750;
   letter-spacing: .02em;
 }
@@ -22132,7 +22004,7 @@ body.app-light #modeSelectOverlay .welcome-tile-assist {
   background: transparent;
   color: #fff;
   font: inherit;
-  font-size: 17px;
+  font-size: 1.0625rem;
   text-align: left;
 }
 .welcome-photo-sheet-panel button:active { background: rgba(139,92,246,.14); }
@@ -22180,15 +22052,15 @@ body.welcome-photo-menu-open { overflow: hidden !important; }
   display:grid; place-items:center;
   width:34px; height:34px; border:1px solid #9a62ff;
   border-radius:50%; background:#17142f; color:#a979ff;
-  font-size:16px; cursor:pointer; z-index:3;
+  font-size:1rem; cursor:pointer; z-index:3;
 }
 #modeSelectOverlay .welcome-role-copy { display:flex; flex-direction:column; gap:10px; min-width:0; text-align:left; }
 #modeSelectOverlay .welcome-role-copy .welcome-workspace-label {
   display:block !important; margin:0 !important; color:#fff !important;
-  font-size:25px !important; line-height:1.08 !important; font-weight:800 !important;
+  font-size:1.5625rem !important; line-height:1.08 !important; font-weight:800 !important;
   white-space:normal !important;
 }
-#modeSelectOverlay .welcome-role-name { color:#fff; font-size:16px; font-weight:750; }
+#modeSelectOverlay .welcome-role-name { color:#fff; font-size:1rem; font-weight:750; }
 #modeSelectOverlay .welcome-next-slot-card,
 #modeSelectOverlay .welcome-role-stats {
   align-self:end; min-height:104px; height:104px;
@@ -22199,15 +22071,15 @@ body.welcome-photo-menu-open { overflow: hidden !important; }
   display:flex; flex-direction:column; justify-content:center; align-items:flex-start;
   padding:14px 20px; text-align:left;
 }
-#modeSelectOverlay .welcome-next-slot-label { color:#9b68ff; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; }
-#modeSelectOverlay .welcome-next-slot-card strong { margin-top:5px; color:#fff; font-size:18px; line-height:1.15; }
-#modeSelectOverlay .welcome-next-slot-card small { margin-top:7px; color:#bbb6d2; font-size:11px; line-height:1.25; }
+#modeSelectOverlay .welcome-next-slot-label { color:#9b68ff; font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; }
+#modeSelectOverlay .welcome-next-slot-card strong { margin-top:5px; color:#fff; font-size:1.125rem; line-height:1.15; }
+#modeSelectOverlay .welcome-next-slot-card small { margin-top:7px; color:#bbb6d2; font-size:.6875rem; line-height:1.25; }
 #modeSelectOverlay .welcome-role-stats { display:grid; grid-template-columns:1fr 1fr; }
 #modeSelectOverlay .welcome-role-stat { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; }
 #modeSelectOverlay .welcome-role-stat + .welcome-role-stat { border-left:1px solid rgba(174,151,235,.16); }
-#modeSelectOverlay .welcome-role-stat-icon { color:#9560ff; font-size:19px; }
-#modeSelectOverlay .welcome-role-stat strong { color:#8e5bff; font-size:34px; line-height:1; }
-#modeSelectOverlay .welcome-role-stat small { color:#c2bdd4; font-size:10px; text-transform:uppercase; white-space:nowrap; }
+#modeSelectOverlay .welcome-role-stat-icon { color:#9560ff; font-size:1.1875rem; }
+#modeSelectOverlay .welcome-role-stat strong { color:#8e5bff; font-size:2.125rem; line-height:1; }
+#modeSelectOverlay .welcome-role-stat small { color:#c2bdd4; font-size:.625rem; text-transform:uppercase; white-space:nowrap; }
 #modeSelectOverlay .welcome-workspace.organiser.active,
 #modeSelectOverlay .welcome-workspace.organiser[aria-checked="true"],
 #modeSelectOverlay .welcome-workspace.vault.active,
@@ -22269,12 +22141,12 @@ body.welcome-photo-menu-open { overflow: hidden !important; }
 
   #modeSelectOverlay .welcome-player-stat strong,
   #modeSelectOverlay .welcome-role-stat strong {
-    font-size: 31px !important;
+    font-size: 1.9375rem !important;
   }
 
   #modeSelectOverlay .welcome-workspace.viewer .welcome-workspace-label,
   #modeSelectOverlay .welcome-role-copy .welcome-workspace-label {
-    font-size: 25px !important;
+    font-size: 1.5625rem !important;
   }
 
   #modeSelectOverlay .welcome-carousel-dots {
@@ -22502,20 +22374,20 @@ body.welcome-photo-menu-open { overflow: hidden !important; }
   #modeSelectOverlay .welcome-badminton-mark {
     margin-top: 0 !important;
     margin-bottom: 2px !important;
-    font-size: 31px !important;
+    font-size: 1.9375rem !important;
   }
   #modeSelectOverlay .welcome-domain {
-    font-size: 11px !important;
+    font-size: .6875rem !important;
     line-height: 14px !important;
   }
   #modeSelectOverlay .welcome-title {
     margin-top: 7px !important;
-    font-size: 32px !important;
+    font-size: 2rem !important;
     line-height: 35px !important;
   }
   #modeSelectOverlay .welcome-subtitle {
     margin-top: 6px !important;
-    font-size: 13px !important;
+    font-size: .8125rem !important;
     line-height: 18px !important;
   }
   #modeSelectOverlay .welcome-section-title {
@@ -22566,7 +22438,7 @@ body.welcome-photo-menu-open { overflow: hidden !important; }
   #modeSelectOverlay .welcome-utility-icon {
     width: 28px !important;
     height: 28px !important;
-    font-size: 22px !important;
+    font-size: 1.375rem !important;
   }
 }
 
@@ -22602,12 +22474,12 @@ body.app-light #modeSelectOverlay .welcome-footer .welcome-language .ml-lang-cur
 
 /* Build 442 — Guided Functions uses the same single close control as other app pages. */
 .scs-guide-header{justify-content:flex-end!important;min-height:48px!important}
-.scs-guide-close{width:42px;height:42px;border:1px solid var(--border,#dedfea);border-radius:14px;background:var(--surface,#fff);color:var(--text,#171827);display:grid;place-items:center;font-size:21px;font-weight:800;line-height:1;box-shadow:0 5px 15px rgba(25,25,45,.08)}
+.scs-guide-close{width:42px;height:42px;border:1px solid var(--border,#dedfea);border-radius:14px;background:var(--surface,#fff);color:var(--text,#171827);display:grid;place-items:center;font-size:1.3125rem;font-weight:800;line-height:1;box-shadow:0 5px 15px rgba(25,25,45,.08)}
 body.app-dark .scs-guide-close{background:#181820;color:#fff;border-color:rgba(255,255,255,.12)}
 
 
 /* Build 443 — Always-visible close controls for all Assist-linked popup pages. */
-.scs-popup-close-btn, .scs-guide-gender-close, .scs-nickname-editor-close {position:absolute;top:12px;right:12px;width:40px;height:40px;padding:0;border-radius:14px;border:1.5px solid rgba(255,93,115,.9)!important;background:rgba(89,22,36,.92)!important;color:#fff!important;display:grid!important;place-items:center;font-size:20px!important;font-weight:850;line-height:1;cursor:pointer;z-index:8;opacity:1!important;visibility:visible!important;box-shadow:0 5px 16px rgba(0,0,0,.24);-webkit-appearance:none;appearance:none}
+.scs-popup-close-btn, .scs-guide-gender-close, .scs-nickname-editor-close {position:absolute;top:12px;right:12px;width:40px;height:40px;padding:0;border-radius:14px;border:1.5px solid rgba(255,93,115,.9)!important;background:rgba(89,22,36,.92)!important;color:#fff!important;display:grid!important;place-items:center;font-size:1.25rem!important;font-weight:850;line-height:1;cursor:pointer;z-index:8;opacity:1!important;visibility:visible!important;box-shadow:0 5px 16px rgba(0,0,0,.24);-webkit-appearance:none;appearance:none}
 body.app-light :is(.scs-popup-close-btn,.scs-guide-gender-close,.scs-nickname-editor-close){background:#fff!important;color:#d92f50!important;border-color:#d92f50!important;box-shadow:0 5px 16px rgba(30,30,55,.16)}
 :is(.scs-popup-close-btn,.scs-guide-gender-close,.scs-nickname-editor-close):active{transform:scale(.94)}
 #scsGuidedFunctions .scs-guide-close{background:#fff!important;color:#d92f50!important;border:1.5px solid #d92f50!important;opacity:1!important;visibility:visible!important;box-shadow:0 5px 16px rgba(0,0,0,.20)}
@@ -22735,7 +22607,7 @@ body.app-light .scs-assist-club-loader span{border-color:rgba(20,22,35,.14);bord
   #modeSelectOverlay .welcome-role-copy .welcome-workspace-label {
     display: block !important;
     margin: 0 !important;
-    font-size: 25px !important;
+    font-size: 1.5625rem !important;
     line-height: 1.08 !important;
     font-weight: 800 !important;
   }
@@ -22747,7 +22619,7 @@ body.app-light .scs-assist-club-loader span{border-color:rgba(20,22,35,.14);bord
     border-radius: 0 !important;
     background: transparent !important;
     color: #fff !important;
-    font-size: 16px !important;
+    font-size: 1rem !important;
     line-height: 1.2 !important;
     font-weight: 750 !important;
   }
@@ -22996,7 +22868,7 @@ html[data-theme="light"] .auth-close-btn {
     width: 34px !important;
     height: 34px !important;
     box-sizing: border-box !important;
-    font-size: 16px !important;
+    font-size: 1rem !important;
   }
 }
 body.app-light .auth-social-close-btn,
@@ -23012,26 +22884,31 @@ html[data-theme="light"] .auth-social-close-btn {
    Organiser Assist stays underneath while the selected real
    page opens above it. The X always returns to the checklist.
    ========================================================= */
-.page.scs-assist-child-page {
+.page.scs-assist-child-page,
+#homePageOverlay.scs-assist-child-page {
   display: block !important;
   position: fixed !important;
-  inset: 0 !important;
+  inset: max(10px, env(safe-area-inset-top)) 10px max(10px, env(safe-area-inset-bottom)) !important;
   z-index: 2147483500 !important;
-  width: 100vw !important;
-  height: 100dvh !important;
-  min-height: 100dvh !important;
-  margin: 0 !important;
+  width: min(760px, calc(100vw - 20px)) !important;
+  height: auto !important;
+  max-height: calc(100dvh - max(20px, env(safe-area-inset-top) + env(safe-area-inset-bottom))) !important;
+  min-height: 0 !important;
+  margin: auto !important;
   padding: 0 0 max(12px, env(safe-area-inset-bottom)) !important;
   box-sizing: border-box !important;
   overflow-x: hidden !important;
   overflow-y: auto !important;
   overscroll-behavior: contain;
   background: var(--bg, #11121a) !important;
+  border: 1px solid color-mix(in srgb, var(--accent, #7c5cff) 42%, transparent) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 24px 70px rgba(0,0,0,.58) !important;
 }
 
 .scs-assist-child-close {
-  position: fixed !important;
-  top: max(12px, env(safe-area-inset-top)) !important;
+  position: absolute !important;
+  top: 12px !important;
   right: 12px !important;
   z-index: 2147483600 !important;
   width: 42px !important;
@@ -23056,8 +22933,59 @@ body.scs-guide-child-open {
   overflow: hidden !important;
 }
 
-body.app-light .page.scs-assist-child-page {
+body.scs-guide-child-open::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 2147483400;
+  background: rgba(4, 5, 12, .68);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+}
+
+#homePageOverlay.scs-assist-child-page .home-topbar {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 20 !important;
+}
+
+#homePageOverlay.scs-assist-child-page #homeMoreSectionVault {
+  display: none !important;
+}
+
+/* Existing nested sheets must sit above the Assist popup and its dimmer. */
+body.scs-guide-child-open #vsDateSheetOverlay,
+#clubSetupSheetOverlay {
+  z-index: 2147483600 !important;
+}
+
+#clubSetupSheetOverlay {
+  align-items: center !important;
+  padding: 12px !important;
+}
+
+#clubSetupSheetOverlay .club-setup-sheet {
+  border-radius: 22px !important;
+}
+
+body.scs-guide-open .organiser-access-overlay {
+  z-index: 2147483600 !important;
+}
+
+body.app-light .page.scs-assist-child-page,
+body.app-light #homePageOverlay.scs-assist-child-page {
   background: var(--bg, #f5f6fb) !important;
+  box-shadow: 0 24px 64px rgba(39,43,70,.24) !important;
+}
+
+@media (max-width: 520px) {
+  .page.scs-assist-child-page,
+  #homePageOverlay.scs-assist-child-page {
+    inset: max(6px, env(safe-area-inset-top)) 6px max(6px, env(safe-area-inset-bottom)) !important;
+    width: calc(100vw - 12px) !important;
+    max-height: calc(100dvh - max(12px, env(safe-area-inset-top) + env(safe-area-inset-bottom))) !important;
+    border-radius: 20px !important;
+  }
 }
 
 /* BUILD 454 — Round Assist player gate. */
@@ -23110,7 +23038,7 @@ body.app-light .page.scs-assist-child-page {
 #modeSelectOverlay .welcome-metric .welcome-role-stat-icon {
   min-height: 17px !important;
   color: #9460ff !important;
-  font-size: 16px !important;
+  font-size: 1rem !important;
   line-height: 17px !important;
 }
 
@@ -23118,7 +23046,7 @@ body.app-light .page.scs-assist-child-page {
 #modeSelectOverlay .welcome-player-stat.welcome-metric strong,
 #modeSelectOverlay .welcome-role-stat.welcome-metric strong {
   color: #8e5bff !important;
-  font-size: 28px !important;
+  font-size: 1.75rem !important;
   line-height: 1 !important;
   font-variant-numeric: tabular-nums;
 }
@@ -23129,7 +23057,7 @@ body.app-light .page.scs-assist-child-page {
   display: block !important;
   min-height: 24px !important;
   color: #c2bdd4 !important;
-  font-size: 9px !important;
+  font-size: .5625rem !important;
   line-height: 12px !important;
   font-weight: 750 !important;
   text-align: center !important;
@@ -23172,7 +23100,7 @@ body.app-light .page.scs-assist-child-page {
   border-radius: 50%;
   background: rgba(139, 92, 246, .20);
   color: #ae8aff;
-  font-size: 21px;
+  font-size: 1.3125rem;
   font-weight: 800;
   transform: translateY(-50%);
 }
@@ -23210,21 +23138,21 @@ html[data-theme="light"] #modeSelectOverlay .welcome-metric + .welcome-metric {
   #modeSelectOverlay .welcome-metric .welcome-player-stat-icon,
   #modeSelectOverlay .welcome-metric .welcome-role-stat-icon {
     min-height: 14px !important;
-    font-size: 13px !important;
+    font-size: .8125rem !important;
     line-height: 14px !important;
   }
 
   #modeSelectOverlay .welcome-metric strong,
   #modeSelectOverlay .welcome-player-stat.welcome-metric strong,
   #modeSelectOverlay .welcome-role-stat.welcome-metric strong {
-    font-size: 23px !important;
+    font-size: 1.4375rem !important;
   }
 
   #modeSelectOverlay .welcome-metric small,
   #modeSelectOverlay .welcome-player-stat.welcome-metric small,
   #modeSelectOverlay .welcome-role-stat.welcome-metric small {
     min-height: 20px !important;
-    font-size: 7.5px !important;
+    font-size: .46875rem !important;
     line-height: 10px !important;
     letter-spacing: .01em !important;
   }
@@ -23234,19 +23162,19 @@ html[data-theme="light"] #modeSelectOverlay .welcome-metric + .welcome-metric {
   }
 
   #modeSelectOverlay .welcome-round-slot-tile strong {
-    font-size: 16px !important;
+    font-size: 1rem !important;
   }
 
   #modeSelectOverlay .welcome-round-slot-tile small {
     margin-top: 4px !important;
-    font-size: 10px !important;
+    font-size: .625rem !important;
   }
 
   #modeSelectOverlay .welcome-round-slot-arrow {
     right: 12px;
     width: 30px;
     height: 30px;
-    font-size: 18px;
+    font-size: 1.125rem;
   }
 }
 
@@ -23288,7 +23216,7 @@ html[data-theme="light"] #modeSelectOverlay .welcome-metric + .welcome-metric {
   border-radius: 999px;
   background: rgba(9, 12, 31, .54);
   color: #c9c3db;
-  font-size: 12px;
+  font-size: .75rem;
   font-weight: 750;
   line-height: 30px;
   cursor: pointer;
@@ -23366,7 +23294,7 @@ html[data-theme="light"] #modeSelectOverlay .welcome-club-pill.selected {
     max-width: 148px;
     min-height: 29px;
     padding: 0 9px 0 7px;
-    font-size: 10px;
+    font-size: .625rem;
     line-height: 27px;
   }
 }
@@ -23395,7 +23323,7 @@ html[data-theme="light"] #modeSelectOverlay .welcome-club-pill.selected {
   flex: 0 0 auto;
   margin-left: 4px;
   color: #b994ff;
-  font-size: 15px;
+  font-size: .9375rem;
   line-height: 1;
 }
 
@@ -23592,7 +23520,7 @@ html[data-theme="light"] #modeSelectOverlay .welcome-workspace[aria-checked="tru
     bottom: 10px !important;
     height: 50px !important;
     min-height: 50px !important;
-    font-size: 17px !important;
+    font-size: 1.0625rem !important;
   }
   #modeSelectOverlay .welcome-carousel-dots { margin-top: 4px !important; }
   #modeSelectOverlay .welcome-next-steps { margin-top: 4px !important; }
@@ -23738,5 +23666,1736 @@ html[data-theme="light"] #modeSelectOverlay .welcome-card-frame {
   #modeSelectOverlay .welcome-card-frame.welcome-card-is-moving,
   .welcome-card-motion-clone {
     transition: none !important;
+  }
+}
+
+/* BUILD 471 — faster Welcome hub switching. */
+#modeSelectOverlay .welcome-workspace.active,
+#modeSelectOverlay .welcome-workspace[aria-checked="true"] {
+  transition:
+    transform .13s cubic-bezier(.2,.78,.25,1),
+    opacity .11s ease,
+    box-shadow .13s ease,
+    border-color .11s ease !important;
+}
+
+#modeSelectOverlay .welcome-workspace:not(.active):not([aria-checked="true"]) {
+  transition:
+    transform .13s cubic-bezier(.2,.78,.25,1),
+    opacity .11s ease !important;
+}
+
+#modeSelectOverlay .welcome-carousel-dot {
+  transition: transform .09s ease, background .09s ease !important;
+}
+
+/* ==========================================================================
+   BUILD 472 — unified mobile Welcome hub composition
+   Player, Organiser and Club Manager now share one card grid, one profile
+   position and one information-panel size. This deliberately overrides the
+   older role-specific mobile geometry without changing any hub behaviour.
+   ========================================================================== */
+@media (max-width: 430px) and (orientation: portrait) {
+  #modeSelectOverlay .welcome-card-frame {
+    width: 100% !important;
+    max-width: 360px !important;
+    margin: 0 auto !important;
+    padding: 0 8px 12px !important;
+    border-radius: 22px !important;
+  }
+
+  #modeSelectOverlay .welcome-card-frame .welcome-workspaces {
+    width: 100% !important;
+    min-height: 286px !important;
+    height: 286px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  #modeSelectOverlay .welcome-card-frame .welcome-workspace.active,
+  #modeSelectOverlay .welcome-card-frame .welcome-workspace[aria-checked="true"],
+  #modeSelectOverlay .welcome-card-frame .welcome-workspace.viewer.active,
+  #modeSelectOverlay .welcome-card-frame .welcome-workspace.viewer[aria-checked="true"],
+  #modeSelectOverlay .welcome-card-frame .welcome-workspace.organiser.active,
+  #modeSelectOverlay .welcome-card-frame .welcome-workspace.organiser[aria-checked="true"],
+  #modeSelectOverlay .welcome-card-frame .welcome-workspace.vault.active,
+  #modeSelectOverlay .welcome-card-frame .welcome-workspace.vault[aria-checked="true"] {
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 286px !important;
+    height: 286px !important;
+    margin: 0 !important;
+    padding: 16px 14px 12px !important;
+    border-radius: 18px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  #modeSelectOverlay .welcome-player-hub,
+  #modeSelectOverlay .welcome-role-hub {
+    display: grid !important;
+    grid-template-rows: minmax(0, 1fr) 90px !important;
+    row-gap: 7px !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #modeSelectOverlay .welcome-player-profile,
+  #modeSelectOverlay .welcome-role-profile {
+    display: grid !important;
+    grid-template-columns: 104px minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 16px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 16px 0 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  #modeSelectOverlay .welcome-player-photo-wrap,
+  #modeSelectOverlay .welcome-role-photo-wrap {
+    align-self: center !important;
+    width: 104px !important;
+    height: 104px !important;
+    margin: 0 !important;
+  }
+
+  #modeSelectOverlay .welcome-player-edit,
+  #modeSelectOverlay .welcome-role-edit {
+    right: -2px !important;
+    bottom: 1px !important;
+    width: 32px !important;
+    height: 32px !important;
+    font-size: .9375rem !important;
+  }
+
+  #modeSelectOverlay .welcome-player-copy,
+  #modeSelectOverlay .welcome-role-copy {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: left !important;
+  }
+
+  #modeSelectOverlay .welcome-workspace.viewer .welcome-workspace-label,
+  #modeSelectOverlay .welcome-role-copy .welcome-workspace-label {
+    max-width: 100% !important;
+    margin: 0 !important;
+    font-size: 1.4375rem !important;
+    line-height: 1.08 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  #modeSelectOverlay .welcome-player-name,
+  #modeSelectOverlay .welcome-role-name {
+    display: -webkit-box !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    color: #fff !important;
+    font-size: .875rem !important;
+    line-height: 18px !important;
+    font-weight: 750 !important;
+    overflow: hidden !important;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  #modeSelectOverlay .welcome-organiser-club-pills,
+  #modeSelectOverlay .welcome-club-menu-pill {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  #modeSelectOverlay .welcome-club-menu-pill {
+    min-height: 29px !important;
+    padding: 0 8px !important;
+    font-size: .625rem !important;
+    line-height: 27px !important;
+  }
+
+  #modeSelectOverlay .welcome-player-stats,
+  #modeSelectOverlay .welcome-role-stats,
+  #modeSelectOverlay .welcome-next-slot-card,
+  #modeSelectOverlay .welcome-next-slot-host,
+  #modeSelectOverlay .welcome-launcher-start-card {
+    align-self: end !important;
+    justify-self: stretch !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 90px !important;
+    height: 90px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    border-radius: 16px !important;
+  }
+
+  #modeSelectOverlay .welcome-metric {
+    min-height: 90px !important;
+    padding: 8px 2px 7px !important;
+    gap: 2px !important;
+  }
+
+  #modeSelectOverlay .welcome-metric .welcome-player-stat-icon,
+  #modeSelectOverlay .welcome-metric .welcome-role-stat-icon {
+    min-height: 13px !important;
+    font-size: .75rem !important;
+    line-height: 13px !important;
+  }
+
+  #modeSelectOverlay .welcome-metric strong,
+  #modeSelectOverlay .welcome-player-stat.welcome-metric strong,
+  #modeSelectOverlay .welcome-role-stat.welcome-metric strong {
+    font-size: 1.375rem !important;
+    line-height: 24px !important;
+  }
+
+  #modeSelectOverlay .welcome-metric small,
+  #modeSelectOverlay .welcome-player-stat.welcome-metric small,
+  #modeSelectOverlay .welcome-role-stat.welcome-metric small {
+    min-height: 20px !important;
+    font-size: .46875rem !important;
+    line-height: 10px !important;
+    letter-spacing: 0 !important;
+  }
+
+  #modeSelectOverlay .welcome-launcher-start-card .launcher-start-dialog {
+    min-height: 90px !important;
+    height: 90px !important;
+    padding: 10px 38px 10px 11px !important;
+    grid-template-columns: 34px minmax(0, 1fr) !important;
+    gap: 8px !important;
+    border-radius: 16px !important;
+  }
+
+  #modeSelectOverlay .welcome-launcher-start-card .launcher-start-icon {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  #modeSelectOverlay .welcome-launcher-start-card .launcher-start-info strong {
+    font-size: .8125rem !important;
+  }
+
+  #modeSelectOverlay .welcome-launcher-start-card .launcher-start-info span {
+    font-size: .625rem !important;
+    line-height: 13px !important;
+  }
+
+  #modeSelectOverlay .welcome-launcher-start-card .launcher-start-action {
+    min-height: 30px !important;
+    margin-top: 0 !important;
+    padding: 6px 9px !important;
+    font-size: .6875rem !important;
+  }
+
+  #modeSelectOverlay .welcome-tile-assist {
+    top: 12px !important;
+    right: 58px !important;
+    min-width: 78px !important;
+    height: 36px !important;
+    padding: 0 10px !important;
+    gap: 5px !important;
+    font-size: .75rem !important;
+  }
+
+  #modeSelectOverlay .welcome-workspace .welcome-tile-logout,
+  #modeSelectOverlay .welcome-workspace.viewer .welcome-tile-logout,
+  #modeSelectOverlay .welcome-workspace.organiser .welcome-tile-logout,
+  #modeSelectOverlay .welcome-workspace.vault .welcome-tile-logout {
+    top: 12px !important;
+    right: 12px !important;
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  #modeSelectOverlay .welcome-workspace .welcome-tile-logout svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  #modeSelectOverlay .welcome-card-frame > .welcome-continue {
+    width: 100% !important;
+    height: 54px !important;
+    min-height: 54px !important;
+    margin-top: 11px !important;
+    border-radius: 17px !important;
+    font-size: 1.125rem !important;
+  }
+
+  #modeSelectOverlay .welcome-card-frame + .welcome-carousel-dots {
+    margin-top: 9px !important;
+  }
+
+  #modeSelectOverlay .welcome-card-frame ~ .welcome-next-steps {
+    margin-top: 5px !important;
+    font-size: .75rem !important;
+    line-height: 16px !important;
+  }
+
+  #modeSelectOverlay .welcome-footer {
+    width: 100% !important;
+    margin-top: 14px !important;
+    gap: 8px !important;
+  }
+
+  #modeSelectOverlay .welcome-utility {
+    height: 74px !important;
+    min-height: 74px !important;
+    border-radius: 18px !important;
+  }
+
+  #modeSelectOverlay .welcome-carousel-prev {
+    left: -22px !important;
+  }
+
+  #modeSelectOverlay .welcome-carousel-next {
+    right: -22px !important;
+  }
+}
+
+@media (max-width: 370px) and (orientation: portrait) {
+  #modeSelectOverlay .welcome-card-frame {
+    padding-left: 7px !important;
+    padding-right: 7px !important;
+  }
+
+  #modeSelectOverlay .welcome-card-frame .welcome-workspace.active,
+  #modeSelectOverlay .welcome-card-frame .welcome-workspace[aria-checked="true"] {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  #modeSelectOverlay .welcome-player-profile,
+  #modeSelectOverlay .welcome-role-profile {
+    grid-template-columns: 92px minmax(0, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  #modeSelectOverlay .welcome-player-photo-wrap,
+  #modeSelectOverlay .welcome-role-photo-wrap {
+    width: 92px !important;
+    height: 92px !important;
+  }
+
+  #modeSelectOverlay .welcome-workspace.viewer .welcome-workspace-label,
+  #modeSelectOverlay .welcome-role-copy .welcome-workspace-label {
+    font-size: 1.3125rem !important;
+  }
+}
+
+/* Specificity bridge for the legacy per-role mobile rules. */
+@media (max-width: 430px) and (orientation: portrait) {
+  #modeSelectOverlay .welcome-card-frame .welcome-workspace.viewer.active,
+  #modeSelectOverlay .welcome-card-frame .welcome-workspace.viewer[aria-checked="true"],
+  #modeSelectOverlay .welcome-card-frame .welcome-workspace.organiser.active,
+  #modeSelectOverlay .welcome-card-frame .welcome-workspace.organiser[aria-checked="true"],
+  #modeSelectOverlay .welcome-card-frame .welcome-workspace.vault.active,
+  #modeSelectOverlay .welcome-card-frame .welcome-workspace.vault[aria-checked="true"] {
+    scale: 1 !important;
+  }
+
+  #modeSelectOverlay .welcome-workspace.viewer.active .welcome-player-hub,
+  #modeSelectOverlay .welcome-workspace.viewer[aria-checked="true"] .welcome-player-hub,
+  #modeSelectOverlay .welcome-workspace.organiser.active .welcome-role-hub,
+  #modeSelectOverlay .welcome-workspace.organiser[aria-checked="true"] .welcome-role-hub,
+  #modeSelectOverlay .welcome-workspace.vault.active .welcome-role-hub,
+  #modeSelectOverlay .welcome-workspace.vault[aria-checked="true"] .welcome-role-hub {
+    grid-template-rows: minmax(0, 1fr) 90px !important;
+    row-gap: 7px !important;
+  }
+
+  #modeSelectOverlay .welcome-workspace.viewer.active .welcome-player-profile,
+  #modeSelectOverlay .welcome-workspace.viewer[aria-checked="true"] .welcome-player-profile,
+  #modeSelectOverlay .welcome-workspace.organiser.active .welcome-role-profile,
+  #modeSelectOverlay .welcome-workspace.organiser[aria-checked="true"] .welcome-role-profile,
+  #modeSelectOverlay .welcome-workspace.vault.active .welcome-role-profile,
+  #modeSelectOverlay .welcome-workspace.vault[aria-checked="true"] .welcome-role-profile {
+    grid-template-columns: 104px minmax(0, 1fr) !important;
+    gap: 16px !important;
+    padding-top: 16px !important;
+  }
+
+  #modeSelectOverlay .welcome-workspace.viewer.active .welcome-player-photo-wrap,
+  #modeSelectOverlay .welcome-workspace.viewer[aria-checked="true"] .welcome-player-photo-wrap,
+  #modeSelectOverlay .welcome-workspace.organiser.active .welcome-role-photo-wrap,
+  #modeSelectOverlay .welcome-workspace.organiser[aria-checked="true"] .welcome-role-photo-wrap,
+  #modeSelectOverlay .welcome-workspace.vault.active .welcome-role-photo-wrap,
+  #modeSelectOverlay .welcome-workspace.vault[aria-checked="true"] .welcome-role-photo-wrap {
+    width: 104px !important;
+    height: 104px !important;
+  }
+
+  #modeSelectOverlay .welcome-workspace.viewer.active .welcome-player-copy,
+  #modeSelectOverlay .welcome-workspace.viewer[aria-checked="true"] .welcome-player-copy,
+  #modeSelectOverlay .welcome-workspace.organiser.active .welcome-role-copy,
+  #modeSelectOverlay .welcome-workspace.organiser[aria-checked="true"] .welcome-role-copy,
+  #modeSelectOverlay .welcome-workspace.vault.active .welcome-role-copy,
+  #modeSelectOverlay .welcome-workspace.vault[aria-checked="true"] .welcome-role-copy {
+    gap: 5px !important;
+  }
+
+  #modeSelectOverlay .welcome-workspace.viewer.active .welcome-player-stats,
+  #modeSelectOverlay .welcome-workspace.viewer[aria-checked="true"] .welcome-player-stats,
+  #modeSelectOverlay .welcome-workspace.organiser.active .welcome-next-slot-host,
+  #modeSelectOverlay .welcome-workspace.organiser[aria-checked="true"] .welcome-next-slot-host,
+  #modeSelectOverlay .welcome-workspace.vault.active .welcome-role-stats,
+  #modeSelectOverlay .welcome-workspace.vault[aria-checked="true"] .welcome-role-stats {
+    min-height: 90px !important;
+    height: 90px !important;
+    margin: 0 !important;
+  }
+}
+
+/* Build 474: Simple Welcome header with domain, Settings, dynamic Theme and Language controls. */
+#modeSelectOverlay.welcome-launcher {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+#modeSelectOverlay .welcome-shell {
+  width: min(100%, 760px);
+  min-height: 100%;
+  margin: 0 auto;
+  padding: max(18px, env(safe-area-inset-top)) 18px max(24px, env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+.simple-welcome {
+  min-height: calc(100dvh - max(42px, env(safe-area-inset-top)) - max(24px, env(safe-area-inset-bottom)));
+  display: flex;
+  flex-direction: column;
+}
+.simple-welcome-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  min-height: 52px;
+}
+.simple-welcome-domain {
+  color: #aeb9cf;
+  font-size: clamp(.875rem, 3.8vw, 1.125rem);
+  font-weight: 650;
+  letter-spacing: .01em;
+  white-space: nowrap;
+}
+.simple-welcome-tools {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  flex-shrink: 0;
+}
+.simple-lang-wrap { position: relative; }
+.simple-tool-btn {
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(123, 146, 255, .26);
+  border-radius: 15px;
+  background: rgba(19, 29, 58, .82);
+  color: #f8fbff;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, .22), inset 0 1px 0 rgba(255,255,255,.06);
+  font-size: 1.4375rem;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.simple-lang-picker {
+  right: 0;
+  left: auto;
+  top: 56px;
+  min-width: 158px;
+  z-index: 20;
+}
+.simple-mode-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(18px, 4.6vh, 34px);
+  padding: 28px 0 42px;
+}
+.simple-mode-card {
+  width: 100%;
+  min-height: clamp(118px, 18vh, 170px);
+  border: 1px solid var(--simple-border);
+  border-radius: 22px;
+  padding: 22px 28px;
+  display: grid;
+  grid-template-columns: 74px 1fr 42px;
+  align-items: center;
+  gap: 20px;
+  color: #fff;
+  background: var(--simple-bg);
+  box-shadow: 0 18px 38px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.06);
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .12s ease, filter .12s ease;
+  position: relative;
+}
+.simple-mode-card:active { transform: scale(.985); filter: brightness(1.08); }
+.simple-mode-assist {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  min-width: 72px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid color-mix(in srgb, var(--simple-accent) 72%, white 28%);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: rgba(7, 15, 35, .58);
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.10);
+  font-size: .6875rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: .01em;
+  z-index: 3;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.simple-mode-assist:active { transform: scale(.94); filter: brightness(1.16); }
+.simple-mode-assist:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+html.app-light .simple-mode-assist {
+  background: rgba(255,255,255,.82);
+  color: #273653;
+  box-shadow: 0 5px 14px rgba(34,55,100,.13);
+}
+
+.simple-mode-my { --simple-bg: linear-gradient(135deg, rgba(19,45,94,.94), rgba(10,24,55,.98)); --simple-border: rgba(52,120,255,.58); --simple-accent:#2f7bff; }
+.simple-mode-round { --simple-bg: linear-gradient(135deg, rgba(12,63,70,.94), rgba(8,35,43,.98)); --simple-border: rgba(27,209,180,.50); --simple-accent:#19cbaa; }
+.simple-mode-slot { --simple-bg: linear-gradient(135deg, rgba(52,25,100,.94), rgba(28,17,61,.98)); --simple-border: rgba(143,80,255,.58); --simple-accent:#8950ff; }
+.simple-mode-icon {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--simple-accent);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--simple-accent) 38%, transparent);
+  font-size: 2.125rem;
+  font-weight: 700;
+}
+.simple-mode-photo-picker { position:relative; overflow:hidden; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.simple-mode-photo-picker:active { transform:scale(.95); }
+.simple-mode-card:has(.simple-mode-photo-picker:active) { transform:none; filter:none; }
+.simple-mode-photo-picker:focus-visible { outline:3px solid #fff; outline-offset:3px; }
+.simple-mode-photo { position:absolute; inset:0; z-index:1; width:100%; height:100%; object-fit:cover; border-radius:inherit; }
+.simple-mode-photo:not([src]), .simple-mode-photo[src=""] { display:none; }
+.simple-mode-photo[hidden], .simple-mode-icon-fallback[hidden] { display:none !important; }
+.simple-mode-label {
+  font-size: clamp(1.375rem, 5.8vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -.02em;
+  line-height: 1.08;
+}
+.simple-mode-arrow {
+  justify-self: end;
+  font-size: 3.625rem;
+  line-height: .8;
+  font-weight: 200;
+  opacity: .95;
+}
+.welcome-legacy-hooks {
+  position: fixed !important;
+  left: -10000px !important;
+  top: 0 !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
+html.app-light #modeSelectOverlay.welcome-launcher { background: #f3f6fc; }
+html.app-light .simple-welcome-domain { color: #66728a; }
+html.app-light .simple-tool-btn {
+  background: #fff;
+  color: #17213a;
+  border-color: rgba(38,65,130,.16);
+  box-shadow: 0 8px 22px rgba(31,51,96,.12);
+}
+html.app-light .simple-mode-card { color: #17213a; box-shadow: 0 16px 34px rgba(30,48,90,.13); }
+html.app-light .simple-mode-my { --simple-bg: linear-gradient(135deg,#eaf2ff,#dce9ff); --simple-border:#a9c9ff; }
+html.app-light .simple-mode-round { --simple-bg: linear-gradient(135deg,#e3faf5,#d4f4ed); --simple-border:#91ddce; }
+html.app-light .simple-mode-slot { --simple-bg: linear-gradient(135deg,#f0eaff,#e6dcff); --simple-border:#c4adff; }
+html.app-light .simple-mode-icon,
+html.app-light .simple-mode-arrow { color:#fff; }
+@media (max-height: 650px) {
+  .simple-mode-list { gap: 14px; padding: 18px 0 24px; }
+  .simple-mode-card { min-height: 102px; padding: 16px 22px; grid-template-columns: 60px 1fr 34px; }
+  .simple-mode-icon { width:56px; height:56px; font-size:1.75rem; }
+}
+@media (min-width: 700px) {
+  #modeSelectOverlay .welcome-shell { padding-left: 38px; padding-right: 38px; }
+}
+
+@media (max-width: 390px) {
+  .simple-welcome-header { gap: 10px; }
+  .simple-welcome-tools { gap: 7px; }
+  .simple-tool-btn { width: 43px; height: 43px; border-radius: 14px; font-size: 1.3125rem; }
+  .simple-welcome-domain { font-size: .875rem; }
+}
+
+
+/* Build 475: Design 1 branded Simple Welcome header. */
+.simple-welcome-header {
+  min-height: 92px;
+  padding: 13px 14px;
+  border: 1px solid rgba(74, 126, 233, .34);
+  border-radius: 24px;
+  background:
+    linear-gradient(135deg, rgba(16, 39, 83, .95), rgba(7, 18, 42, .98));
+  box-shadow:
+    0 16px 36px rgba(0, 0, 0, .30),
+    inset 0 1px 0 rgba(255, 255, 255, .055);
+}
+.simple-welcome-brand {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.simple-welcome-logo {
+  width: 62px;
+  height: 62px;
+  flex: 0 0 62px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(42, 116, 255, .88);
+  box-shadow:
+    0 0 0 3px rgba(42, 116, 255, .10),
+    0 10px 24px rgba(0, 0, 0, .34);
+}
+.simple-welcome-brand-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.03;
+}
+.simple-welcome-brand-copy strong {
+  color: #fff;
+  font-size: clamp(1.25rem, 5vw, 1.75rem);
+  font-weight: 850;
+  letter-spacing: .035em;
+}
+.simple-welcome-brand-copy span {
+  margin-top: 6px;
+  color: #9fb3d7;
+  font-size: clamp(.75rem, 3.25vw, 1rem);
+  font-weight: 600;
+  letter-spacing: .01em;
+  white-space: nowrap;
+}
+.simple-welcome-tools { gap: 9px; }
+.simple-tool-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 17px;
+  border-color: rgba(71, 130, 255, .42);
+  background: linear-gradient(145deg, rgba(19, 38, 80, .96), rgba(9, 22, 52, .98));
+  box-shadow:
+    0 10px 24px rgba(0,0,0,.27),
+    inset 0 1px 0 rgba(255,255,255,.075);
+}
+html.app-light .simple-welcome-header {
+  background: linear-gradient(135deg, #eef4ff, #ffffff);
+  border-color: rgba(48, 94, 184, .18);
+  box-shadow: 0 14px 30px rgba(31, 51, 96, .12);
+}
+html.app-light .simple-welcome-brand-copy strong { color:#14203a; }
+html.app-light .simple-welcome-brand-copy span { color:#66728a; }
+html.app-light .simple-welcome-logo {
+  border-color: rgba(42, 104, 222, .68);
+  box-shadow: 0 0 0 3px rgba(42,104,222,.08), 0 8px 20px rgba(31,51,96,.16);
+}
+@media (max-width: 430px) {
+  .simple-welcome-header { min-height: 82px; padding: 11px 12px; gap: 9px; }
+  .simple-welcome-logo { width: 52px; height: 52px; flex-basis: 52px; }
+  .simple-welcome-brand { gap: 9px; }
+  .simple-welcome-tools { gap: 6px; }
+  .simple-tool-btn { width: 44px; height: 44px; border-radius: 14px; font-size: 1.3125rem; }
+}
+@media (max-width: 365px) {
+  .simple-welcome-brand-copy strong { font-size: 1.125rem; }
+  .simple-welcome-brand-copy span { font-size: .6875rem; }
+  .simple-welcome-logo { width: 46px; height: 46px; flex-basis: 46px; }
+  .simple-tool-btn { width: 40px; height: 40px; font-size: 1.1875rem; }
+}
+
+
+/* Build 477: live nickname and club details on Simple Welcome tiles. */
+.simple-mode-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 9px;
+}
+.simple-mode-subtitle {
+  display: block;
+  max-width: 100%;
+  color: rgba(220, 229, 248, .72);
+  font-size: clamp(.8125rem, 3.5vw, 1.0625rem);
+  font-weight: 650;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.simple-mode-subtitle.is-login-prompt { color: rgba(255, 211, 112, .88); }
+.simple-round-club-pills {
+  display: block;
+  max-width: 100%;
+  min-height: 26px;
+}
+.simple-round-club-pills[hidden] { display: none !important; }
+.simple-round-club-pills .welcome-club-pill {
+  max-width: 100%;
+  min-height: 27px;
+  padding: 4px 10px 4px 8px;
+  gap: 6px;
+  border-radius: 999px;
+  background: rgba(8, 22, 37, .46);
+  border: 1px solid rgba(81, 231, 202, .30);
+  box-shadow: none;
+  color: rgba(225, 248, 243, .82);
+  font-size: clamp(.75rem, 3.25vw, .9375rem);
+  font-weight: 700;
+}
+.simple-round-club-pills .welcome-club-pill-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.simple-round-club-pills .welcome-club-pill-dot { width: 7px; height: 7px; }
+.simple-round-club-pills .welcome-club-pill-arrow { font-size: .8125rem; }
+html.app-light .simple-mode-subtitle { color: rgba(48, 64, 94, .70); }
+html.app-light .simple-round-club-pills .welcome-club-pill {
+  background: rgba(255,255,255,.62);
+  border-color: rgba(31, 151, 132, .25);
+  color: #345d58;
+}
+@media (max-height: 650px) {
+  .simple-mode-copy { gap: 5px; }
+  .simple-mode-subtitle { font-size: .75rem; }
+  .simple-round-club-pills .welcome-club-pill { min-height: 23px; padding-top: 2px; padding-bottom: 2px; font-size: .75rem; }
+}
+
+/* Build 477: two-line live details, inline existing logout actions, and repaired language popover. */
+.simple-mode-copy { max-width: min(100%, 300px); }
+.simple-mode-detail-row {
+  width: min(100%, 238px);
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.simple-mode-subtitle {
+  min-width: 0;
+  max-width: 190px;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: clip;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  line-height: 1.18;
+  overflow-wrap: anywhere;
+}
+.simple-inline-logout {
+  flex: 0 0 31px;
+  width: 31px;
+  height: 31px;
+  border-left: 1px solid color-mix(in srgb, var(--simple-accent) 48%, transparent);
+  padding-left: 9px;
+  color: color-mix(in srgb, var(--simple-accent) 52%, white);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.simple-inline-logout[hidden] { display:none !important; }
+.simple-inline-logout svg { width:24px; height:24px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.simple-inline-logout:active { transform: scale(.92); }
+.simple-round-club-pills { width:min(100%, 238px); }
+.simple-round-club-pills .welcome-club-pill { width:100%; max-width:238px; border-radius:16px; align-items:center; }
+.simple-round-club-pills .welcome-club-pill-name {
+  white-space:normal;
+  overflow:hidden;
+  text-overflow:clip;
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  line-clamp:2;
+  line-height:1.15;
+  overflow-wrap:anywhere;
+}
+.simple-lang-wrap { position:relative; z-index:100; }
+#modeSelectOverlay .simple-lang-picker {
+  display:none;
+  position:absolute !important;
+  top:58px !important;
+  right:0 !important;
+  left:auto !important;
+  bottom:auto !important;
+  width:190px !important;
+  min-width:190px !important;
+  padding:8px !important;
+  border-radius:18px !important;
+  background:rgba(8,18,42,.98) !important;
+  border:1px solid rgba(80,132,238,.42) !important;
+  box-shadow:0 18px 44px rgba(0,0,0,.42) !important;
+  overflow:hidden !important;
+  z-index:2147483000 !important;
+}
+#modeSelectOverlay .simple-lang-picker .ml-lang-opt {
+  width:100%;
+  min-height:43px;
+  padding:8px 10px !important;
+  border:0;
+  border-radius:11px;
+  background:transparent;
+  color:#eef4ff;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  text-align:left;
+  font-size:.875rem !important;
+}
+#modeSelectOverlay .simple-lang-picker .ml-lang-opt:active { background:rgba(64,112,210,.22); }
+#modeSelectOverlay .simple-lang-picker .ml-lang-opt span { font-size:1.25rem; }
+#modeSelectOverlay .simple-lang-picker .ml-lang-opt b { font-weight:700; }
+html.app-light #modeSelectOverlay .simple-lang-picker { background:#fff !important; border-color:rgba(38,65,130,.18) !important; box-shadow:0 18px 40px rgba(31,51,96,.20) !important; }
+html.app-light #modeSelectOverlay .simple-lang-picker .ml-lang-opt { color:#17213a; }
+html.app-light #modeSelectOverlay .simple-lang-picker .ml-lang-opt:active { background:#eef4ff; }
+@media(max-width:390px){
+  .simple-mode-detail-row,.simple-round-club-pills { width:min(100%, 205px); }
+  .simple-mode-subtitle { max-width:156px; }
+  .simple-round-club-pills .welcome-club-pill { max-width:205px; }
+  #modeSelectOverlay .simple-lang-picker { right:-2px !important; width:176px !important; min-width:176px !important; }
+}
+
+/* Build 478: renamed the club-leave warning from Vault to Slot Manager in all translations. */
+
+
+/* Build 481: restore the existing next-slot card inside the organiser home. */
+#homeOrgGrid .organiser-next-slot-card {
+  display:flex;
+  width:100%;
+  margin:16px 0 110px;
+  padding:0;
+}
+#homeOrgGrid .organiser-next-slot-card .launcher-start-dialog {
+  width:100%;
+}
+
+/* Build 483: Welcome title/header full width only. No functional changes. */
+.simple-welcome-header {
+  width: 100%;
+  box-sizing: border-box;
+  border-left: 0;
+  border-right: 0;
+  border-radius: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+
+/* Build 484: reuse the live Dashboard slot card under Round Manager. */
+#homeOrgGrid .organiser-next-slot-card > .mc-slot-card {
+  width:100%;
+  margin:0;
+}
+#homeOrgGrid .organiser-next-slot-card {
+  align-items:stretch;
+}
+
+/* Build 486: Welcome header uses the same full-width title-bar treatment as Round Manager. */
+.simple-welcome-header {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding-left: max(18px, calc((100vw - 760px) / 2 + 18px));
+  padding-right: max(18px, calc((100vw - 760px) / 2 + 18px));
+  border-left: 0;
+  border-right: 0;
+  border-top: 1px solid rgba(82, 118, 191, .24);
+  border-bottom: 1px solid rgba(82, 118, 191, .30);
+  border-radius: 0;
+  background: rgba(8, 10, 18, .96);
+  box-shadow: none;
+}
+html.app-light .simple-welcome-header {
+  background: rgba(248, 250, 255, .98);
+  border-top-color: rgba(38, 65, 130, .13);
+  border-bottom-color: rgba(38, 65, 130, .17);
+  box-shadow: none;
+}
+@media (min-width: 700px) {
+  .simple-welcome-header {
+    padding-left: max(38px, calc((100vw - 760px) / 2 + 38px));
+    padding-right: max(38px, calc((100vw - 760px) / 2 + 38px));
+  }
+}
+
+
+/* ==========================================================
+   BUILD 488 — Settings Data & Sync controls
+   ========================================================== */
+#settingsPage .sheet-header { grid-template-columns: 44px minmax(0,1fr) auto !important; }
+#settingsPage .settings-header-actions { display:flex; align-items:center; justify-content:flex-end; gap:8px; }
+#settingsPage .settings-sync-btn {
+  width:44px; min-width:44px; height:48px; padding:4px 2px 2px; border-radius:15px;
+  border:1px solid rgba(108,99,255,.72); background:rgba(108,99,255,.08);
+  color:#958dff; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font:inherit; cursor:pointer;
+}
+#settingsPage .settings-sync-btn small { margin-top:1px; font-size:.46rem; line-height:1; color:#a9a3ff; font-weight:700; }
+#settingsPage .settings-sync-glyph { display:inline-block; font-size:1.1rem; line-height:1; }
+#settingsPage .is-syncing .settings-sync-glyph,
+#settingsPage .settings-sync-btn.is-syncing .settings-sync-glyph,
+#settingsPage .settings-sync-now-btn.is-syncing .settings-sync-glyph { animation:scsSettingsSpin .8s linear infinite; }
+@keyframes scsSettingsSpin { to { transform:rotate(360deg); } }
+#settingsPage .sync-settings-card { border-color:rgba(108,99,255,.72) !important; box-shadow:0 0 0 1px rgba(108,99,255,.08) inset; }
+#settingsPage .settings-sync-select {
+  max-width:190px; min-width:150px; padding:10px 34px 10px 12px; border-radius:11px;
+  border:1px solid rgba(255,255,255,.12); background:#171822; color:#9d96ff;
+  font:inherit; font-size:.72rem; font-weight:750;
+}
+#settingsPage .settings-last-sync { display:flex; align-items:center; gap:9px; text-align:right; }
+#settingsPage .sync-ok-dot { display:inline-grid; place-items:center; width:22px; height:22px; border-radius:50%; background:#245d3a; color:#9ff0b9; font-size:.65rem; }
+#settingsPage .settings-sync-now-btn {
+  width:100%; margin-top:14px; min-height:48px; border-radius:12px; border:1px solid rgba(255,255,255,.10);
+  background:rgba(10,11,18,.35); color:#8f86ff; display:flex; align-items:center; justify-content:center; gap:10px;
+  font:inherit; font-size:.78rem; font-weight:800; cursor:pointer;
+}
+#settingsPage .settings-sync-now-btn:disabled, #settingsPage .settings-sync-btn:disabled { opacity:.62; cursor:wait; }
+#settingsPage .settings-sync-message { min-height:16px; margin-top:7px; text-align:center; color:#9295aa; font-size:.62rem; }
+body.app-light #settingsPage .settings-sync-select { background:#fff; color:#5b54d6; border-color:rgba(30,30,60,.14); }
+body.app-light #settingsPage .settings-sync-now-btn { background:#f7f7fc; border-color:rgba(30,30,60,.12); }
+@media (max-width:420px) {
+  #settingsPage .settings-sync-select { min-width:138px; max-width:162px; font-size:.66rem; }
+  #settingsPage .settings-sync-btn { width:40px; min-width:40px; height:44px; }
+  #settingsPage .settings-header-actions { gap:6px; }
+}
+
+
+/* Build 498: fixed-size iOS font control; unaffected by selected app font scale */
+#settingsPage .font-scale-row {
+  /* Cancel the root font scaling so this control always remains operable, even at 200%. */
+  font-size: calc(1rem / var(--app-font-scale, 1));
+  flex-direction: column;
+  align-items: stretch;
+  gap: .8em;
+}
+#settingsPage .font-scale-row .pref-row-label {
+  font-size: 1em !important;
+}
+#settingsPage .font-scale-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75em;
+}
+#settingsPage .font-scale-value {
+  color: #9b9eb3;
+  font-size: .78em;
+  font-weight: 700;
+  min-width: 3.4em;
+  text-align: right;
+}
+#settingsPage .ios-font-scale {
+  display: grid;
+  grid-template-columns: 2em minmax(0,1fr) 2.35em;
+  align-items: center;
+  gap: .7em;
+  min-height: 4.9em;
+  padding: .85em 1em .7em;
+  border-radius: 1.35em;
+  background: #17181f;
+  border: .0625em solid rgba(255,255,255,.08);
+}
+#settingsPage .font-scale-a {
+  color: #a7a7b2;
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
+  user-select: none;
+}
+#settingsPage .font-scale-a-small { font-size: 1.35em !important; }
+#settingsPage .font-scale-a-large { font-size: 2em !important; }
+#settingsPage .font-scale-track-wrap {
+  position: relative;
+  min-width: 0;
+  padding-bottom: 1.05em;
+}
+#settingsPage .font-scale-slider {
+  font-size: inherit;
+  width: 100%;
+  height: 2em;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+}
+#settingsPage .font-scale-slider::-webkit-slider-runnable-track {
+  height: .34em;
+  border-radius: 99em;
+  background: #aaaab4;
+}
+#settingsPage .font-scale-slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 2.55em;
+  height: 2.55em;
+  margin-top: -1.105em;
+  border: 0;
+  border-radius: 1em;
+  background: #fff;
+  box-shadow: 0 .18em .55em rgba(0,0,0,.32);
+}
+#settingsPage .font-scale-slider::-moz-range-track {
+  height: .34em;
+  border-radius: 99em;
+  background: #aaaab4;
+}
+#settingsPage .font-scale-slider::-moz-range-thumb {
+  width: 2.55em;
+  height: 2.55em;
+  border: 0;
+  border-radius: 1em;
+  background: #fff;
+  box-shadow: 0 .18em .55em rgba(0,0,0,.32);
+}
+#settingsPage .font-scale-dots {
+  position: absolute;
+  left: .25em;
+  right: .25em;
+  bottom: .18em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+#settingsPage .font-scale-dots i {
+  width: .28em;
+  height: .28em;
+  border-radius: 50%;
+  background: rgba(160,160,170,.25);
+}
+body.app-light #settingsPage .ios-font-scale {
+  background: #f0f0f5;
+  border-color: rgba(0,0,0,.07);
+}
+body.app-light #settingsPage .font-scale-a,
+body.app-light #settingsPage .font-scale-value { color: #747480; }
+body.app-light #settingsPage .font-scale-slider::-webkit-slider-runnable-track,
+body.app-light #settingsPage .font-scale-slider::-moz-range-track { background: #b8b8c2; }
+
+/* Build 502: contextual Assist pill on all three simple mode cards. */
+
+@media (max-height: 650px) {
+  .simple-mode-assist { top: 9px; right: 11px; height: 25px; min-width: 66px; padding: 0 8px; font-size: .625rem; }
+}
+/* Build 509 — Every dismiss/close X uses one unmistakable circular shape. */
+:is(
+  .sheet-close-btn,
+  .bottom-sheet-x,
+  .scs-topbar-x,
+  .home-topbar-close,
+  .demo-banner-exit,
+  .stats-close-btn,
+  .profile-drawer-close,
+  .venue-picker-close,
+  .vs-manage-close,
+  .organiser-access-close,
+  .club-setup-assist-close,
+  .launcher-start-close,
+  .scs-guide-close,
+  .scs-popup-close-btn,
+  .scs-guide-gender-close,
+  .scs-nickname-editor-close,
+  .scs-assist-child-close,
+  .auth-close-btn,
+  .auth-social-close-btn,
+  .subscription-close-x
+) {
+  border-radius: 50% !important;
+  aspect-ratio: 1 / 1;
+  padding: 0 !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  flex: 0 0 auto;
+  line-height: 1 !important;
+}
+
+.subscription-close-x {
+  width: 38px;
+  height: 38px;
+  border: 1.5px solid rgba(255,93,115,.9);
+  background: rgba(89,22,36,.92);
+  color: #fff;
+  font: 850 1.2rem/1 var(--font-body, system-ui);
+  cursor: pointer;
+}
+body.app-light .subscription-close-x {
+  background: #fff;
+  color: #d92f50;
+  border-color: #d92f50;
+}
+
+/* Build 512 — Existing Players actions remain interactive inside Round Assist. */
+body.scs-guide-child-open #newImportModal.scs-assist-import-modal {
+  z-index: 2147483700 !important;
+}
+
+.page.scs-assist-nested-player-page {
+  display: block !important;
+  position: fixed !important;
+  inset: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)) !important;
+  z-index: 2147483700 !important;
+  width: min(730px, calc(100vw - 32px)) !important;
+  height: auto !important;
+  max-height: calc(100dvh - 32px) !important;
+  margin: auto !important;
+  padding: 0 0 max(12px, env(safe-area-inset-bottom)) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+  background: var(--bg, #11121a) !important;
+  border: 1px solid color-mix(in srgb, var(--accent, #7c5cff) 42%, transparent) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 26px 76px rgba(0,0,0,.66) !important;
+}
+.scs-assist-nested-player-page > .sheet-header {
+  padding-right: 62px !important;
+}
+.scs-assist-nested-player-page > .sheet-header > :last-child:not(.scs-assist-nested-player-close) {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+.scs-assist-nested-player-close {
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  z-index: 2147483800 !important;
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 50% !important;
+}
+body.scs-guide-nested-player-open::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 2147483600;
+  background: rgba(4,5,12,.46);
+}
+
+
+/* Build 510 — headphone icon for all Assist controls. */
+.assist-headphone-icon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:1.15em;height:1.15em}
+.assist-headphone-icon svg{display:block;width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* Build 524: confirmation before changing the Organiser club. */
+.scs-guide-club-change-modal{position:fixed;inset:0;z-index:2147483647;background:rgba(8,9,18,.72);display:flex;align-items:center;justify-content:center;padding:22px;backdrop-filter:blur(8px)}
+.scs-guide-club-change-card{width:min(390px,100%);box-sizing:border-box;padding:26px 22px 20px;border-radius:26px;background:var(--surface,#171820);color:var(--text,#f7f7fb);border:1px solid rgba(131,91,230,.42);box-shadow:0 26px 80px rgba(0,0,0,.42);text-align:center}
+.scs-guide-club-change-icon{font-size:2.5rem;line-height:1;margin-bottom:12px}.scs-guide-club-change-card h3{margin:0 0 12px;font-size:1.35rem}.scs-guide-club-change-card p{margin:0 0 9px;line-height:1.45;color:var(--muted,#a7a9bd)}
+.scs-guide-club-change-warning{padding:12px 14px;border-radius:15px;background:rgba(255,174,0,.1);border:1px solid rgba(255,174,0,.24);color:var(--text,#f7f7fb)!important}
+.scs-guide-club-change-actions{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:20px}.scs-guide-club-change-actions button{min-height:48px;border-radius:15px;font:inherit;font-weight:750;cursor:pointer}
+.scs-guide-club-change-cancel{background:transparent;color:var(--text,#f7f7fb);border:1px solid var(--border,#3b3d4d)}.scs-guide-club-change-confirm{background:#6937d5;color:#fff;border:1px solid #7b4be2}
+
+
+/* Build 530: compact expandable Round Settings card only */
+.org-round-settings-card {
+  gap: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+.org-round-settings-card .org-round-settings-header {
+  width: 100%;
+  min-height: 3.25rem;
+  padding: .75rem 1rem;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  text-align: left;
+}
+.org-round-settings-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  line-height: 1.2;
+  font-weight: 700;
+  color: inherit;
+}
+.org-round-settings-chevron {
+  display: inline-grid;
+  place-items: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  flex: 0 0 auto;
+  font-size: 1.35rem;
+  line-height: 1;
+  color: var(--muted, #94a3b8);
+  transform: rotate(0deg);
+  transition: transform .22s ease;
+}
+.org-round-settings-card:not(.is-collapsed) .org-round-settings-chevron {
+  transform: rotate(180deg);
+}
+.org-round-settings-body {
+  max-height: 24rem;
+  opacity: 1;
+  padding: 0 1rem .9rem;
+  overflow: hidden;
+  pointer-events: auto;
+  transition: max-height .28s ease, opacity .2s ease, padding .28s ease;
+}
+.org-round-settings-card.is-collapsed .org-round-settings-body {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  pointer-events: none;
+}
+.org-round-settings-card .org-rounds-row {
+  min-height: 2.7rem;
+  padding: .15rem 0 .45rem;
+}
+.org-round-settings-card .game-generation-block {
+  margin-top: .25rem !important;
+  padding-top: .6rem !important;
+  gap: .35rem !important;
+}
+.org-round-settings-card .game-generation-block .game-generation-title {
+  margin-bottom: .05rem !important;
+  font-size: .9rem !important;
+}
+.org-round-settings-card .game-generation-block .game-mode-radio-row {
+  min-height: 2.55rem !important;
+  padding: .4rem .65rem !important;
+  border-radius: .75rem !important;
+}
+
+
+/* Build 532: compact, color-coded Round Settings redesign only */
+.org-round-settings-card .org-round-settings-body {
+  max-height: 15rem;
+  padding: 0 .8rem .75rem;
+}
+.org-round-settings-card .org-round-settings-header {
+  min-height: 2.9rem;
+  padding: .58rem .8rem;
+}
+.org-round-settings-card .org-round-settings-title {
+  font-size: 1rem;
+}
+.org-round-settings-card .org-round-settings-chevron {
+  width: 1.35rem;
+  height: 1.35rem;
+  font-size: 1.15rem;
+}
+.org-round-settings-card .org-mark-winner-row {
+  display: grid;
+  grid-template-columns: 1.75rem 1fr auto;
+  align-items: center;
+  gap: .55rem;
+  min-height: 3rem;
+  padding: .38rem .65rem;
+  margin: 0;
+  border: 1px solid rgba(34,197,94,.34);
+  border-radius: .85rem;
+  background: linear-gradient(90deg, rgba(22,163,74,.18), rgba(22,163,74,.05));
+}
+.org-setting-icon {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: .55rem;
+  font-size: .92rem;
+  line-height: 1;
+}
+.org-setting-icon-winner {
+  background: rgba(22,163,74,.28);
+}
+.org-round-settings-card .org-rounds-label {
+  font-size: .92rem;
+  font-weight: 750;
+}
+.org-round-settings-card .switch {
+  transform: scale(.82);
+  transform-origin: right center;
+}
+.org-round-settings-card .game-generation-block {
+  margin-top: .55rem !important;
+  padding-top: 0 !important;
+  gap: .35rem !important;
+  border-top: 0 !important;
+}
+.org-round-settings-card .game-generation-block .game-generation-title {
+  margin: 0 0 .22rem .08rem !important;
+  font-size: .78rem !important;
+  line-height: 1.1;
+  font-weight: 700;
+  color: #b7a7ff;
+}
+.org-round-settings-card .game-generation-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .38rem;
+}
+.org-round-settings-card .game-generation-row .game-mode-radio-row {
+  --mode-rgb: 59,130,246;
+  min-width: 0;
+  min-height: 3.35rem !important;
+  margin: 0 !important;
+  padding: .42rem .48rem !important;
+  border: 1px solid rgba(var(--mode-rgb),.55) !important;
+  border-radius: .8rem !important;
+  background: linear-gradient(135deg, rgba(var(--mode-rgb),.18), rgba(var(--mode-rgb),.045)) !important;
+  display: grid !important;
+  grid-template-columns: 1.45rem minmax(0,1fr) .9rem;
+  align-items: center;
+  gap: .35rem;
+  color: var(--text) !important;
+  cursor: pointer;
+  overflow: hidden;
+}
+.org-round-settings-card .game-generation-row .game-mode-standard { --mode-rgb: 59,130,246; }
+.org-round-settings-card .game-generation-row .game-mode-unique { --mode-rgb: 34,197,94; }
+.org-round-settings-card .game-generation-row .game-mode-balanced { --mode-rgb: 249,115,22; }
+.org-round-settings-card .game-generation-row .game-mode-radio-row input {
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+.org-round-settings-card .game-mode-icon {
+  display: grid;
+  place-items: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  border-radius: .48rem;
+  background: rgba(var(--mode-rgb),.25);
+  color: rgb(var(--mode-rgb));
+  font-size: .78rem;
+  line-height: 1;
+}
+.org-round-settings-card .game-mode-name {
+  min-width: 0;
+  font-size: .9rem !important;
+  line-height: 1.08;
+  font-weight: 760;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.org-round-settings-card .game-mode-indicator {
+  width: .78rem;
+  height: .78rem;
+  box-sizing: border-box;
+  border: 2px solid rgba(var(--mode-rgb),.85);
+  border-radius: 50%;
+  justify-self: end;
+  background: transparent;
+  box-shadow: none;
+}
+.org-round-settings-card .game-mode-radio-row:has(input:checked) {
+  border-color: rgb(var(--mode-rgb)) !important;
+  background: linear-gradient(135deg, rgba(var(--mode-rgb),.32), rgba(var(--mode-rgb),.12)) !important;
+  box-shadow: 0 0 0 1px rgba(var(--mode-rgb),.22), 0 8px 20px rgba(var(--mode-rgb),.12);
+}
+.org-round-settings-card .game-mode-radio-row:has(input:checked) .game-mode-indicator {
+  border-color: rgb(var(--mode-rgb));
+  background: rgb(var(--mode-rgb));
+  box-shadow: inset 0 0 0 2px rgba(8,10,18,.72);
+}
+@media (max-width: 380px) {
+  .org-round-settings-card .game-generation-row { gap: .28rem; }
+  .org-round-settings-card .game-generation-row .game-mode-radio-row {
+    grid-template-columns: 1.25rem minmax(0,1fr) .72rem;
+    gap: .25rem;
+    padding: .38rem .35rem !important;
+  }
+  .org-round-settings-card .game-mode-icon { width: 1.25rem; height: 1.25rem; font-size: .68rem; }
+  .org-round-settings-card .game-mode-name { font-size: .65rem; }
+  .org-round-settings-card .game-mode-indicator { width: .68rem; height: .68rem; }
+}
+
+
+/* Build 538: keep the three game-generation choices compact and readable at every font scale. */
+.org-round-settings-card .game-generation-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: .32rem !important;
+}
+.org-round-settings-card .game-generation-row .game-mode-radio-row {
+  min-height: 3rem !important;
+  padding: .38rem .34rem !important;
+  grid-template-columns: 1.15rem minmax(0, 1fr) .72rem !important;
+  gap: .24rem !important;
+  overflow: hidden !important;
+}
+.org-round-settings-card .game-mode-icon {
+  width: 1.15rem !important;
+  height: 1.15rem !important;
+  border-radius: .38rem !important;
+  font-size: .64rem !important;
+}
+.org-round-settings-card .game-mode-name {
+  display: block !important;
+  min-width: 0 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  writing-mode: horizontal-tb !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+  letter-spacing: -.15px !important;
+  text-align: center !important;
+}
+.org-round-settings-card .game-mode-indicator {
+  width: .68rem !important;
+  height: .68rem !important;
+  border-width: 2px !important;
+}
+@media (max-width: 380px) {
+  .org-round-settings-card .game-generation-row .game-mode-radio-row {
+    grid-template-columns: 1.05rem minmax(0, 1fr) .64rem !important;
+    padding: .34rem .28rem !important;
+    gap: .18rem !important;
+  }
+  .org-round-settings-card .game-mode-icon {
+    width: 1.05rem !important;
+    height: 1.05rem !important;
+    font-size: .58rem !important;
+  }
+  .org-round-settings-card .game-mode-name { font-size: 10px !important; }
+  .org-round-settings-card .game-mode-indicator { width: .62rem !important; height: .62rem !important; }
+}
+
+
+/* Build 539: uniform Round Settings typography and clean teal/magenta/gold game modes. */
+.org-round-settings-card .org-round-settings-title,
+.org-round-settings-card .game-generation-block .game-generation-title,
+.org-scheduling-tile .org-mode-heading {
+  font-family: var(--font-display) !important;
+  font-size: .92rem !important;
+  line-height: 1.2 !important;
+  font-weight: 750 !important;
+  letter-spacing: .01em !important;
+  color: var(--text) !important;
+}
+.org-round-settings-card .org-round-settings-title {
+  margin: 0 !important;
+}
+.org-round-settings-card .game-generation-block .game-generation-title {
+  margin: 0 0 .55rem .08rem !important;
+}
+.org-round-settings-card .org-mark-winner-row {
+  grid-template-columns: 1fr auto !important;
+  min-height: 3.15rem !important;
+  padding: .45rem .7rem !important;
+  border-color: var(--border, rgba(148,163,184,.24)) !important;
+  background: transparent !important;
+}
+.org-round-settings-card .org-rounds-label {
+  font-family: var(--font-display) !important;
+  font-size: .92rem !important;
+  line-height: 1.2 !important;
+  font-weight: 750 !important;
+  color: var(--text) !important;
+}
+.org-round-settings-card .game-generation-row {
+  gap: .42rem !important;
+}
+.org-round-settings-card .game-generation-row .game-mode-radio-row {
+  min-height: 3.35rem !important;
+  padding: .5rem .62rem !important;
+  grid-template-columns: minmax(0, 1fr) .95rem !important;
+  gap: .4rem !important;
+  border-width: 1.5px !important;
+  background: transparent !important;
+  overflow: visible !important;
+}
+.org-round-settings-card .game-generation-row .game-mode-standard { --mode-rgb: 45, 212, 191 !important; }
+.org-round-settings-card .game-generation-row .game-mode-unique { --mode-rgb: 236, 72, 153 !important; }
+.org-round-settings-card .game-generation-row .game-mode-balanced { --mode-rgb: 234, 184, 63 !important; }
+.org-round-settings-card .game-mode-icon { display: none !important; }
+.org-round-settings-card .game-mode-name {
+  min-width: 0 !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  font-family: var(--font-display) !important;
+  font-size: .88rem !important;
+  line-height: 1.1 !important;
+  font-weight: 750 !important;
+  letter-spacing: 0 !important;
+  text-align: left !important;
+  color: rgb(var(--mode-rgb)) !important;
+}
+.org-round-settings-card .game-mode-indicator {
+  width: .9rem !important;
+  height: .9rem !important;
+  border-width: 2px !important;
+  border-color: rgb(var(--mode-rgb)) !important;
+}
+.org-round-settings-card .game-mode-radio-row:has(input:checked) {
+  background: rgba(var(--mode-rgb), .10) !important;
+  border-color: rgb(var(--mode-rgb)) !important;
+  box-shadow: 0 0 0 1px rgba(var(--mode-rgb),.12), 0 7px 18px rgba(var(--mode-rgb),.10) !important;
+}
+.org-round-settings-card .game-mode-radio-row:has(input:checked) .game-mode-indicator {
+  background: rgb(var(--mode-rgb)) !important;
+  box-shadow: inset 0 0 0 3px rgba(8,10,18,.78) !important;
+}
+@media (max-width: 380px) {
+  .org-round-settings-card .game-generation-row { gap: .32rem !important; }
+  .org-round-settings-card .game-generation-row .game-mode-radio-row {
+    grid-template-columns: minmax(0, 1fr) .8rem !important;
+    padding: .45rem .48rem !important;
+    gap: .25rem !important;
+  }
+  .org-round-settings-card .game-mode-name { font-size: .8rem !important; }
+  .org-round-settings-card .game-mode-indicator { width: .78rem !important; height: .78rem !important; }
+}
+
+/* Build 541: approved circular game-mode selector — UI only. */
+.org-round-settings-card .game-generation-row {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 0 !important;
+  align-items: stretch !important;
+  padding: .15rem 0 .05rem !important;
+}
+.org-round-settings-card .game-generation-row .game-mode-radio-row {
+  --mode-rgb: 45, 212, 191;
+  position: relative !important;
+  min-width: 0 !important;
+  min-height: 5.8rem !important;
+  margin: 0 !important;
+  padding: .42rem .25rem .18rem !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: .58rem !important;
+  overflow: visible !important;
+  cursor: pointer !important;
+}
+.org-round-settings-card .game-generation-row .game-mode-radio-row + .game-mode-radio-row {
+  border-left: 1px solid rgba(148, 163, 184, .18) !important;
+}
+.org-round-settings-card .game-generation-row .game-mode-standard { --mode-rgb: 45, 212, 191 !important; }
+.org-round-settings-card .game-generation-row .game-mode-unique { --mode-rgb: 236, 72, 153 !important; }
+.org-round-settings-card .game-generation-row .game-mode-balanced { --mode-rgb: 234, 184, 63 !important; }
+.org-round-settings-card .game-generation-row .game-mode-radio-row input {
+  position: absolute !important;
+  opacity: 0 !important;
+  width: 1px !important;
+  height: 1px !important;
+  pointer-events: none !important;
+}
+.org-round-settings-card .game-mode-indicator {
+  order: 1 !important;
+  display: block !important;
+  position: relative !important;
+  width: 3.25rem !important;
+  height: 3.25rem !important;
+  flex: 0 0 3.25rem !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  border: .22rem solid rgb(var(--mode-rgb)) !important;
+  border-radius: 50% !important;
+  background: rgba(var(--mode-rgb), .07) !important;
+  box-shadow: 0 0 0 .72rem rgba(var(--mode-rgb), .08) !important;
+}
+.org-round-settings-card .game-mode-indicator::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 50% auto auto 50% !important;
+  width: 1.15rem !important;
+  height: 1.15rem !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  transform: translate(-50%, -50%) !important;
+}
+.org-round-settings-card .game-mode-name {
+  order: 2 !important;
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  font-family: var(--font-display) !important;
+  font-size: .9rem !important;
+  line-height: 1.1 !important;
+  font-weight: 750 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+  color: var(--text) !important;
+}
+.org-round-settings-card .game-mode-radio-row:has(input:checked) {
+  border-top: 0 !important;
+  border-right: 0 !important;
+  border-bottom: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.org-round-settings-card .game-mode-radio-row:has(input:checked) .game-mode-indicator {
+  background: rgba(var(--mode-rgb), .16) !important;
+  border-color: rgb(var(--mode-rgb)) !important;
+  box-shadow: 0 0 0 .78rem rgba(var(--mode-rgb), .13), 0 0 1.1rem rgba(var(--mode-rgb), .28) !important;
+}
+.org-round-settings-card .game-mode-radio-row:has(input:checked) .game-mode-indicator::after {
+  background: #fff !important;
+  box-shadow: 0 0 .55rem rgba(255,255,255,.5) !important;
+}
+.org-round-settings-card .game-mode-radio-row:has(input:checked) .game-mode-name {
+  color: rgb(var(--mode-rgb)) !important;
+}
+@media (max-width: 380px) {
+  .org-round-settings-card .game-generation-row .game-mode-radio-row {
+    min-height: 5.35rem !important;
+    padding: .35rem .1rem .12rem !important;
+    gap: .5rem !important;
+  }
+  .org-round-settings-card .game-mode-indicator {
+    width: 2.85rem !important;
+    height: 2.85rem !important;
+    flex-basis: 2.85rem !important;
+    box-shadow: 0 0 0 .6rem rgba(var(--mode-rgb), .08) !important;
+  }
+  .org-round-settings-card .game-mode-radio-row:has(input:checked) .game-mode-indicator {
+    box-shadow: 0 0 0 .66rem rgba(var(--mode-rgb), .13), 0 0 .9rem rgba(var(--mode-rgb), .25) !important;
+  }
+  .org-round-settings-card .game-mode-name { font-size: .82rem !important; }
+}
+
+/* Build 542: remove every legacy radio/tile artefact from game-mode selector. */
+.org-round-settings-card .game-generation-row .game-mode-radio-row {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  background: transparent !important;
+  background-image: none !important;
+}
+.org-round-settings-card .game-generation-row .game-mode-radio-row::before,
+.org-round-settings-card .game-generation-row .game-mode-radio-row::after,
+.org-round-settings-card .game-mode-indicator::before {
+  content: none !important;
+  display: none !important;
+}
+.org-round-settings-card .game-generation-row .game-mode-radio-row input,
+.org-round-settings-card .game-generation-row .game-mode-radio-row input[type="radio"] {
+  display: none !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+.org-round-settings-card .game-generation-row .game-mode-radio-row:focus,
+.org-round-settings-card .game-generation-row .game-mode-radio-row:focus-visible,
+.org-round-settings-card .game-generation-row .game-mode-radio-row:active,
+.org-round-settings-card .game-generation-row .game-mode-radio-row:has(input:checked) {
+  outline: none !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+/* Build 543: professional light theme and smaller game-mode rings. */
+.org-round-settings-card .game-mode-indicator {
+  width: 2.72rem !important;
+  height: 2.72rem !important;
+  flex-basis: 2.72rem !important;
+  border-width: .17rem !important;
+  box-shadow: 0 0 0 .48rem rgba(var(--mode-rgb), .07) !important;
+}
+.org-round-settings-card .game-mode-indicator::after {
+  width: .9rem !important;
+  height: .9rem !important;
+}
+.org-round-settings-card .game-mode-radio-row:has(input:checked) .game-mode-indicator {
+  box-shadow: 0 0 0 .52rem rgba(var(--mode-rgb), .11), 0 0 .75rem rgba(var(--mode-rgb), .22) !important;
+}
+
+html.app-light .org-round-settings-card {
+  background: #fff !important;
+  border-color: rgba(15, 23, 42, .10) !important;
+  box-shadow: 0 .45rem 1.4rem rgba(15, 23, 42, .08) !important;
+}
+html.app-light .org-round-settings-card .game-generation-row .game-mode-radio-row,
+html.app-light .org-round-settings-card .game-generation-row .game-mode-radio-row:has(input:checked) {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+html.app-light .org-round-settings-card .game-mode-indicator,
+html.app-light .org-round-settings-card .game-mode-radio-row:has(input:checked) .game-mode-indicator {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+html.app-light .org-round-settings-card .game-mode-radio-row:has(input:checked) .game-mode-indicator::after {
+  background: rgb(var(--mode-rgb)) !important;
+  box-shadow: none !important;
+}
+html.app-light .org-round-settings-card .game-generation-row .game-mode-radio-row + .game-mode-radio-row {
+  border-left-color: rgba(15, 23, 42, .10) !important;
+}
+
+@media (max-width: 380px) {
+  .org-round-settings-card .game-mode-indicator {
+    width: 2.48rem !important;
+    height: 2.48rem !important;
+    flex-basis: 2.48rem !important;
+    box-shadow: 0 0 0 .4rem rgba(var(--mode-rgb), .07) !important;
+  }
+  .org-round-settings-card .game-mode-radio-row:has(input:checked) .game-mode-indicator {
+    box-shadow: 0 0 0 .44rem rgba(var(--mode-rgb), .11), 0 0 .65rem rgba(var(--mode-rgb), .2) !important;
+  }
+  html.app-light .org-round-settings-card .game-mode-indicator,
+  html.app-light .org-round-settings-card .game-mode-radio-row:has(input:checked) .game-mode-indicator {
+    box-shadow: none !important;
   }
 }

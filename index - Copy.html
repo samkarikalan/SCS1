@@ -473,17 +473,25 @@
       </div>
     </div>
     <div class="org-rounds-row">
-      <span class="org-rounds-label" data-i18n="competitive">🏆 Competitive</span>
+      <span class="org-rounds-label" data-i18n="markWinner">Mark Winner</span>
       <label class="switch">
         <input type="checkbox" id="stepModeToggle" onchange="stepSyncMode()">
         <span class="slider"></span>
       </label>
     </div>
-    <div class="org-rounds-row">
-      <span class="org-rounds-label" data-i18n="uniqueGames">✨ Unique Games</span>
-      <label class="switch">
-        <input type="checkbox" id="uniqueGamesToggle" onchange="stepSyncUniqueGames()">
-        <span class="slider"></span>
+    <div class="game-generation-block">
+      <div class="game-generation-title" data-i18n="gameGeneration">Game Generation</div>
+      <label class="game-mode-radio-row">
+        <input type="radio" name="homeGameGenerationMode" value="standard" onchange="stepSyncGameGeneration(this.value)">
+        <span data-i18n="standardGames">Standard Games</span>
+      </label>
+      <label class="game-mode-radio-row">
+        <input type="radio" name="homeGameGenerationMode" value="unique" onchange="stepSyncGameGeneration(this.value)">
+        <span data-i18n="uniqueGamesPlain">Unique Games</span>
+      </label>
+      <label class="game-mode-radio-row">
+        <input type="radio" name="homeGameGenerationMode" value="balanced" onchange="stepSyncGameGeneration(this.value)">
+        <span data-i18n="balancedGames">Balanced Games</span>
       </label>
     </div>
     <!-- Two launch cards -->
@@ -1971,8 +1979,7 @@
 
 <div class="setting-row">
   <label class="setting-label">
-    <span id="modeLabel"></span>
-    <span data-i18n="competitive">Competitive</span>
+    <span data-i18n="markWinner">Mark Winner</span>
   </label>
   <label class="switch">
     <input type="checkbox" id="modeToggle">
@@ -1980,14 +1987,19 @@
   </label>
 </div>
 
-<div class="setting-row">
-  <label class="setting-label">
-    <span id="uniqueGamesLabel">✨</span>
-    <span data-i18n="uniqueGames">Unique Games</span>
+<div class="game-generation-block round-settings-game-generation">
+  <div class="game-generation-title" data-i18n="gameGeneration">Game Generation</div>
+  <label class="game-mode-radio-row">
+    <input type="radio" name="roundGameGenerationMode" value="standard" onchange="setGameGenerationMode(this.value, true)">
+    <span data-i18n="standardGames">Standard Games</span>
   </label>
-  <label class="switch">
-    <input type="checkbox" id="uniqueGamesToggle">
-    <span class="slider"></span>
+  <label class="game-mode-radio-row">
+    <input type="radio" name="roundGameGenerationMode" value="unique" onchange="setGameGenerationMode(this.value, true)">
+    <span data-i18n="uniqueGamesPlain">Unique Games</span>
+  </label>
+  <label class="game-mode-radio-row">
+    <input type="radio" name="roundGameGenerationMode" value="balanced" onchange="setGameGenerationMode(this.value, true)">
+    <span data-i18n="balancedGames">Balanced Games</span>
   </label>
 </div>
 

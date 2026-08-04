@@ -128,7 +128,7 @@ async function createSummaryCSS() {
 }
 
 .export-round-title {
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: 600;
   margin-bottom: 16px;
   border-bottom: 1px solid #000;
@@ -187,7 +187,7 @@ async function createSummaryCSS() {
 
 .export-rest-box {
   margin: 5px;
-  font-size: 13px;
+  font-size: .8125rem;
 }
 
 `;

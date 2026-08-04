@@ -12,7 +12,7 @@ BRRStyle1.css (Global / Layout / Players)
 
 
 :root {
---base-font-size: 18px;
+--base-font-size: 1.125rem;
 --player-font-size:1.1rem;
 
 --bg:         #0f0f13;
@@ -126,7 +126,7 @@ body.app-dark .lock-icon {
   html.lang-jp {
   /* Japanese glyphs render visually larger than Latin at the same rem size.
      Keep every app screen at a comparable visual height. */
-  font-size: calc(var(--base-font-size) - 2px);
+  font-size: calc(var(--base-font-size) - .125rem);
   }
   body {
   margin: 0; padding: 0;
@@ -153,13 +153,13 @@ body.app-dark .lock-icon {
 .app-logo-premium {
   position: absolute; left: 50%; transform: translateX(-50%);
   font-family: var(--font-display);
-  font-size: 18px; font-weight: 700; letter-spacing: 0.3px;
+  font-size: 1.125rem; font-weight: 700; letter-spacing: 0.3px;
   color: var(--text); white-space: nowrap; pointer-events: none;
   display: flex; align-items: center; gap: 6px;
 }
 .app-logo-premium::before {
   content: '🏸';
-  font-size: 16px;
+  font-size: 1rem;
 }
 .menu-btn { font-size: 1.3rem; cursor: pointer; user-select: none; color: var(--text-dim); padding: 4px; border-radius: 8px; }
 
@@ -169,7 +169,7 @@ body.app-dark .lock-icon {
   border: 1px solid var(--border2);
   background: var(--surface2);
   display: flex; align-items: center; justify-content: center;
-  font-size: 20px; cursor: pointer;
+  font-size: 1.25rem; cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
 }
 .lang-btn:hover { background: var(--surface3); border-color: var(--accent); }
@@ -225,7 +225,7 @@ body.organiser-tabs .tabs-container::-webkit-scrollbar { display: none; }
   border-bottom: 3px solid transparent;
   font-family: var(--font-body);
   font-weight: 600;
-  font-size: 16px;
+  font-size: 1rem;
   padding: 6px 8px;
   border-radius: 0;
   cursor: pointer;
@@ -240,7 +240,7 @@ body.organiser-tabs .tabs-container::-webkit-scrollbar { display: none; }
 }
 
 .tab-icon {
-  font-size: 20px;
+  font-size: 1.25rem;
   line-height: 1;
 }
 
@@ -352,7 +352,7 @@ height: 44px; min-height: 44px; box-sizing: border-box;
   min-width: 36px;
 }
 .pec-delete { text-align: right; }
-.pec-delete .delete { all: unset; font-size: 22px; cursor: pointer; color: var(--muted); transition: color 0.2s; }
+.pec-delete .delete { all: unset; font-size: 1.375rem; cursor: pointer; color: var(--muted); transition: color 0.2s; }
 .pec-delete .delete:hover { color: var(--red); }
 .pec-delete-btn { all: unset; cursor: pointer; color: var(--muted); display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 6px; transition: color 0.2s, background 0.2s; }
 .pec-delete-btn:hover, .pec-delete-btn:active { color: var(--red, #e63757); background: rgba(230,55,87,0.1); }
@@ -361,7 +361,7 @@ height: 44px; min-height: 44px; box-sizing: border-box;
 .fixed-card { display: grid; grid-template-columns: 1fr 55px; align-items: center; gap: 8px; font-size: 1rem; padding: 10px 14px; border-radius: var(--r-xl); border: 1px solid var(--border2); background: var(--surface2); margin: 5px 0; }
 .fixed-name { white-space: normal; word-break: break-word; color: var(--text); }
 .fixed-delete { text-align: right; }
-.fixed-delete .delete { all: unset; font-size: 22px; cursor: pointer; color: var(--muted); transition: color 0.2s; }
+.fixed-delete .delete { all: unset; font-size: 1.375rem; cursor: pointer; color: var(--muted); transition: color 0.2s; }
 .fixed-delete .delete:hover { color: var(--red); }
 .row-addplayer { display: flex; gap: 10px; flex-wrap: nowrap; align-items: center; }
 
@@ -484,14 +484,14 @@ min-width: 160px;
 .globe {
 position: absolute;
 left: 12px;
-font-size: 16px;
+font-size: 1rem;
 opacity: 0.8;
 }
 /* Dropdown arrow */
 .arrow {
 position: absolute;
 right: 12px;
-font-size: 14px;
+font-size: .875rem;
 pointer-events: none;
 opacity: 0.6;
 }
@@ -518,8 +518,8 @@ display: block;
 }
 .lang-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 5px; }
 .select-wrapper { position: relative; display: flex; align-items: center; background: var(--surface2); border-radius: var(--r-sm); padding: 0 36px 0 38px; height: 44px; min-width: 160px; border: 1px solid var(--border2); }
-.globe { position: absolute; left: 12px; font-size: 16px; opacity: 0.7; }
-.arrow { position: absolute; right: 12px; font-size: 14px; pointer-events: none; opacity: 0.5; color: var(--muted); }
+.globe { position: absolute; left: 12px; font-size: 1rem; opacity: 0.7; }
+.arrow { position: absolute; right: 12px; font-size: .875rem; pointer-events: none; opacity: 0.5; color: var(--muted); }
 .lang-select { background: transparent; border: none; color: var(--text); font-size: 1rem; width: 100%; outline: none; }
 .fixed-sl { text-align: center; font-weight: 600; color: var(--muted); }
 .player-help section { display: none; }
@@ -2598,7 +2598,7 @@ body.app-light .jc-club-pending {
 /* ── Home Top Bar ── */
 .home-logo {
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: 700;
   color: var(--text);
 }
@@ -3569,7 +3569,7 @@ body.app-light .tile-pairs { background: rgba(245,158,11,0.12); }
   left: 50%;
   transform: translateX(-50%);
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: 700;
   color: var(--text);
   pointer-events: none;
@@ -5970,7 +5970,7 @@ body.app-light .tile-settings { background: var(--surface3); }
 }
 
 .export-round-title {
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: 600;
   margin-bottom: 16px;
   border-bottom: 1px solid #000;
@@ -6029,7 +6029,7 @@ body.app-light .tile-settings { background: var(--surface3); }
 
 .export-rest-box {
   margin: 5px;
-  font-size: 13px;
+  font-size: .8125rem;
 }
 
 /* ===== PLAYER BUTTON OVERRIDES (FINAL) ===== */
@@ -6059,7 +6059,7 @@ body.app-light .tile-settings { background: var(--surface3); }
   object-fit: cover;
   border: 2px solid var(--accent);
 }
-.profile-btn-icon { font-size: 18px; }
+.profile-btn-icon { font-size: 1.125rem; }
 
 /* ─────────────────────────────────────────────
    PROFILE OVERLAY + DRAWER
@@ -6812,7 +6812,7 @@ body.app-dark .newImport-player-card.player-added {
 }
 .fc-delete-btn {
   all: unset !important;
-  font-size: 18px !important;
+  font-size: 1.125rem !important;
   cursor: pointer !important;
   color: var(--muted) !important;
   transition: color 0.2s, opacity 0.2s !important;
@@ -7399,7 +7399,7 @@ body.viewer-mode #clubMgmtCard {
   border: 1px solid rgba(245,166,35,0.2);
   border-radius: 10px;
   margin-bottom: 10px;
-  font-size: 12px;
+  font-size: .75rem;
   color: var(--text-dim);
 }
 .viewer-info-dot {
@@ -7413,7 +7413,7 @@ body.viewer-mode #clubMgmtCard {
   0%,100% { opacity: 1; transform: scale(1); }
   50%      { opacity: 0.4; transform: scale(0.7); }
 }
-.viewer-info-text { font-size: 12px; color: var(--text-dim); }
+.viewer-info-text { font-size: .75rem; color: var(--text-dim); }
 .viewer-info-text strong { color: var(--text); font-weight: 600; }
 
 /* Leaderboard */
@@ -7789,16 +7789,16 @@ body.app-dark .viewer-rounds .round-wrapper:nth-child(even) {
 
 /* ── Tab label -- fixed size, never changes with font setting ── */
 .tab-label {
-  font-size: 10px !important;
+  font-size: .625rem !important;
   font-weight: 600;
   line-height: 1.2;
   white-space: nowrap;
 }
 .tab-icon {
-  font-size: 20px !important;
+  font-size: 1.25rem !important;
 }
 .tab-btn {
-  font-size: 10px !important;
+  font-size: .625rem !important;
 }
 
 /* Tab bar container */
@@ -14995,7 +14995,7 @@ body.home-open.experience-intermediate #homeViewerGrid .home-show-more-btn {
 .ml-control-card .ml-settings-btn span,
 .ml-control-card .ml-lang-current,
 .ml-control-card .ml-lang-opt {
-  font-size:14px !important;
+  font-size:.875rem !important;
 }
 
 /* Mode launcher density follows the selected experience. */
@@ -16486,24 +16486,24 @@ body.app-light #modeSelectOverlay .welcome-workspace.active .welcome-workspace-f
   padding-top: 4px;
   overflow: visible;
 }
-#modeSelectOverlay .welcome-badminton-mark { margin-bottom: 4px; font-size: 38px; }
+#modeSelectOverlay .welcome-badminton-mark { margin-bottom: 4px; font-size: 2.375rem; }
 #modeSelectOverlay .welcome-refresh-btn,
-#modeSelectOverlay .welcome-theme-toggle { font-size: 18px; }
-#modeSelectOverlay .welcome-domain { font-size: 13px; line-height: 18px; }
+#modeSelectOverlay .welcome-theme-toggle { font-size: 1.125rem; }
+#modeSelectOverlay .welcome-domain { font-size: .8125rem; line-height: 18px; }
 #modeSelectOverlay .welcome-title {
   margin-top: 14px;
-  font-size: 44px;
+  font-size: 2.75rem;
   line-height: 48px;
 }
 #modeSelectOverlay .welcome-subtitle {
   max-width: 620px;
   margin-top: 10px;
-  font-size: 16px;
+  font-size: 1rem;
   line-height: 24px;
 }
 #modeSelectOverlay .welcome-section-title {
   margin: 28px 0 12px;
-  font-size: 12px;
+  font-size: .75rem;
   line-height: 16px;
 }
 #modeSelectOverlay .welcome-workspace,
@@ -16519,12 +16519,12 @@ body.app-light #modeSelectOverlay .welcome-workspace.active .welcome-workspace-f
   width: 76px;
   height: 72px;
 }
-#modeSelectOverlay .welcome-workspace-label { font-size: 21px; line-height: 25px; }
-#modeSelectOverlay .welcome-workspace-club { font-size: 15px; line-height: 18px; }
+#modeSelectOverlay .welcome-workspace-label { font-size: 1.3125rem; line-height: 25px; }
+#modeSelectOverlay .welcome-workspace-club { font-size: .9375rem; line-height: 18px; }
 #modeSelectOverlay .welcome-workspace-features {
   margin-top: 3px;
   gap: 3px;
-  font-size: 13px;
+  font-size: .8125rem;
   line-height: 17px;
 }
 #modeSelectOverlay .welcome-next-steps {
@@ -16533,7 +16533,7 @@ body.app-light #modeSelectOverlay .welcome-workspace.active .welcome-workspace-f
   align-items: baseline;
   justify-content: flex-start;
   gap: 22px;
-  font-size: 15px;
+  font-size: .9375rem;
   line-height: 20px;
 }
 #modeSelectOverlay .welcome-next-actions {
@@ -16543,7 +16543,7 @@ body.app-light #modeSelectOverlay .welcome-workspace.active .welcome-workspace-f
   justify-content: flex-start;
   gap: 7px;
   color: #c1bfd0;
-  font-size: 14px;
+  font-size: .875rem;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -16553,7 +16553,7 @@ body.app-light #modeSelectOverlay .welcome-next-actions { color: #666a7e; }
   height: 62px;
   margin-top: 10px;
   border-radius: 20px;
-  font-size: 22px;
+  font-size: 1.375rem;
   line-height: 26px;
 }
 #modeSelectOverlay .welcome-footer { gap: 12px; margin-top: 18px; }
@@ -16563,21 +16563,21 @@ body.app-light #modeSelectOverlay .welcome-next-actions { color: #666a7e; }
   padding: 10px 5px;
   border-radius: 22px;
   gap: 8px;
-  font-size: 17px;
+  font-size: 1.0625rem;
   line-height: 21px;
 }
-#modeSelectOverlay .welcome-utility-icon { width: 36px; height: 36px; font-size: 27px; }
-#modeSelectOverlay .welcome-language .ml-lang-current { font-size: 17px !important; line-height: 21px; }
+#modeSelectOverlay .welcome-utility-icon { width: 36px; height: 36px; font-size: 1.6875rem; }
+#modeSelectOverlay .welcome-language .ml-lang-current { font-size: 1.0625rem !important; line-height: 21px; }
 
 @media (max-width: 430px) {
   #modeSelectOverlay.welcome-launcher { padding-left: 10px; padding-right: 10px; }
   #modeSelectOverlay .welcome-refresh-btn { right: 48px; width: 38px; height: 38px; }
   #modeSelectOverlay .welcome-theme-toggle { width: 38px; height: 38px; }
-  #modeSelectOverlay .welcome-badminton-mark { font-size: 34px; }
-  #modeSelectOverlay .welcome-domain { font-size: 11px; line-height: 15px; }
-  #modeSelectOverlay .welcome-title { margin-top: 10px; font-size: 34px; line-height: 38px; }
-  #modeSelectOverlay .welcome-subtitle { max-width: 350px; margin-top: 8px; font-size: 14px; line-height: 20px; }
-  #modeSelectOverlay .welcome-section-title { margin: 22px 0 10px; gap: 8px; font-size: 10px; line-height: 14px; }
+  #modeSelectOverlay .welcome-badminton-mark { font-size: 2.125rem; }
+  #modeSelectOverlay .welcome-domain { font-size: .6875rem; line-height: 15px; }
+  #modeSelectOverlay .welcome-title { margin-top: 10px; font-size: 2.125rem; line-height: 38px; }
+  #modeSelectOverlay .welcome-subtitle { max-width: 350px; margin-top: 8px; font-size: .875rem; line-height: 20px; }
+  #modeSelectOverlay .welcome-section-title { margin: 22px 0 10px; gap: 8px; font-size: .625rem; line-height: 14px; }
   #modeSelectOverlay .welcome-workspaces { gap: 6px; }
   #modeSelectOverlay .welcome-workspace,
   #modeSelectOverlay .welcome-workspace.active,
@@ -16589,24 +16589,24 @@ body.app-light #modeSelectOverlay .welcome-next-actions { color: #666a7e; }
   }
   #modeSelectOverlay .welcome-workspace-icon,
   #modeSelectOverlay .welcome-workspace.active .welcome-workspace-icon { width: 58px; height: 56px; }
-  #modeSelectOverlay .welcome-workspace-label { font-size: 17px; line-height: 20px; }
-  #modeSelectOverlay .welcome-workspace-club { font-size: 13px; line-height: 15px; }
-  #modeSelectOverlay .welcome-workspace-features { gap: 2px; font-size: 10px; line-height: 13px; }
+  #modeSelectOverlay .welcome-workspace-label { font-size: 1.0625rem; line-height: 20px; }
+  #modeSelectOverlay .welcome-workspace-club { font-size: .8125rem; line-height: 15px; }
+  #modeSelectOverlay .welcome-workspace-features { gap: 2px; font-size: .625rem; line-height: 13px; }
   #modeSelectOverlay .welcome-tile-logout { top: 7px; right: 7px; width: 27px; height: 27px; }
-  #modeSelectOverlay .welcome-next-steps { margin: 16px 8px 0; gap: 12px; font-size: 13px; line-height: 17px; }
-  #modeSelectOverlay .welcome-next-actions { gap: 5px; font-size: 11px; line-height: 14px; }
-  #modeSelectOverlay .welcome-continue { height: 56px; margin-top: 8px; border-radius: 18px; font-size: 20px; }
+  #modeSelectOverlay .welcome-next-steps { margin: 16px 8px 0; gap: 12px; font-size: .8125rem; line-height: 17px; }
+  #modeSelectOverlay .welcome-next-actions { gap: 5px; font-size: .6875rem; line-height: 14px; }
+  #modeSelectOverlay .welcome-continue { height: 56px; margin-top: 8px; border-radius: 18px; font-size: 1.25rem; }
   #modeSelectOverlay .welcome-footer { gap: 6px; margin-top: 14px; }
-  #modeSelectOverlay .welcome-utility { height: 92px; border-radius: 18px; gap: 5px; font-size: 15px; line-height: 18px; }
-  #modeSelectOverlay .welcome-utility-icon { width: 31px; height: 31px; font-size: 23px; }
-  #modeSelectOverlay .welcome-language .ml-lang-current { font-size: 15px !important; line-height: 18px; }
+  #modeSelectOverlay .welcome-utility { height: 92px; border-radius: 18px; gap: 5px; font-size: .9375rem; line-height: 18px; }
+  #modeSelectOverlay .welcome-utility-icon { width: 31px; height: 31px; font-size: 1.4375rem; }
+  #modeSelectOverlay .welcome-language .ml-lang-current { font-size: .9375rem !important; line-height: 18px; }
 }
 
 @media (max-height: 720px) {
-  #modeSelectOverlay .welcome-badminton-mark { font-size: 29px; }
+  #modeSelectOverlay .welcome-badminton-mark { font-size: 1.8125rem; }
   #modeSelectOverlay .welcome-domain { line-height: 13px; }
-  #modeSelectOverlay .welcome-title { margin-top: 7px; font-size: 31px; line-height: 34px; }
-  #modeSelectOverlay .welcome-subtitle { margin-top: 5px; font-size: 13px; line-height: 18px; }
+  #modeSelectOverlay .welcome-title { margin-top: 7px; font-size: 1.9375rem; line-height: 34px; }
+  #modeSelectOverlay .welcome-subtitle { margin-top: 5px; font-size: .8125rem; line-height: 18px; }
   #modeSelectOverlay .welcome-section-title { margin: 15px 0 7px; }
   #modeSelectOverlay .welcome-workspace,
   #modeSelectOverlay .welcome-workspace.active,
@@ -16656,7 +16656,7 @@ body.app-light #modeSelectOverlay .welcome-next-actions { color: #666a7e; }
   border-radius: 50%;
   background: rgba(255, 255, 255, .04);
   color: #b8b6ca;
-  font-size: 24px;
+  font-size: 1.5rem;
   line-height: 30px;
   cursor: pointer;
 }
@@ -16670,24 +16670,24 @@ body.app-light #modeSelectOverlay .welcome-next-actions { color: #666a7e; }
   border-radius: 18px;
   background: rgba(116, 75, 255, .12);
   color: #a184ff;
-  font-size: 30px;
+  font-size: 1.875rem;
 }
 .organiser-access-sheet h2 {
   margin: 0;
-  font-size: 24px;
+  font-size: 1.5rem;
   line-height: 30px;
 }
 .organiser-access-account {
   margin: 8px 0 24px;
   color: #a8a6bb;
-  font-size: 14px;
+  font-size: .875rem;
   line-height: 20px;
 }
 .organiser-access-account strong { color: #d9d6eb; }
 .organiser-access-label {
   margin-bottom: 9px;
   color: #9e82ff;
-  font-size: 12px;
+  font-size: .75rem;
   font-weight: 800;
   letter-spacing: .06em;
   text-align: left;
@@ -16726,17 +16726,17 @@ body.app-light #modeSelectOverlay .welcome-next-actions { color: #666a7e; }
   place-items: center;
   border-radius: 13px;
   background: rgba(121, 91, 255, .12);
-  font-size: 22px;
+  font-size: 1.375rem;
 }
 .organiser-access-club-copy { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .organiser-access-club-copy strong {
   overflow: hidden;
-  font-size: 15px;
+  font-size: .9375rem;
   line-height: 19px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.organiser-access-club-copy small { color: #9694aa; font-size: 12px; line-height: 16px; }
+.organiser-access-club-copy small { color: #9694aa; font-size: .75rem; line-height: 16px; }
 .organiser-access-radio {
   width: 20px;
   height: 20px;
@@ -16756,7 +16756,7 @@ body.app-light #modeSelectOverlay .welcome-next-actions { color: #666a7e; }
   background: linear-gradient(105deg, #5f38f4, #754eff);
   color: #fff;
   font: inherit;
-  font-size: 14px;
+  font-size: .875rem;
   font-weight: 750;
   box-shadow: 0 10px 24px rgba(87, 51, 232, .25);
   cursor: pointer;
@@ -17782,7 +17782,7 @@ display:inline-block;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 21px !important;
+  font-size: 1.3125rem !important;
   line-height: 1 !important;
 }
 .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-gender-img,
@@ -17799,7 +17799,7 @@ display:inline-block;
   justify-content: center !important;
   padding: 0 3px !important;
   border-radius: 10px !important;
-  font-size: 12px !important;
+  font-size: .75rem !important;
   line-height: 1 !important;
 }
 .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-player-content {
@@ -17814,7 +17814,7 @@ display:inline-block;
   width: 100% !important;
   min-width: 0 !important;
   margin: 0 !important;
-  font-size: 17px !important;
+  font-size: 1.0625rem !important;
   line-height: 1.12 !important;
   font-weight: 800 !important;
   letter-spacing: 0 !important;
@@ -17833,7 +17833,7 @@ display:inline-block;
   gap: 8px !important;
   padding: 0 !important;
   margin: 0 !important;
-  font-size: 14px !important;
+  font-size: .875rem !important;
   line-height: 1 !important;
   text-align: left !important;
 }
@@ -17842,7 +17842,7 @@ display:inline-block;
   height: 25px !important;
   padding: 0 8px !important;
   border-radius: 7px !important;
-  font-size: 14px !important;
+  font-size: .875rem !important;
   line-height: 1 !important;
   font-weight: 800 !important;
 }
@@ -17852,7 +17852,7 @@ display:inline-block;
   min-height: 25px !important;
   padding: 0 10px !important;
   border-radius: 8px !important;
-  font-size: 14px !important;
+  font-size: .875rem !important;
   line-height: 1 !important;
   font-weight: 600 !important;
 }
@@ -17860,16 +17860,16 @@ display:inline-block;
   height: 25px !important;
   min-height: 25px !important;
   gap: 4px !important;
-  font-size: 14px !important;
+  font-size: .875rem !important;
   line-height: 1 !important;
   font-weight: 700 !important;
 }
 .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-rating-star {
-  font-size: 20px !important;
+  font-size: 1.25rem !important;
   line-height: 1 !important;
 }
 .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-meta-separator {
-  font-size: 10px !important;
+  font-size: .625rem !important;
   line-height: 1 !important;
   opacity: .8 !important;
 }
@@ -17903,17 +17903,17 @@ display:inline-block;
     max-height: 23px !important;
   }
   .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-player-name {
-    font-size: 16px !important;
+    font-size: 1rem !important;
   }
   .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-player-meta {
     gap: 6px !important;
-    font-size: 13px !important;
+    font-size: .8125rem !important;
   }
   .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-probability-badge,
   .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-paid-badge,
   .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-unpaid-badge,
   .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-rating-badge {
-    font-size: 13px !important;
+    font-size: .8125rem !important;
   }
 }
 
@@ -17951,7 +17951,7 @@ display:inline-block;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 17px !important;
+  font-size: 1.0625rem !important;
   line-height: 1 !important;
 }
 .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-wait-num {
@@ -17960,7 +17960,7 @@ display:inline-block;
   justify-content: center !important;
   border-radius: 9px !important;
   padding: 0 2px !important;
-  font-size: 10px !important;
+  font-size: .625rem !important;
   line-height: 1 !important;
 }
 .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-avatar,
@@ -17992,7 +17992,7 @@ display:inline-block;
   width: 100% !important;
   min-width: 0 !important;
   margin: 0 !important;
-  font-size: 16px !important;
+  font-size: 1rem !important;
   line-height: 1.12 !important;
   font-weight: 750 !important;
   letter-spacing: 0 !important;
@@ -18022,7 +18022,7 @@ display:inline-block;
   min-height: 20px !important;
   padding: 0 6px !important;
   border-radius: 6px !important;
-  font-size: 11px !important;
+  font-size: .6875rem !important;
   line-height: 20px !important;
   font-weight: 800 !important;
   text-align: center !important;
@@ -18034,7 +18034,7 @@ display:inline-block;
   min-height: 21px !important;
   padding: 0 8px !important;
   border-radius: 7px !important;
-  font-size: 11px !important;
+  font-size: .6875rem !important;
   line-height: 21px !important;
   font-weight: 600 !important;
   white-space: nowrap !important;
@@ -18047,18 +18047,18 @@ display:inline-block;
   min-height: 21px !important;
   gap: 3px !important;
   padding: 0 !important;
-  font-size: 11px !important;
+  font-size: .6875rem !important;
   line-height: 21px !important;
   font-weight: 650 !important;
   white-space: nowrap !important;
 }
 .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-rating-star {
-  font-size: 15px !important;
+  font-size: .9375rem !important;
   line-height: 1 !important;
 }
 .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-meta-separator {
   flex: 0 0 auto !important;
-  font-size: 7px !important;
+  font-size: .4375rem !important;
   line-height: 1 !important;
   opacity: .62 !important;
 }
@@ -18097,7 +18097,7 @@ display:inline-block;
     max-height: 18px !important;
   }
   .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-player-name {
-    font-size: 15px !important;
+    font-size: .9375rem !important;
   }
   .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-player-meta {
     gap: 5px !important;
@@ -18107,7 +18107,7 @@ display:inline-block;
     height: 19px !important;
     min-height: 19px !important;
     padding: 0 5px !important;
-    font-size: 10px !important;
+    font-size: .625rem !important;
     line-height: 19px !important;
   }
   .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-paid-badge,
@@ -18115,11 +18115,11 @@ display:inline-block;
   .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-rating-badge {
     height: 20px !important;
     min-height: 20px !important;
-    font-size: 10px !important;
+    font-size: .625rem !important;
     line-height: 20px !important;
   }
   .mc-slot-list-section .mc-slot-player-row-two-line .mc-slot-rating-star {
-    font-size: 14px !important;
+    font-size: .875rem !important;
   }
 }
 
@@ -19980,32 +19980,32 @@ body.light-theme .org-rounds-tile .org-launch-mbm {
 
 /* Build 338 — enlarge welcome badminton mark and scs-app.com only. */
 #modeSelectOverlay .welcome-badminton-mark {
-  font-size: 58px;
+  font-size: 3.625rem;
   line-height: 1;
   margin-bottom: 7px;
 }
 #modeSelectOverlay .welcome-domain {
-  font-size: 20px;
+  font-size: 1.25rem;
   line-height: 24px;
   font-weight: 800;
   letter-spacing: .015em;
 }
 @media (max-width: 430px) {
   #modeSelectOverlay .welcome-badminton-mark {
-    font-size: 54px;
+    font-size: 3.375rem;
     margin-bottom: 6px;
   }
   #modeSelectOverlay .welcome-domain {
-    font-size: 18px;
+    font-size: 1.125rem;
     line-height: 22px;
   }
 }
 @media (max-height: 720px) {
   #modeSelectOverlay .welcome-badminton-mark {
-    font-size: 46px;
+    font-size: 2.875rem;
   }
   #modeSelectOverlay .welcome-domain {
-    font-size: 16px;
+    font-size: 1rem;
     line-height: 19px;
   }
 }
